@@ -1,7 +1,7 @@
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
 
-mod xterm;
+pub mod xterm;
 
 #[wasm_bindgen]
 pub fn foo(x: &str) -> String {
