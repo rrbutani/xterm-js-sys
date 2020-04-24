@@ -69,32 +69,49 @@ macro_rules! str_struct {
     (
         #[wasm_bindgen]
         $(#[$metas:meta])*
-        pub struct $nom:ty {
+        pub struct $nom:ident {
             $(
-                $(#[$metas_field:meta])*
-                $(pub $field:ident: $field_ty:ty,)?
-                $(str(js_name = $js_name:literal) $field_str:ident: Option<Str>,)?
-            )*
+                $(#[$metas_field:meta])+
+                $(str(js_name = $js_name:literal) $field_str:ident: Option<Str>)?
+                $(pub $field:ident: $field_ty:ty)?
+                ,
+            )+
         }
     ) => {
         #[wasm_bindgen]
         $(#[$metas])*
         pub struct $nom {
             $(
-                $(#[$metas_field])*
+                $(#[$metas_field])+
                 $(pub $field: $field_ty,)?
                 $($field_str: Option<Str>,)?
-            )*
+            )+
+        }
+
+        #[wasm_bindgen]
+        impl $nom {
+            $($(
+                #[wasm_bindgen(getter, js_name = $js_name)]
+                pub fn core::concat_idents!(get_, $field_str)(&self) -> Option<Str> {
+                    self.$field_str.clone()
+                }
+
+                #[wasm_bindgen(setter, js_name = $js_name)]
+                pub fn core::concat_idents!(set_, $field_str)(&mut self, $field_str: Option<Str>) {
+                    self.$field_str = $field_str;
+                }
+            )?)*
         }
     };
 }
 
+str_struct! {
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Theme {
     /// The default background color.
-    #[wasm_bindgen(js_name = "background")]
-    pub background: Option<Str>,
+    str(js_name = "background")
+    background: Option<Str>,
 
     /// ANSI black (eg. `\x1b[30m`).
     #[wasm_bindgen(js_name = "black")]
@@ -175,7 +192,7 @@ pub struct Theme {
     /// ANSI yellow (eg. `\x1b[33m`)
     #[wasm_bindgen(js_name = "yellow")]
     pub yellow: Option<Str>,
-}
+}}
 
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq)]
