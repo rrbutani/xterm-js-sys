@@ -1,5 +1,5 @@
 [package]
-name = "web-tui-example"
+name = "xterm-js-sys"
 version = "0.1.0"
 authors = ["Rahul Butani <rr.butani@gmail.com>"]
 edition = "2018"
