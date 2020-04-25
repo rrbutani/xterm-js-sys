@@ -891,26 +891,6 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
-    /// An event that can be listened to. Corresponds to `IEvent<void, void>`.
-    ///
-    /// (This is a [duck-typed interface]).
-    ///
-    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
-    pub type VoidEvent;
-}
-
-#[wasm_bindgen(module = "xterm")]
-extern "C" {
-    /// An event that can be listened to. Corresponds to `IEvent<string, void>`.
-    ///
-    /// (This is a [duck-typed interface]).
-    ///
-    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
-    pub type StringEvent;
-}
-
-#[wasm_bindgen(module = "xterm")]
-extern "C" {
     /// Corresponds to `{ key: string, domEvent: KeyboardEvent }`.
     ///
     /// (This is a [duck-typed interface]).
@@ -930,14 +910,6 @@ extern "C" {
     /// [`KeyboardEvent`]: web_sys::KeyboardEvent
     #[wasm_bindgen(structural, method, getter = domEvent)]
     pub fn dom_event(this: &KeyEventData) -> web_sys::KeyboardEvent;
-
-    /// An event that can be listened to. Corresponds to
-    /// `IEvent<{ key: string, domEvent: KeyboardEvent }, void>`.
-    ///
-    /// (This is a [duck-typed interface]).
-    ///
-    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
-    pub type KeyEvent;
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -981,13 +953,22 @@ extern "C" {
     (EXPERIMENTAL) Get all markers registered against the buffer. If the alt buffer is active this will always return [].
 */
 
-/*  [TODO]
-    onBinary
-    • onBinary: IEvent‹string›
-    Defined in xterm.d.ts:618
-    Adds an event listener for when a binary event fires. This is used to enable non UTF-8 conformant binary messages to be sent to the backend. Currently this is only used for a certain type of mouse reports that happen to be not UTF-8 compatible. The event value is a JS string, pass it to the underlying pty as binary data, e.g. pty.write(Buffer.from(data, 'binary')).
-    returns an IDisposable to stop listening.
-*/
+    /// Adds an event listener for when a binary event fires. This is used to
+    /// enable non UTF-8 conformant binary messages to be sent to the backend.
+    /// Currently this is only used for a certain type of mouse reports that
+    /// happen to be not UTF-8 compatible. The event value is a `String`, pass
+    /// it to the underlying pty as binary data, e.g.
+    /// `pty.write(Buffer.from(data, 'binary'))`.
+    ///
+    /// Returns an [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_binary_event_listener`] (if the `ext` feature is enabled)
+    /// for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_binary_event_listener`]: Terminal::attach_binary_event_listener
+    #[wasm_bindgen(method, js_name = onBinary)]
+    pub fn on_binary(this: &Terminal, listener: &Closure<dyn FnMut(String)>) -> Disposable;
 
 /*  [TODO]
     onCursorMove
@@ -1005,13 +986,20 @@ extern "C" {
     returns an IDisposable to stop listening.
 */
 
-/* [TODO]
-    onKey
-    • onKey: IEvent‹object›
-    Defined in xterm.d.ts:641
-    Adds an event listener for when a key is pressed. The event value contains the string that will be sent in the data event as well as the DOM event that triggered it.
-    returns an IDisposable to stop listening.
-*/
+    /// Adds an event listener for when a key is pressed. The event value
+    /// ([`KeyEventData`]) contains the string that will be sent in the data
+    /// event as well as the DOM event that triggered it.
+    ///
+    /// Returns an [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_key_event_listener`] (if the `ext` feature is enabled)
+    /// for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`KeyEventData`]: KeyEventData
+    #[wasm_bindgen(method, js_name = onKey)]
+    pub fn on_key(this: &Terminal, listener: &Closure<dyn FnMut(KeyEventData)>) -> Disposable;
+
 
 /* [TODO]
     onLineFeed
@@ -1484,16 +1472,40 @@ extern "C" {
     Returns: void
 */
 
-    // write
-    // ▸ write(data: string    Uint8Array, callback?: function): void
-    // Write data to the terminal.
-    // Parameters:
-    // ▪ data: *string     Uint8Array*
-    // The data to write to the terminal. This can either be raw bytes given as Uint8Array from the pty or a string. Raw bytes will always be treated as UTF-8 encoded, string data as UTF-16.
-    // ▪Optional callback: function
-    // Optional callback that fires when the data was processed by the parser.
-    // ▸ (): void
-    // Returns: void
+    // `Option<&Closure<dyn FnMut()>>` can't be passed to JS functions, so we
+    // have a version of write with the callback and one without it.
+
+    /// Writes data to the terminal.
+    ///
+    /// Takes:
+    ///   - `data`: The data to write to the terminal. The actual API allows for
+    ///             this to be either raw bytes given as `Uint8Array` from the
+    ///             pty or a string (raw bytes will always be treated as UTF-8
+    ///             encoded, string data as UTF-16). For simplicity, we just
+    ///             take a `String`; this shouldn't cause problems (going from
+    ///             UTF-8 encoded Rust `String`s to UTF-16 JS strings) and just
+    ///             makes things simpler.
+    #[wasm_bindgen(method, js_name = write)]
+    pub fn write(this: &Terminal, data: String);
+
+    /// Writes data to the terminal and takes a callback.
+    ///
+    /// This identical to [`write`] except it also takes a callback.
+    ///
+    /// Takes:
+    ///   - `data`:    The data to write to the terminal. The actual API allows
+    ///                for this to be either raw bytes given as `Uint8Array`
+    ///                from the pty or a string (raw bytes will always be
+    ///                treated as UTF-8 encoded, string data as UTF-16). For
+    ///                simplicity, we just take a `String`; this shouldn't cause
+    ///                problems (going from UTF-8 encoded Rust `String`s to
+    ///                UTF-16 JS strings) and just makes things simpler.
+    ///  - `callback`: Callback that fires when the data was processed by the
+    ///                parser.
+    ///
+    /// [`write`]: Terminal::write
+    #[wasm_bindgen(method, js_name = write)]
+    pub fn write_with_callback(this: &Terminal, data: String, callback: &Closure<dyn FnMut()>);
 
 /*  [TODO]
     writeUtf8
