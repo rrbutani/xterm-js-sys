@@ -616,6 +616,266 @@ pub struct TerminalOptions {
     word_separator: Option<Str>,
 }}
 
+
+/// Can represent:
+///   - the Default color (0),
+///   - a Palette number (0 to 255, inclusive).
+///   - or, an RGB 'true color' (24 bits, 0xRRGGBB).
+pub type Color = u32;
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Represents a single cell in the terminal’s buffer.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    pub type BufferCell;
+
+    /// Gets a cell’s background color number, this differs depending on what
+    /// the color mode of the cell is:
+    ///   - Default: This should be 0, representing the default background color
+    ///     (CSI 49 m).
+    ///   - Palette: This is a number from 0 to 255 of ANSI colors (CSI 4(0-7)
+    ///     m, CSI 10(0-7) m, CSI 48 ; 5 ; 0-255 m).
+    ///   - RGB: A hex value representing a ‘true color’: 0xRRGGBB (CSI 4 8 ; 2
+    ///     ; Pi ; Pr ; Pg ; Pb)
+    #[wasm_bindgen(structural, method, js_name = getBgColor)]
+    pub fn get_bg_color(this: &BufferCell) -> Color;
+
+    /// Gets the number representation of the background color mode, this can be
+    /// used to perform quick comparisons of 2 cells to see if they’re the same.
+    /// Use [`is_bg_rgb`], [`is_bg_palette`], and [`is_bg_default`] to check
+    /// what color mode a cell is.
+    ///
+    /// [`is_bg_rgb`]: BufferCell::is_bg_rgb
+    /// [`is_bg_palette`]: BufferCell::is_bg_palette
+    /// [`is_bg_default`]: BufferCell::is_bg_default
+    #[wasm_bindgen(structural, method, js_name = getBgColorMode)]
+    pub fn getBgColorMode(this: &BufferCell) -> u8;
+
+    /// The character(s) within the cell. Examples of what this can contain:
+    ///   - A normal width character
+    ///   - A wide character (eg. CJK)
+    ///   - An emoji
+    #[wasm_bindgen(structural, method, js_name = getChars)]
+    pub fn get_chars(this: &BufferCell) -> String;
+
+
+    /// Gets the UTF32 codepoint of single characters, if content is a combined
+    /// string it returns the codepoint of the last character in the string.
+    #[wasm_bindgen(structural, method, js_name = getCode)]
+    pub fn get_code(this: &BufferCell) -> u32;
+
+
+    /// Gets a cell’s foreground color number, this differs depending on what
+    /// the color mode of the cell is:
+    ///   - Default: This should be 0, representing the default foreground color
+    ///     (CSI 39 m).
+    ///   - Palette: This is a number from 0 to 255 of ANSI colors (CSI 3(0-7)
+    ///     m, CSI 9(0-7) m, CSI 38 ; 5 ; 0-255 m).
+    ///   - RGB: A hex value representing a ‘true color’: 0xRRGGBB. (CSI 3 8 ; 2
+    ///     ; Pi ; Pr ; Pg ; Pb)
+    #[wasm_bindgen(structural, method, js_name = getFgColor)]
+    pub fn get_fg_color(this: &BufferCell) -> Color;
+
+    /// Gets the number representation of the foreground color mode, this can be
+    /// used to perform quick comparisons of 2 cells to see if they’re the same.
+    /// Use [`is_fg_rgb`], [`is_fg_palette`], and [`is_fg_default`] to check
+    /// what color mode a cell is.
+    ///
+    /// [`is_fg_rgb`]: BufferCell::is_fg_rgb
+    /// [`is_fg_palette`]: BufferCell::is_fg_palette
+    /// [`is_fg_default`]: BufferCell::is_fg_default
+    #[wasm_bindgen(structural, method, js_name = getFgColorMode)]
+    pub fn get_fg_color_mode(this: &BufferCell) -> u8;
+
+    /// The width of the character. Some examples:
+    ///   - `1` for most cells.
+    ///   - `2` for wide character like CJK glyphs.
+    ///   - `0` for cells immediately following cells with a width of `2`.
+    #[wasm_bindgen(structural, method, js_name = getWidth)]
+    pub fn get_width(this: &BufferCell) -> u8;
+
+    /// Whether the cell has the default attribute (no color or style).
+    #[wasm_bindgen(structural, method, js_name = isAttributeDefault)]
+    pub fn is_attribute_default(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the default background color mode.
+    #[wasm_bindgen(structural, method, js_name = isBgDefault)]
+    pub fn is_bg_default(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the palette background color mode.
+    #[wasm_bindgen(structural, method, js_name = isBgPalette)]
+    pub fn is_bg_palette(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the RGB background color mode.
+    #[wasm_bindgen(structural, method, js_name = isBgRGB)]
+    pub fn is_bg_rgb(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the inverse attribute (CSI 5 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isBlink)]
+    pub fn is_blink(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the bold attribute (CSI 1 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isBold)]
+    pub fn is_bold(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the inverse attribute (CSI 2 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isDim)]
+    pub fn is_dim(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the default foreground color mode.
+    #[wasm_bindgen(structural, method, js_name = isFgDefault)]
+    pub fn is_fg_default(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the palette foreground color mode.
+    #[wasm_bindgen(structural, method, js_name = isFgPalette)]
+    pub fn is_fg_palette(this: &BufferCell) -> bool;
+
+    /// Whether the cell is using the RGB foreground color mode.
+    #[wasm_bindgen(structural, method, js_name = isFgRGB)]
+    pub fn is_fg_rgb(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the inverse attribute (CSI 7 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isInverse)]
+    pub fn is_inverse(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the inverse attribute (CSI 8 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isInvisible)]
+    pub fn is_invisible(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the inverse attribute (CSI 3 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isItalic)]
+    pub fn is_italic(this: &BufferCell) -> bool;
+
+    /// Whether the cell has the underline attribute (CSI 4 m).
+    // Note: returns a number in the original API.
+    #[wasm_bindgen(structural, method, js_name = isUnderline)]
+    pub fn is_underline(this: &BufferCell) -> bool;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Represents a line in the terminal’s buffer.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    pub type BufferLine;
+
+    /// Whether the line is wrapped from the previous line.
+    #[wasm_bindgen(structural, method, getter = isWrapped)]
+    pub fn is_wrapped(this: &BufferLine) -> bool;
+
+    /// The length of the line.
+    ///
+    /// All calls to [`BufferLine::get_cell`] beyond the length will result in
+    /// `None`.
+    ///
+    /// [`BufferLine::get_cell`]: BufferLine::get_cell
+    #[wasm_bindgen(structural, method, getter = length)]
+    pub fn length(this: &BufferLine) -> u16;
+
+    /// Gets a cell from the line, or `None` if the line index does not
+    /// exist.
+    ///
+    /// Note that the result of this function should be used immediately after
+    /// calling as when the terminal updates it could lead to unexpected
+    /// behavior.
+    ///
+    /// Takes:
+    ///   - `x`:    The character index to get.
+    ///   - `cell`: Optional cell object to load data into for performance
+    ///             reasons. This is mainly useful when every cell in the buffer
+    ///             is being looped over to avoid creating new objects for every
+    ///             cell.
+    #[wasm_bindgen(structural, method, js_name = getCell)]
+    pub fn get_cell(this: &BufferLine, cell: Option<BufferCell>) -> Option<BufferCell>;
+
+    /// Gets the line as a string. Note that this is gets only the string for
+    /// the line, not taking [`BufferLine::is_wrapped`] into account.
+    ///
+    /// Takes:
+    ///   - `trim_right`:   Whether to trim any whitespace at the right of the
+    ///                     line.
+    ///   - `start_column`: The column to start from (inclusive).
+    ///   - `end_column`:   The column to end at (exclusive).
+    ///
+    /// [`BufferLine::is_wrapped`]: BufferLine::is_wrapped
+    #[wasm_bindgen(structural, method, js_name = translateToString)]
+    pub fn translate_to_string(
+        this: &BufferLine,
+        trim_right: Option<bool>,
+        start_column: Option<u16>,
+        end_column: Option<u16>
+    ) -> String;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Represents a terminal buffer.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    pub type Buffer;
+
+    /// Gets the line within the buffer where the top of the bottom page is
+    /// (when fully scrolled down).
+    #[wasm_bindgen(structural, method, getter = baseY)]
+    pub fn base_y(this: &Buffer) -> u16;
+
+    /// Gets the x position of the cursor. This ranges between 0 (left side) and
+    /// [`Terminal::cols()`] - 1 (right side).
+    ///
+    /// [`Terminal::cols()`]: Terminal::cols
+    #[wasm_bindgen(structural, method, getter = cursorX)]
+    pub fn cursor_x(this: &Buffer) -> u16;
+
+    /// Gets the y position of the cursor. This ranges between 0 (when the
+    /// cursor is at `Buffer::base_y()`) and [`Terminal::rows()`] - 1 (when the
+    /// cursor is on the last row).
+    ///
+    /// [`Buffer::base_y()`]: Buffer::base_y
+    /// [`Terminal::rows()`]: Terminal::rows
+    #[wasm_bindgen(structural, method, getter = cursorY)]
+    pub fn cursor_y(this: &Buffer) -> u16;
+
+    /// Gets the amount of lines in the buffer.
+    #[wasm_bindgen(structural, method, getter = length)]
+    pub fn length(this: &Buffer) -> u16;
+
+    /// Get the line within the buffer where the top of the viewport is.
+    #[wasm_bindgen(structural, method, getter = viewportY)]
+    pub fn viewport_y(this: &Buffer) -> u16;
+
+    /// Gets a line from the buffer, or undefined if the line index does not
+    /// exist.
+    ///
+    /// Note that the result of this function should be used immediately after
+    /// calling as when the terminal updates it could lead to unexpected
+    /// behavior.
+    ///
+    /// Takes `y`: the line index to get.
+    #[wasm_bindgen(structural, method, js_name = getLine)]
+    pub fn get_line(this: &Buffer, y: u16) -> Option<BufferLine>;
+
+    /// Creates an empty cell object suitable as a cell reference in
+    /// [`BufferLine::get_cell`]. Use this to avoid costly recreation of cell
+    /// objects when dealing with tons of cells.
+    ///
+    /// [`BufferLine::get_cell`]: BufferLine::get_cell
+    #[wasm_bindgen(structural, method, js_name = getNullCell)]
+    pub fn get_null_cell(this: &Buffer) -> BufferCell;
+}
+
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
     /// The class that represents an xterm.js terminal.

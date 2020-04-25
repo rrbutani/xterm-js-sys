@@ -1,6 +1,6 @@
 [package]
 name = "xterm-js-sys"
-version = "0.1.0"
+version = "4.5.0-alpha0"
 authors = ["Rahul Butani <rr.butani@gmail.com>"]
 edition = "2018"
 
