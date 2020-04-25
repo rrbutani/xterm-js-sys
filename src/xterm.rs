@@ -629,7 +629,7 @@ extern "C" {
     ///
     /// (This is a [duck-typed interface]).
     ///
-    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
     pub type BufferCell;
 
     /// Gets a cell’s background color number, this differs depending on what
@@ -767,7 +767,7 @@ extern "C" {
     ///
     /// (This is a [duck-typed interface]).
     ///
-    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
     pub type BufferLine;
 
     /// Whether the line is wrapped from the previous line.
@@ -824,7 +824,7 @@ extern "C" {
     ///
     /// (This is a [duck-typed interface]).
     ///
-    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
     pub type Buffer;
 
     /// Gets the line within the buffer where the top of the bottom page is
@@ -882,11 +882,62 @@ extern "C" {
     ///
     /// (This is a [duck-typed interface]).
     ///
-    /// [duck-typed interface](https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html)
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
     pub type Disposable;
 
     #[wasm_bindgen(structural, method, js_name = dispose)]
     pub fn dispose(this: &Disposable);
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// An event that can be listened to. Corresponds to `IEvent<void, void>`.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    pub type VoidEvent;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// An event that can be listened to. Corresponds to `IEvent<string, void>`.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    pub type StringEvent;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Corresponds to `{ key: string, domEvent: KeyboardEvent }`.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    pub type KeyEventData;
+
+    /// Gets the `String` representing this key event that will be sent to
+    /// [`Terminal::onData`].
+    ///
+    /// [`Terminal::onData`]: Terminal::onData
+    #[wasm_bindgen(structural, method, getter = key)]
+    pub fn key(this: &KeyEventData) -> String;
+
+    /// Gets the actual DOM Event ([`KeyboardEvent`]) that triggered the event.
+    ///
+    /// [`KeyboardEvent`]: web_sys::KeyboardEvent
+    #[wasm_bindgen(structural, method, getter = domEvent)]
+    pub fn dom_event(this: &KeyEventData) -> web_sys::KeyboardEvent;
+
+    /// An event that can be listened to. Corresponds to
+    /// `IEvent<{ key: string, domEvent: KeyboardEvent }, void>`.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    pub type KeyEvent;
 }
 
 #[wasm_bindgen(module = "xterm")]

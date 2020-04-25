@@ -6,3 +6,6 @@ use wasm_bindgen::prelude::*;
 
 pub mod disposable;
 pub use disposable::*;
+
+pub mod event;
+pub use event::*;

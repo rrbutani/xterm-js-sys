@@ -19,6 +19,7 @@ version = "0.3.37"
 features = [
     # "HtmlElement",
     "Element",
+    "KeyboardEvent",
 ]
 
 
