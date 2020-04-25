@@ -3,4 +3,6 @@
 extern crate wasm_bindgen;
 
 pub mod xterm;
+
+#[cfg(feature = "ext")]
 pub mod ext;

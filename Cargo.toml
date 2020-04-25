@@ -28,5 +28,6 @@ lto = true
 
 
 [features]
-default = []
+default = ["ext"]
 tui-backend = ["crossterm", "tui"]
+ext = []
