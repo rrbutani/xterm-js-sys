@@ -921,7 +921,7 @@ extern "C" {
 
     /// The element containing the terminal.
     #[wasm_bindgen(method, getter = element)]
-    pub fn element(this: &Terminal) -> Option<web_sys::HtmlElement>;
+    pub fn element(this: &Terminal) -> Option<web_sys::Element>;
 
 /*  [TODO]
     markers
@@ -1189,7 +1189,7 @@ extern "C" {
     ///             DOM-based measurements need to be performed when this
     ///             function is called.
     #[wasm_bindgen(method, js_name = "open")]
-    pub fn open(this: &Terminal, parent: web_sys::HtmlElement);
+    pub fn open(this: &Terminal, parent: web_sys::Element);
 
 /*  [TODO]
     paste
