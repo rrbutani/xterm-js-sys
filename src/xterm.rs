@@ -3,6 +3,40 @@
 //! Unfortunately we can't (yet) generate the below from the TypeScript type
 //! definitions for Xterm.js, so we do it by hand.
 //!
+//! This isn't a pure mechanical translation of the Xterm.js bindings; docs have
+//! been adjusted in places (mainly just to link to the right things on the Rust
+//! side) but most importantly interfaces have been converted to either concrete
+//! Rust types (that are accessible from JavaScript), imported types (duck types
+//! that won't correspond exactly to any concrete type on the JavaScript side
+//! and thus can't be _constructed_ from Rust), or imported types + a concrete
+//! type that satisfies the interface with a Rust trait with methods that can
+//! construct the concrete type for anything satisfying the trait.
+//!
+//! Generic interfaces are also problematic; these have been "manually
+//! monomorphized" (i.e. `IEvent<Object, Void>` → `KeyEventListener` on the
+//! Rust side).
+//!
+//! In general, the rule used for interfaces has been:
+//!   - If instances are constructed by users of the Xterm.js API and _written_
+//!     (i.e. _given_ to the Xterm.js API and never _received_ through a field
+//!     access or a method call), we have a corresponding _concrete type_ that
+//!     satisfies the interface. This cannot be used to manipulate/interact with
+//!     externally constructed instances of the interface.
+//!   - If instances are given by Xterm.js API and never constructed by users of
+//!     the API (i.e. `IBuffer` or `IBufferLine`), an externed JavaScript type
+//!     is made (or rather, we get `wasm-bindgen` to make the necessary glue so
+//!     we can access the fields/methods of the interface on whatever object we
+//!     get passed that has said fields/methods).
+//!   - If we need to both consume and produce implementations of an interface
+//!     we do both of the above.
+//!   - If we need to be able to have more than one true concrete type
+//!     satisfying the interface on the Rust side, we also create a Rust trait
+//!     that matches the shape of the interface along with an `Into` impl that
+//!     makes an instance of the concrete type (which is basically type erased)
+//!     from implementations of the trait. This is useful when there's some
+//!     generality involved (i.e. a interface requires a field that's a function
+//!     that takes `U` and returns `V`).
+//!
 //! See: [this](https://github.com/rustwasm/wasm-bindgen/issues/18) and
 //! [this](https://github.com/rustwasm/wasm-bindgen/issues/1341).
 
@@ -120,6 +154,9 @@ wasm_struct! {
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 /// Contains colors to theme the terminal with.
+///
+/// (This is really an interface, but we just go and define our own type that
+/// satisfies the interface.)
 pub struct Theme {
     /// The default background color.
     |clone(set = set_background, js_name = background)
@@ -234,6 +271,9 @@ wasm_struct! {
 /// possibly leaking sensitive data of the host to the program in the terminal.
 /// Therefore all options (even those without a default implementation) are
 /// guarded by the boolean flag and disabled by default.
+///
+/// (This is really an interface, but we just go and define our own type that
+/// satisfies the interface.)
 pub struct WindowOptions {
     /// Ps=10 ; 0 Undo full-screen mode. Ps=10 ; 1 Change to full-screen. Ps=10
     /// ; 2 Toggle full-screen.
@@ -390,6 +430,9 @@ wasm_struct! {
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Default)]
 /// An object containing start up options for the terminal.
+///
+/// (This is really an interface, but we just go and define our own type that
+/// satisfies the interface.)
 pub struct TerminalOptions {
     /// Whether background should support non-opaque color. It must be set
     /// before executing the [`Terminal::open`] method and can’t be changed
