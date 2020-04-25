@@ -7,30 +7,21 @@ use wasm_bindgen::{JsValue, JsCast};
 
 use js_sys::{Object, Function};
 
-// #[wasm_bindgen]
-// pub struct DisposableInstance {
-//     inner: Box<dyn Drop>,
-// }
+pub struct DisposableWrapper {
+    inner: Disposable,
+}
 
-// #[wasm_bindgen]
-// impl DisposableInstance {
-//     pub fn dispose(&mut self) {
-//         self.inner.drop()
-//     }
-// }
+impl From<Disposable> for DisposableWrapper {
+    fn from(inner: Disposable) -> Self {
+        Self { inner }
+    }
+}
 
-// // Unfortunately we can't do this:
-// impl<D: AsMut<Disposable>> Drop for D {
-//     fn drop(&mut self) {
-//         self.as_mut().dispose()
-//     }
-// }
-
-// impl Drop for Disposable {
-//     fn drop(&mut self) {
-//         self.dispose();
-//     }
-// }
+impl Drop for DisposableWrapper {
+    fn drop(&mut self) {
+        self.inner.dispose()
+    }
+}
 
 #[wasm_bindgen]
 pub struct NoOpDispose {
