@@ -1,0 +1,21 @@
+{
+  "name": "xterm-js-sys-demo",
+  "version": "0.0.0",
+  "main": "index.js",
+  "author": "Rahul Butani <rr.butani@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "watch": "parcel index.html",
+    "release": "WASM_PACK_PROFILE=release parcel build index.html"
+  },
+  "dependencies": {
+    "xterm": "^4.5.0",
+    "xterm-addon-web-links": "^0.3.0",
+    "xterm-addon-fit": "^0.3.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-wasm.rs": "^1.2.15",
+    "typescript": "^3.8.3"
+  }
+}
