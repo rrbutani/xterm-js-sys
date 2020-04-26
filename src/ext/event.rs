@@ -3,7 +3,7 @@
 //! [`Disposable`]: crate::xterm::Disposable
 
 use super::DisposableWrapper;
-use crate::xterm::{Terminal, KeyEventData};
+use crate::xterm::{KeyEventData, Terminal};
 
 use wasm_bindgen::prelude::*;
 

@@ -71,16 +71,16 @@ pub enum FastScrollModifier {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A string representing text font weight.
 pub enum FontWeight {
-   Bold = "bold",
-   _100 = "100",
-   _200 = "200",
-   _300 = "300",
-   _400 = "400",
-   _500 = "500",
-   _600 = "600",
-   _700 = "700",
-   _800 = "800",
-   _900 = "900",
+    Bold = "bold",
+    _100 = "100",
+    _200 = "200",
+    _300 = "300",
+    _400 = "400",
+    _500 = "500",
+    _600 = "600",
+    _700 = "700",
+    _800 = "800",
+    _900 = "900",
 }
 
 #[wasm_bindgen]
@@ -616,7 +616,6 @@ pub struct TerminalOptions {
     word_separator: Option<Str>,
 }}
 
-
 /// Can represent:
 ///   - the Default color (0),
 ///   - a Palette number (0 to 255, inclusive).
@@ -661,12 +660,10 @@ extern "C" {
     #[wasm_bindgen(structural, method, js_name = getChars)]
     pub fn get_chars(this: &BufferCell) -> String;
 
-
     /// Gets the UTF32 codepoint of single characters, if content is a combined
     /// string it returns the codepoint of the last character in the string.
     #[wasm_bindgen(structural, method, js_name = getCode)]
     pub fn get_code(this: &BufferCell) -> u32;
-
 
     /// Gets a cell’s foreground color number, this differs depending on what
     /// the color mode of the cell is:
@@ -814,7 +811,7 @@ extern "C" {
         this: &BufferLine,
         trim_right: Option<bool>,
         start_column: Option<u16>,
-        end_column: Option<u16>
+        end_column: Option<u16>,
     ) -> String;
 }
 
@@ -950,12 +947,12 @@ extern "C" {
     #[wasm_bindgen(method, getter = element)]
     pub fn element(this: &Terminal) -> Option<web_sys::Element>;
 
-/*  [TODO]
-    markers
-    • markers: ReadonlyArray‹IMarker›
-    Defined in xterm.d.ts:583
-    (EXPERIMENTAL) Get all markers registered against the buffer. If the alt buffer is active this will always return [].
-*/
+    /*  [TODO]
+        markers
+        • markers: ReadonlyArray‹IMarker›
+        Defined in xterm.d.ts:583
+        (EXPERIMENTAL) Get all markers registered against the buffer. If the alt buffer is active this will always return [].
+    */
 
     /// Adds an event listener for when a binary event fires. This is used to
     /// enable non UTF-8 conformant binary messages to be sent to the backend.
@@ -986,21 +983,19 @@ extern "C" {
     #[wasm_bindgen(method, js_name = onCursorMove)]
     pub fn on_cursor_mode(this: &Terminal, listener: &Closure<dyn FnMut()>) -> Disposable;
 
-  // [TODO]
-  //   onCursorMove
-  //   • onCursorMove: IEvent‹void›
-  //   Defined in xterm.d.ts:624
-  //
-  //   returns an IDisposable to stop listening.
+    // [TODO]
+    //   onCursorMove
+    //   • onCursorMove: IEvent‹void›
+    //   Defined in xterm.d.ts:624
+    //
+    //   returns an IDisposable to stop listening.
 
-
- // [TODO]
- //    onData
- //    • onData: IEvent‹string›
- //    Defined in xterm.d.ts:633
- //    Adds an event listener for when a data event fires. This happens for example when the user types or pastes into the terminal. The event value is whatever string results, in a typical setup, this should be passed on to the backing pty.
- //    returns an IDisposable to stop listening.
-
+    // [TODO]
+    //    onData
+    //    • onData: IEvent‹string›
+    //    Defined in xterm.d.ts:633
+    //    Adds an event listener for when a data event fires. This happens for example when the user types or pastes into the terminal. The event value is whatever string results, in a typical setup, this should be passed on to the backing pty.
+    //    returns an IDisposable to stop listening.
 
     /// Adds an event listener for when a key is pressed. The event value
     /// ([`KeyEventData`]) contains the string that will be sent in the data
@@ -1017,222 +1012,208 @@ extern "C" {
     #[wasm_bindgen(method, js_name = onKey)]
     pub fn on_key(this: &Terminal, listener: &Closure<dyn FnMut(KeyEventData)>) -> Disposable;
 
+    // [TODO]
+    //    onLineFeed
+    //    • onLineFeed: IEvent‹void›
+    //    Defined in xterm.d.ts:647
+    //    Adds an event listener for when a line feed is added.
+    //    returns an IDisposable to stop listening.
 
- // [TODO]
- //    onLineFeed
- //    • onLineFeed: IEvent‹void›
- //    Defined in xterm.d.ts:647
- //    Adds an event listener for when a line feed is added.
- //    returns an IDisposable to stop listening.
+    // [TODO]
+    //    onRender
+    //    • onRender: IEvent‹object›
+    //    Defined in xterm.d.ts:668
+    //    Adds an event listener for when rows are rendered. The event value contains the start row and end rows of the rendered area (ranges from 0 to Terminal.rows - 1).
+    //    returns an IDisposable to stop listening.
 
+    // [TODO]
+    //    onResize
+    //    • onResize: IEvent‹object›
+    //    Defined in xterm.d.ts:675
+    //    Adds an event listener for when the terminal is resized. The event value contains the new size.
+    //    returns an IDisposable to stop listening.
 
- // [TODO]
- //    onRender
- //    • onRender: IEvent‹object›
- //    Defined in xterm.d.ts:668
- //    Adds an event listener for when rows are rendered. The event value contains the start row and end rows of the rendered area (ranges from 0 to Terminal.rows - 1).
- //    returns an IDisposable to stop listening.
+    // [TODO]
+    //    onScroll
+    //    • onScroll: IEvent‹number›
+    //    Defined in xterm.d.ts:654
+    //    Adds an event listener for when a scroll occurs. The event value is the new position of the viewport.
+    //    returns an IDisposable to stop listening.
 
+    // [TODO]
+    //   onSelectionChange
+    //   • onSelectionChange: IEvent‹void›
+    //   Defined in xterm.d.ts:660
+    //   Adds an event listener for when a selection change occurs.
+    //   returns an IDisposable to stop listening.
 
- // [TODO]
- //    onResize
- //    • onResize: IEvent‹object›
- //    Defined in xterm.d.ts:675
- //    Adds an event listener for when the terminal is resized. The event value contains the new size.
- //    returns an IDisposable to stop listening.
+    // [TODO]
+    //   onTitleChange
+    //   • onTitleChange: IEvent‹string›
+    //   Defined in xterm.d.ts:682
+    //   Adds an event listener for when an OSC 0 or OSC 2 title change occurs. The event value is the new title.
+    //   returns an IDisposable to stop listening.
 
+    /*  [TODO]
+        parser
+        • parser: IParser
+        Defined in xterm.d.ts:589
+        (EXPERIMENTAL) Get the parser interface to register custom escape sequence handlers.
+    */
 
- // [TODO]
- //    onScroll
- //    • onScroll: IEvent‹number›
- //    Defined in xterm.d.ts:654
- //    Adds an event listener for when a scroll occurs. The event value is the new position of the viewport.
- //    returns an IDisposable to stop listening.
+    // [TODO]
+    //   rows
+    //   • rows: number
+    //   Defined in xterm.d.ts:563
+    //   The number of rows in the terminal’s viewport. Use ITerminalOptions.rows to set this in the constructor and Terminal.resize for when the terminal exists.
 
+    // [TODO]
+    //   textarea
+    //   • textarea: *HTMLTextAreaElement    undefined*
+    //   Defined in xterm.d.ts:556
+    //   The textarea that accepts input for the terminal.
 
-  // [TODO]
-  //   onSelectionChange
-  //   • onSelectionChange: IEvent‹void›
-  //   Defined in xterm.d.ts:660
-  //   Adds an event listener for when a selection change occurs.
-  //   returns an IDisposable to stop listening.
+    /*  [TODO]
+        unicode
+        • unicode: IUnicodeHandling
+        Defined in xterm.d.ts:595
+        (EXPERIMENTAL) Get the Unicode handling interface to register and switch Unicode version.
+    */
 
-
-  // [TODO]
-  //   onTitleChange
-  //   • onTitleChange: IEvent‹string›
-  //   Defined in xterm.d.ts:682
-  //   Adds an event listener for when an OSC 0 or OSC 2 title change occurs. The event value is the new title.
-  //   returns an IDisposable to stop listening.
-
-
-/*  [TODO]
-    parser
-    • parser: IParser
-    Defined in xterm.d.ts:589
-    (EXPERIMENTAL) Get the parser interface to register custom escape sequence handlers.
-*/
-
-  // [TODO]
-  //   rows
-  //   • rows: number
-  //   Defined in xterm.d.ts:563
-  //   The number of rows in the terminal’s viewport. Use ITerminalOptions.rows to set this in the constructor and Terminal.resize for when the terminal exists.
-
-
-  // [TODO]
-  //   textarea
-  //   • textarea: *HTMLTextAreaElement    undefined*
-  //   Defined in xterm.d.ts:556
-  //   The textarea that accepts input for the terminal.
-
-
-/*  [TODO]
-    unicode
-    • unicode: IUnicodeHandling
-    Defined in xterm.d.ts:595
-    (EXPERIMENTAL) Get the Unicode handling interface to register and switch Unicode version.
-*/
-
-/*  [TODO]
-    Static strings
-    ▪ strings: ILocalizableStrings
-    Defined in xterm.d.ts:600
-    Natural language strings that can be localized.
-*/
+    /*  [TODO]
+        Static strings
+        ▪ strings: ILocalizableStrings
+        Defined in xterm.d.ts:600
+        Natural language strings that can be localized.
+    */
 
     ///////////////////////////////  Methods  ///////////////////////////////
 
-/*  [TODO]
-    addMarker
-    ▸ addMarker(cursorYOffset: number): IMarker
-    deprecated use registerMarker instead.
-    Parameters:
-    Name    Type
-    cursorYOffset   number
-    Returns: IMarker
-*/
+    /*  [TODO]
+        addMarker
+        ▸ addMarker(cursorYOffset: number): IMarker
+        deprecated use registerMarker instead.
+        Parameters:
+        Name    Type
+        cursorYOffset   number
+        Returns: IMarker
+    */
 
-/*  [TODO]
-    attachCustomKeyEventHandler
-    ▸ attachCustomKeyEventHandler(customKeyEventHandler: function): void
-    Attaches a custom key event handler which is run before keys are processed, giving consumers of xterm.js ultimate control as to what keys should be processed by the terminal and what keys should not.
-    Parameters:
-    ▪ customKeyEventHandler: function
-    The custom KeyboardEvent handler to attach. This is a function that takes a KeyboardEvent, allowing consumers to stop propagation and/or prevent the default action. The function returns whether the event should be processed by xterm.js.
-    ▸ (event: KeyboardEvent): boolean
-    Parameters:
-    Name    Type
-    event   KeyboardEvent
-    Returns: void
-*/
+    /*  [TODO]
+        attachCustomKeyEventHandler
+        ▸ attachCustomKeyEventHandler(customKeyEventHandler: function): void
+        Attaches a custom key event handler which is run before keys are processed, giving consumers of xterm.js ultimate control as to what keys should be processed by the terminal and what keys should not.
+        Parameters:
+        ▪ customKeyEventHandler: function
+        The custom KeyboardEvent handler to attach. This is a function that takes a KeyboardEvent, allowing consumers to stop propagation and/or prevent the default action. The function returns whether the event should be processed by xterm.js.
+        ▸ (event: KeyboardEvent): boolean
+        Parameters:
+        Name    Type
+        event   KeyboardEvent
+        Returns: void
+    */
 
-  // [TODO]
-  //   blur
-  //   ▸ blur(): void
-  //   Unfocus the terminal.
-  //   Returns: void
+    // [TODO]
+    //   blur
+    //   ▸ blur(): void
+    //   Unfocus the terminal.
+    //   Returns: void
 
+    // [TODO]
+    //   clear
+    //   ▸ clear(): void
+    //   Clear the entire buffer, making the prompt line the new first line.
+    //   Returns: void
 
-  // [TODO]
-  //   clear
-  //   ▸ clear(): void
-  //   Clear the entire buffer, making the prompt line the new first line.
-  //   Returns: void
+    // [TODO]
+    //   clearSelection
+    //   ▸ clearSelection(): void
+    //   Clears the current terminal selection.
+    //   Returns: void
 
+    /*  [TODO]
+        deregisterCharacterJoiner
+        ▸ deregisterCharacterJoiner(joinerId: number): void
+        (EXPERIMENTAL) Deregisters the character joiner if one was registered. NOTE: character joiners are only used by the canvas renderer.
+        Parameters:
+        Name    Type    Description
+        joinerId    number  The character joiner’s ID (returned after register)
+        Returns: void
+    */
 
-  // [TODO]
-  //   clearSelection
-  //   ▸ clearSelection(): void
-  //   Clears the current terminal selection.
-  //   Returns: void
-
-
-/*  [TODO]
-    deregisterCharacterJoiner
-    ▸ deregisterCharacterJoiner(joinerId: number): void
-    (EXPERIMENTAL) Deregisters the character joiner if one was registered. NOTE: character joiners are only used by the canvas renderer.
-    Parameters:
-    Name    Type    Description
-    joinerId    number  The character joiner’s ID (returned after register)
-    Returns: void
-*/
-
-/*  [TODO]
-    deregisterLinkMatcher
-    ▸ deregisterLinkMatcher(matcherId: number): void
-    (EXPERIMENTAL) Deregisters a link matcher if it has been registered.
-    Parameters:
-    Name    Type    Description
-    matcherId   number  The link matcher’s ID (returned after register)
-    Returns: void
-*/
+    /*  [TODO]
+        deregisterLinkMatcher
+        ▸ deregisterLinkMatcher(matcherId: number): void
+        (EXPERIMENTAL) Deregisters a link matcher if it has been registered.
+        Parameters:
+        Name    Type    Description
+        matcherId   number  The link matcher’s ID (returned after register)
+        Returns: void
+    */
 
     /// Focus the terminal.
     #[wasm_bindgen(method, js_name = focus)]
     pub fn focus(this: &Terminal);
 
-/*  [TODO]
-    getOption
-    ▸ getOption(key: “bellSound”    “bellStyle”     “cursorStyle”   “fontFamily”    “fontWeight”    “fontWeightBold”    “logLevel”  “rendererType”  “termName”  “wordSeparator”): string
-    Retrieves an option’s value from the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “bellSound” | “bellStyle” | “cursorStyle” | “fontFamily” | “fontWeight” | “fontWeightBold” | “logLevel” | “rendererType” | “termName” | “wordSeparator”     The option key.
-    Returns: string
+    /*  [TODO]
+        getOption
+        ▸ getOption(key: “bellSound”    “bellStyle”     “cursorStyle”   “fontFamily”    “fontWeight”    “fontWeightBold”    “logLevel”  “rendererType”  “termName”  “wordSeparator”): string
+        Retrieves an option’s value from the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “bellSound” | “bellStyle” | “cursorStyle” | “fontFamily” | “fontWeight” | “fontWeightBold” | “logLevel” | “rendererType” | “termName” | “wordSeparator”     The option key.
+        Returns: string
 
-    ▸ getOption(key: “allowTransparency”    “cancelEvents”  “convertEol”    “cursorBlink”   “disableStdin”  “macOptionIsMeta”   “rightClickSelectsWord”     “popOnBell”     “visualBell”    “windowsMode”): boolean
-    Retrieves an option’s value from the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “allowTransparency” | “cancelEvents” | “convertEol” | “cursorBlink” | “disableStdin” | “macOptionIsMeta” | “rightClickSelectsWord” | “popOnBell” | “visualBell” | “windowsMode”     The option key.
-    Returns: boolean
+        ▸ getOption(key: “allowTransparency”    “cancelEvents”  “convertEol”    “cursorBlink”   “disableStdin”  “macOptionIsMeta”   “rightClickSelectsWord”     “popOnBell”     “visualBell”    “windowsMode”): boolean
+        Retrieves an option’s value from the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “allowTransparency” | “cancelEvents” | “convertEol” | “cursorBlink” | “disableStdin” | “macOptionIsMeta” | “rightClickSelectsWord” | “popOnBell” | “visualBell” | “windowsMode”     The option key.
+        Returns: boolean
 
-    ▸ getOption(key: “cols”     “fontSize”  “letterSpacing”     “lineHeight”    “rows”  “tabStopWidth”  “scrollback”): number
-    Retrieves an option’s value from the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “cols” | “fontSize” | “letterSpacing” | “lineHeight” | “rows” | “tabStopWidth” | “scrollback”   The option key.
-    Returns: number
+        ▸ getOption(key: “cols”     “fontSize”  “letterSpacing”     “lineHeight”    “rows”  “tabStopWidth”  “scrollback”): number
+        Retrieves an option’s value from the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “cols” | “fontSize” | “letterSpacing” | “lineHeight” | “rows” | “tabStopWidth” | “scrollback”   The option key.
+        Returns: number
 
-    ▸ getOption(key: string): any
-    Retrieves an option’s value from the terminal.
-    Parameters:
-    Name    Type    Description
-    key     string  The option key.
-    Returns: any
-*/
+        ▸ getOption(key: string): any
+        Retrieves an option’s value from the terminal.
+        Parameters:
+        Name    Type    Description
+        key     string  The option key.
+        Returns: any
+    */
 
-/*  [TODO]
-    getSelection
-    ▸ getSelection(): string
-    Gets the terminal’s current selection, this is useful for implementing copy behavior outside of xterm.js.
-    Returns: string
-*/
+    /*  [TODO]
+        getSelection
+        ▸ getSelection(): string
+        Gets the terminal’s current selection, this is useful for implementing copy behavior outside of xterm.js.
+        Returns: string
+    */
 
-/*  [TODO]
-    getSelectionPosition
-    ▸ getSelectionPosition(): *ISelectionPosition   undefined*
-    Gets the selection position or undefined if there is no selection.
-    Returns: *ISelectionPosition    undefined*
-*/
+    /*  [TODO]
+        getSelectionPosition
+        ▸ getSelectionPosition(): *ISelectionPosition   undefined*
+        Gets the selection position or undefined if there is no selection.
+        Returns: *ISelectionPosition    undefined*
+    */
 
-  // [TODO]
-  //   hasSelection
-  //   ▸ hasSelection(): boolean
-  //   Gets whether the terminal has an active selection.
-  //   Returns: boolean
+    // [TODO]
+    //   hasSelection
+    //   ▸ hasSelection(): boolean
+    //   Gets whether the terminal has an active selection.
+    //   Returns: boolean
 
-
-  // [TODO]
-  //   loadAddon
-  //   ▸ loadAddon(addon: ITerminalAddon): void
-  //   Loads an addon into this instance of xterm.js.
-  //   Parameters:
-  //   Name    Type    Description
-  //   addon   ITerminalAddon  The addon to load.
-  //   Returns: void
-
+    // [TODO]
+    //   loadAddon
+    //   ▸ loadAddon(addon: ITerminalAddon): void
+    //   Loads an addon into this instance of xterm.js.
+    //   Parameters:
+    //   Name    Type    Description
+    //   addon   ITerminalAddon  The addon to load.
+    //   Returns: void
 
     /// Opens the terminal within an element.
     ///
@@ -1244,247 +1225,246 @@ extern "C" {
     #[wasm_bindgen(method, js_name = "open")]
     pub fn open(this: &Terminal, parent: web_sys::Element);
 
-/*  [TODO]
-    paste
-    ▸ paste(data: string): void
-    Writes text to the terminal, performing the necessary transformations for pasted text.
-    Parameters:
-    Name    Type    Description
-    data    string  The text to write to the terminal.
-    Returns: void
-*/
+    /*  [TODO]
+        paste
+        ▸ paste(data: string): void
+        Writes text to the terminal, performing the necessary transformations for pasted text.
+        Parameters:
+        Name    Type    Description
+        data    string  The text to write to the terminal.
+        Returns: void
+    */
 
-/*  [TODO]
-    refresh
-    ▸ refresh(start: number, end: number): void
-    Tells the renderer to refresh terminal content between two rows (inclusive) at the next opportunity.
-    Parameters:
-    Name    Type    Description
-    start   number  The row to start from (between 0 and this.rows - 1).
-    end     number  The row to end at (between start and this.rows - 1).
-    Returns: void
-*/
+    /*  [TODO]
+        refresh
+        ▸ refresh(start: number, end: number): void
+        Tells the renderer to refresh terminal content between two rows (inclusive) at the next opportunity.
+        Parameters:
+        Name    Type    Description
+        start   number  The row to start from (between 0 and this.rows - 1).
+        end     number  The row to end at (between start and this.rows - 1).
+        Returns: void
+    */
 
-/*  [TODO]
-    registerCharacterJoiner
-    ▸ registerCharacterJoiner(handler: function): number
-    (EXPERIMENTAL) Registers a character joiner, allowing custom sequences of characters to be rendered as a single unit. This is useful in particular for rendering ligatures and graphemes, among other things.
-    Each registered character joiner is called with a string of text representing a portion of a line in the terminal that can be rendered as a single unit. The joiner must return a sorted array, where each entry is itself an array of length two, containing the start (inclusive) and end (exclusive) index of a substring of the input that should be rendered as a single unit. When multiple joiners are provided, the results of each are collected. If there are any overlapping substrings between them, they are combined into one larger unit that is drawn together.
-    All character joiners that are registered get called every time a line is rendered in the terminal, so it is essential for the handler function to run as quickly as possible to avoid slowdowns when rendering. Similarly, joiners should strive to return the smallest possible substrings to render together, since they aren’t drawn as optimally as individual characters.
-    NOTE: character joiners are only used by the canvas renderer.
-    Parameters:
-    ▪ handler: function
-    The function that determines character joins. It is called with a string of text that is eligible for joining and returns an array where each entry is an array containing the start (inclusive) and end (exclusive) indexes of ranges that should be rendered as a single unit.
-    ▸ (text: string): [number, number][]
-    Parameters:
-    Name    Type
-    text    string
-    Returns: number
-    The ID of the new joiner, this can be used to deregister
-*/
+    /*  [TODO]
+        registerCharacterJoiner
+        ▸ registerCharacterJoiner(handler: function): number
+        (EXPERIMENTAL) Registers a character joiner, allowing custom sequences of characters to be rendered as a single unit. This is useful in particular for rendering ligatures and graphemes, among other things.
+        Each registered character joiner is called with a string of text representing a portion of a line in the terminal that can be rendered as a single unit. The joiner must return a sorted array, where each entry is itself an array of length two, containing the start (inclusive) and end (exclusive) index of a substring of the input that should be rendered as a single unit. When multiple joiners are provided, the results of each are collected. If there are any overlapping substrings between them, they are combined into one larger unit that is drawn together.
+        All character joiners that are registered get called every time a line is rendered in the terminal, so it is essential for the handler function to run as quickly as possible to avoid slowdowns when rendering. Similarly, joiners should strive to return the smallest possible substrings to render together, since they aren’t drawn as optimally as individual characters.
+        NOTE: character joiners are only used by the canvas renderer.
+        Parameters:
+        ▪ handler: function
+        The function that determines character joins. It is called with a string of text that is eligible for joining and returns an array where each entry is an array containing the start (inclusive) and end (exclusive) indexes of ranges that should be rendered as a single unit.
+        ▸ (text: string): [number, number][]
+        Parameters:
+        Name    Type
+        text    string
+        Returns: number
+        The ID of the new joiner, this can be used to deregister
+    */
 
-/*  [TODO]
-    registerLinkMatcher
-    ▸ registerLinkMatcher(regex: RegExp, handler: function, options?: ILinkMatcherOptions): number
-    (EXPERIMENTAL) Registers a link matcher, allowing custom link patterns to be matched and handled.
-    Parameters:
-    ▪ regex: RegExp
-    The regular expression to search for, specifically this searches the textContent of the rows. You will want to use \s to match a space ‘ ‘ character for example.
-    ▪ handler: function
-    The callback when the link is called.
-    ▸ (event: MouseEvent, uri: string): void
-    Parameters:
-    Name    Type
-    event   MouseEvent
-    uri     string
-    ▪Optional options: ILinkMatcherOptions
-    Options for the link matcher.
-    Returns: number
-    The ID of the new matcher, this can be used to deregister.
-*/
+    /*  [TODO]
+        registerLinkMatcher
+        ▸ registerLinkMatcher(regex: RegExp, handler: function, options?: ILinkMatcherOptions): number
+        (EXPERIMENTAL) Registers a link matcher, allowing custom link patterns to be matched and handled.
+        Parameters:
+        ▪ regex: RegExp
+        The regular expression to search for, specifically this searches the textContent of the rows. You will want to use \s to match a space ‘ ‘ character for example.
+        ▪ handler: function
+        The callback when the link is called.
+        ▸ (event: MouseEvent, uri: string): void
+        Parameters:
+        Name    Type
+        event   MouseEvent
+        uri     string
+        ▪Optional options: ILinkMatcherOptions
+        Options for the link matcher.
+        Returns: number
+        The ID of the new matcher, this can be used to deregister.
+    */
 
-/*  [TODO]
-    registerMarker
-    ▸ registerMarker(cursorYOffset: number): IMarker
-    (EXPERIMENTAL) Adds a marker to the normal buffer and returns it. If the alt buffer is active, undefined is returned.
-    Parameters:
-    Name    Type    Description
-    cursorYOffset   number  The y position offset of the marker from the cursor.
-    Returns: IMarker
-*/
+    /*  [TODO]
+        registerMarker
+        ▸ registerMarker(cursorYOffset: number): IMarker
+        (EXPERIMENTAL) Adds a marker to the normal buffer and returns it. If the alt buffer is active, undefined is returned.
+        Parameters:
+        Name    Type    Description
+        cursorYOffset   number  The y position offset of the marker from the cursor.
+        Returns: IMarker
+    */
 
     // reset
     // ▸ reset(): void
     // Perform a full reset (RIS, aka ‘\x1bc’).
     // Returns: void
 
-  // [TODO]
-  //   resize
-  //   ▸ resize(columns: number, rows: number): void
-  //   Resizes the terminal. It’s best practice to debounce calls to resize, this will help ensure that the pty can respond to the resize event before another one occurs.
-  //   Parameters:
-  //   Name    Type
-  //   columns     number
-  //   rows    number
-  //   Returns: void
+    // [TODO]
+    //   resize
+    //   ▸ resize(columns: number, rows: number): void
+    //   Resizes the terminal. It’s best practice to debounce calls to resize, this will help ensure that the pty can respond to the resize event before another one occurs.
+    //   Parameters:
+    //   Name    Type
+    //   columns     number
+    //   rows    number
+    //   Returns: void
 
+    /*  [TODO]
+        scrollLines
+        ▸ scrollLines(amount: number): void
+        Scroll the display of the terminal
+        Parameters:
+        Name    Type    Description
+        amount  number  The number of lines to scroll down (negative scroll up).
+        Returns: void
+    */
 
-/*  [TODO]
-    scrollLines
-    ▸ scrollLines(amount: number): void
-    Scroll the display of the terminal
-    Parameters:
-    Name    Type    Description
-    amount  number  The number of lines to scroll down (negative scroll up).
-    Returns: void
-*/
+    /*  [TODO]
+        scrollPages
+        ▸ scrollPages(pageCount: number): void
+        Scroll the display of the terminal by a number of pages.
+        Parameters:
+        Name    Type    Description
+        pageCount   number  The number of pages to scroll (negative scrolls up).
+        Returns: void
+    */
 
-/*  [TODO]
-    scrollPages
-    ▸ scrollPages(pageCount: number): void
-    Scroll the display of the terminal by a number of pages.
-    Parameters:
-    Name    Type    Description
-    pageCount   number  The number of pages to scroll (negative scrolls up).
-    Returns: void
-*/
+    /*  [TODO]
+        scrollToBottom
+        ▸ scrollToBottom(): void
+        Scrolls the display of the terminal to the bottom.
+        Returns: void
+    */
 
-/*  [TODO]
-    scrollToBottom
-    ▸ scrollToBottom(): void
-    Scrolls the display of the terminal to the bottom.
-    Returns: void
-*/
+    /*  [TODO]
+        scrollToLine
+        ▸ scrollToLine(line: number): void
+        Scrolls to a line within the buffer.
+        Parameters:
+        Name    Type    Description
+        line    number  The 0-based line index to scroll to.
+        Returns: void
+    */
 
-/*  [TODO]
-    scrollToLine
-    ▸ scrollToLine(line: number): void
-    Scrolls to a line within the buffer.
-    Parameters:
-    Name    Type    Description
-    line    number  The 0-based line index to scroll to.
-    Returns: void
-*/
+    /*  [TODO]
+        scrollToTop
+        ▸ scrollToTop(): void
+        Scrolls the display of the terminal to the top.
+        Returns: void
+    */
 
-/*  [TODO]
-    scrollToTop
-    ▸ scrollToTop(): void
-    Scrolls the display of the terminal to the top.
-    Returns: void
-*/
+    /*  [TODO]
+        select
+        ▸ select(column: number, row: number, length: number): void
+        Selects text within the terminal.
+        Parameters:
+        Name    Type    Description
+        column  number  The column the selection starts at.
+        row     number  The row the selection starts at.
+        length  number  The length of the selection.
+        Returns: void
+    */
 
-/*  [TODO]
-    select
-    ▸ select(column: number, row: number, length: number): void
-    Selects text within the terminal.
-    Parameters:
-    Name    Type    Description
-    column  number  The column the selection starts at.
-    row     number  The row the selection starts at.
-    length  number  The length of the selection.
-    Returns: void
-*/
+    /*  [TODO]
+        selectAll
+        ▸ selectAll(): void
+        Selects all text within the terminal.
+        Returns: void
+    */
 
-/*  [TODO]
-    selectAll
-    ▸ selectAll(): void
-    Selects all text within the terminal.
-    Returns: void
-*/
+    /*  [TODO]
+        selectLines
+        ▸ selectLines(start: number, end: number): void
+        Selects text in the buffer between 2 lines.
+        Parameters:
+        Name    Type    Description
+        start   number  The 0-based line index to select from (inclusive).
+        end     number  The 0-based line index to select to (inclusive).
+        Returns: void
+    */
 
-/*  [TODO]
-    selectLines
-    ▸ selectLines(start: number, end: number): void
-    Selects text in the buffer between 2 lines.
-    Parameters:
-    Name    Type    Description
-    start   number  The 0-based line index to select from (inclusive).
-    end     number  The 0-based line index to select to (inclusive).
-    Returns: void
-*/
+    /*  [TODO]
+        setOption
+        ▸ setOption(key: “fontFamily”   “termName”  “bellSound”     “wordSeparator”, value: string): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “fontFamily” | “termName” | “bellSound” | “wordSeparator”   The option key.
+        value   string  The option value.
+        Returns: void
 
-/*  [TODO]
-    setOption
-    ▸ setOption(key: “fontFamily”   “termName”  “bellSound”     “wordSeparator”, value: string): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “fontFamily” | “termName” | “bellSound” | “wordSeparator”   The option key.
-    value   string  The option value.
-    Returns: void
+        ▸ setOption(key: “fontWeight”   “fontWeightBold”, value: null   “normal”    “bold”  “100”   “200”   “300”   “400”   “500”   “600”   “700”   “800”   “900”): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “fontWeight” | “fontWeightBold”     The option key.
+        value   null | “normal” | “bold” | “100” | “200” | “300” | “400” | “500” | “600” | “700” | “800” | “900”    The option value.
+        Returns: void
 
-    ▸ setOption(key: “fontWeight”   “fontWeightBold”, value: null   “normal”    “bold”  “100”   “200”   “300”   “400”   “500”   “600”   “700”   “800”   “900”): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “fontWeight” | “fontWeightBold”     The option key.
-    value   null | “normal” | “bold” | “100” | “200” | “300” | “400” | “500” | “600” | “700” | “800” | “900”    The option value.
-    Returns: void
+        ▸ setOption(key: “logLevel”, value: LogLevel): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “logLevel”  The option key.
+        value   LogLevel    The option value.
+        Returns: void
 
-    ▸ setOption(key: “logLevel”, value: LogLevel): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “logLevel”  The option key.
-    value   LogLevel    The option value.
-    Returns: void
+        ▸ setOption(key: “bellStyle”, value: null   “none”  “visual”    “sound”     “both”): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “bellStyle”     The option key.
+        value   null | “none” | “visual” | “sound” | “both”     The option value.
+        Returns: void
 
-    ▸ setOption(key: “bellStyle”, value: null   “none”  “visual”    “sound”     “both”): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “bellStyle”     The option key.
-    value   null | “none” | “visual” | “sound” | “both”     The option value.
-    Returns: void
+        ▸ setOption(key: “cursorStyle”, value: null     “block”     “underline”     “bar”): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “cursorStyle”   The option key.
+        value   null | “block” | “underline” | “bar”    The option value.
+        Returns: void
 
-    ▸ setOption(key: “cursorStyle”, value: null     “block”     “underline”     “bar”): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “cursorStyle”   The option key.
-    value   null | “block” | “underline” | “bar”    The option value.
-    Returns: void
+        ▸ setOption(key: “allowTransparency”    “cancelEvents”  “convertEol”    “cursorBlink”   “disableStdin”  “macOptionIsMeta”   “popOnBell”     “rightClickSelectsWord”     “visualBell”    “windowsMode”, value: boolean): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “allowTransparency” | “cancelEvents” | “convertEol” | “cursorBlink” | “disableStdin” | “macOptionIsMeta” | “popOnBell” | “rightClickSelectsWord” | “visualBell” | “windowsMode”     The option key.
+        value   boolean     The option value.
+        Returns: void
 
-    ▸ setOption(key: “allowTransparency”    “cancelEvents”  “convertEol”    “cursorBlink”   “disableStdin”  “macOptionIsMeta”   “popOnBell”     “rightClickSelectsWord”     “visualBell”    “windowsMode”, value: boolean): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “allowTransparency” | “cancelEvents” | “convertEol” | “cursorBlink” | “disableStdin” | “macOptionIsMeta” | “popOnBell” | “rightClickSelectsWord” | “visualBell” | “windowsMode”     The option key.
-    value   boolean     The option value.
-    Returns: void
+        ▸ setOption(key: “fontSize”     “letterSpacing”     “lineHeight”    “tabStopWidth”  “scrollback”, value: number): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “fontSize” | “letterSpacing” | “lineHeight” | “tabStopWidth” | “scrollback”     The option key.
+        value   number  The option value.
+        Returns: void
 
-    ▸ setOption(key: “fontSize”     “letterSpacing”     “lineHeight”    “tabStopWidth”  “scrollback”, value: number): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “fontSize” | “letterSpacing” | “lineHeight” | “tabStopWidth” | “scrollback”     The option key.
-    value   number  The option value.
-    Returns: void
+        ▸ setOption(key: “theme”, value: ITheme): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “theme”     The option key.
+        value   ITheme  The option value.
+        Returns: void
 
-    ▸ setOption(key: “theme”, value: ITheme): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “theme”     The option key.
-    value   ITheme  The option value.
-    Returns: void
+        ▸ setOption(key: “cols”     “rows”, value: number): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     “cols” | “rows”     The option key.
+        value   number  The option value.
+        Returns: void
 
-    ▸ setOption(key: “cols”     “rows”, value: number): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     “cols” | “rows”     The option key.
-    value   number  The option value.
-    Returns: void
-
-    ▸ setOption(key: string, value: any): void
-    Sets an option on the terminal.
-    Parameters:
-    Name    Type    Description
-    key     string  The option key.
-    value   any     The option value.
-    Returns: void
-*/
+        ▸ setOption(key: string, value: any): void
+        Sets an option on the terminal.
+        Parameters:
+        Name    Type    Description
+        key     string  The option key.
+        value   any     The option value.
+        Returns: void
+    */
 
     // `Option<&Closure<dyn FnMut()>>` can't be passed to JS functions, so we
     // have a version of write with the callback and one without it.
@@ -1521,31 +1501,30 @@ extern "C" {
     #[wasm_bindgen(method, js_name = write)]
     pub fn write_with_callback(this: &Terminal, data: String, callback: &Closure<dyn FnMut()>);
 
-  // [TODO]
-  //   writeUtf8
-  //   ▸ writeUtf8(data: Uint8Array, callback?: function): void
-  //   Defined in xterm.d.ts:896
-  //   Write UTF8 data to the terminal.
-  //   deprecated use write instead
-  //   Parameters:
-  //   ▪ data: Uint8Array
-  //   The data to write to the terminal.
-  //   ▪Optional callback: function
-  //   Optional callback when data was processed.
-  //   ▸ (): void
-  //   Returns: void
+// [TODO]
+//   writeUtf8
+//   ▸ writeUtf8(data: Uint8Array, callback?: function): void
+//   Defined in xterm.d.ts:896
+//   Write UTF8 data to the terminal.
+//   deprecated use write instead
+//   Parameters:
+//   ▪ data: Uint8Array
+//   The data to write to the terminal.
+//   ▪Optional callback: function
+//   Optional callback when data was processed.
+//   ▸ (): void
+//   Returns: void
 
-
-  // [TODO]
-  //   writeln
-  //   ▸ writeln(data: string  Uint8Array, callback?: function): void
-  //   Writes data to the terminal, followed by a break line character (\n).
-  //   Parameters:
-  //   ▪ data: *string     Uint8Array*
-  //   The data to write to the terminal. This can either be raw bytes given as Uint8Array from the pty or a string. Raw bytes will always be treated as UTF-8 encoded, string data as UTF-16.
-  //   ▪Optional callback: function
-  //   Optional callback that fires when the data was processed by the parser.
-  //   ▸ (): void
-  //   Returns: void
+// [TODO]
+//   writeln
+//   ▸ writeln(data: string  Uint8Array, callback?: function): void
+//   Writes data to the terminal, followed by a break line character (\n).
+//   Parameters:
+//   ▪ data: *string     Uint8Array*
+//   The data to write to the terminal. This can either be raw bytes given as Uint8Array from the pty or a string. Raw bytes will always be treated as UTF-8 encoded, string data as UTF-16.
+//   ▪Optional callback: function
+//   Optional callback that fires when the data was processed by the parser.
+//   ▸ (): void
+//   Returns: void
 
 }

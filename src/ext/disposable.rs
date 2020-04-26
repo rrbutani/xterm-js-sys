@@ -2,10 +2,10 @@
 //!
 //! [`Disposable`]: crate::xterm::Disposable
 
-use super::{Disposable, wasm_bindgen};
-use wasm_bindgen::{JsValue, JsCast};
+use super::{wasm_bindgen, Disposable};
+use wasm_bindgen::{JsCast, JsValue};
 
-use js_sys::{Object, Function};
+use js_sys::{Function, Object};
 
 /// A wrapper for [`Disposable`] that calls `dispose` on `Drop`.
 ///
