@@ -6,3 +6,6 @@ pub mod xterm;
 
 #[cfg(feature = "ext")]
 pub mod ext;
+
+#[cfg(feature = "tui-backend")]
+pub mod tui;
