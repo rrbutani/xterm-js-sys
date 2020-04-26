@@ -20,8 +20,9 @@ jobs:
           target: wasm32-wasi
           override: true
 
+      - uses: actions-rs/cargo@v1
+
       - name: Check that the tag matches the crate version.
-        uses: actions-rs/cargo@v1
         run: |
           C_VER="$(cargo pkgid | cut -d'#' -f2)"
           T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')

@@ -25,7 +25,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --all-targets --all-features
+          args: --all-features
           # → target/wasm32-wasi/doc
 
       - uses: jetli/wasm-pack-action@v0.3.0
