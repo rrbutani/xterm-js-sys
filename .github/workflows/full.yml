@@ -30,21 +30,17 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Add wasm32-wasi target (needed to build bindgen)
-        run: |
-          rustup +${{ matrix.rust }} target install wasm32-wasi
-
       - name: Run cargo check
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --all-targets --all-features
+          args: --target ${{ matrix.target }} --all-targets --all-features
 
       - name: Run cargo check release
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --all-targets --all-features --release
+          args: --target ${{ matrix.target }} --all-targets --all-features --release
 
       # We currently aren't set up to run tests on wasm:
       - name: Run cargo test
@@ -52,7 +48,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-targets --no-fail-fast -- --include-ignored
+          args: --target ${{ matrix.target }} --all-targets --no-fail-fast -- --include-ignored
 
       # We currently aren't set up to run tests on wasm:
       - name: Run cargo test release
@@ -60,7 +56,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-targets --no-fail-fast --release -- --include-ignored
+          args: --target ${{ matrix.target }} --all-targets --no-fail-fast --release -- --include-ignored
 
   lint:
     needs: check
