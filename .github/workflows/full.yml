@@ -13,7 +13,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.42.0
+          - 1.43.0
         target:
           - x86_64-unknown-linux-gnu
           - wasm32-unknown-unknown
