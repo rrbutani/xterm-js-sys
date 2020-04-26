@@ -28,17 +28,15 @@ jobs:
           args: --all-targets --all-features
           # → target/wasm32-wasi/doc
 
-      - name: Build the examples
-        uses: actions-rs/cargo@v1
-
-        uses: jetli/wasm-pack-action@v0.3.0
+      - uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: 'latest'
 
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: 12.x
 
+      - name: Build the examples
         run: |
           mkdir -p ex
           for ex in examples/*/Cargo.toml; do
