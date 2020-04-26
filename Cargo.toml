@@ -1,7 +1,7 @@
 [package]
 name = "xterm-js-sys"
 version = "4.5.0-alpha0"
-authors = ["Rahul Butani <rr.butani@gmail.com>"]
+authors = ["Rahul Butani <r.r.butan.i+crates@gmail.com>"]
 edition = "2018"
 
 description = "Rust WebAssembly bindings for xterm.js."
