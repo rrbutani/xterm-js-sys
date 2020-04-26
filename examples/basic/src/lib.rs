@@ -54,7 +54,6 @@ pub fn run() -> Result<(), JsValue> {
 
     term.write(String::from("\x1B[35;31m hello\n"));
     term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m $ "));
-
     // window.request_animation_frame()
 
     Ok(())
