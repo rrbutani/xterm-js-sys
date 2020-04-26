@@ -24,6 +24,7 @@ jobs:
 
       - name: Check that the tag matches the crate version.
         run: |
+          cargo update
           C_VER="$(cargo pkgid | cut -d'#' -f2)"
           T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 

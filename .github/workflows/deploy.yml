@@ -41,6 +41,7 @@ jobs:
           mkdir -p ex
           for ex in examples/*/Cargo.toml; do
             cd $(dirname "$ex");
+            cargo update
             nom="$(cargo pkgid | cut -d# -f1 | rev | cut -d/ -f1 | rev)"
             npm run release
             cd -
