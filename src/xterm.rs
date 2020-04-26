@@ -974,21 +974,33 @@ extern "C" {
     #[wasm_bindgen(method, js_name = onBinary)]
     pub fn on_binary(this: &Terminal, listener: &Closure<dyn FnMut(String)>) -> Disposable;
 
-/*  [TODO]
-    onCursorMove
-    • onCursorMove: IEvent‹void›
-    Defined in xterm.d.ts:624
-    Adds an event listener for the cursor moves.
-    returns an IDisposable to stop listening.
-*/
+    /// Adds an event listener for the cursor moves.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_cursor_move_event_listener`] (if the `ext` feature is
+    /// enabled) for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_cursor_move_event_listener`]: Terminal::attach_cursor_move_event_listener
+    #[wasm_bindgen(method, js_name = onCursorMove)]
+    pub fn on_cursor_mode(this: &Terminal, listener: &Closure<dyn FnMut()>) -> Disposable;
 
-/* [TODO]
-    onData
-    • onData: IEvent‹string›
-    Defined in xterm.d.ts:633
-    Adds an event listener for when a data event fires. This happens for example when the user types or pastes into the terminal. The event value is whatever string results, in a typical setup, this should be passed on to the backing pty.
-    returns an IDisposable to stop listening.
-*/
+  // [TODO]
+  //   onCursorMove
+  //   • onCursorMove: IEvent‹void›
+  //   Defined in xterm.d.ts:624
+  //
+  //   returns an IDisposable to stop listening.
+
+
+ // [TODO]
+ //    onData
+ //    • onData: IEvent‹string›
+ //    Defined in xterm.d.ts:633
+ //    Adds an event listener for when a data event fires. This happens for example when the user types or pastes into the terminal. The event value is whatever string results, in a typical setup, this should be passed on to the backing pty.
+ //    returns an IDisposable to stop listening.
+
 
     /// Adds an event listener for when a key is pressed. The event value
     /// ([`KeyEventData`]) contains the string that will be sent in the data
@@ -1006,53 +1018,53 @@ extern "C" {
     pub fn on_key(this: &Terminal, listener: &Closure<dyn FnMut(KeyEventData)>) -> Disposable;
 
 
-/* [TODO]
-    onLineFeed
-    • onLineFeed: IEvent‹void›
-    Defined in xterm.d.ts:647
-    Adds an event listener for when a line feed is added.
-    returns an IDisposable to stop listening.
-*/
+ // [TODO]
+ //    onLineFeed
+ //    • onLineFeed: IEvent‹void›
+ //    Defined in xterm.d.ts:647
+ //    Adds an event listener for when a line feed is added.
+ //    returns an IDisposable to stop listening.
 
-/* [TODO]
-    onRender
-    • onRender: IEvent‹object›
-    Defined in xterm.d.ts:668
-    Adds an event listener for when rows are rendered. The event value contains the start row and end rows of the rendered area (ranges from 0 to Terminal.rows - 1).
-    returns an IDisposable to stop listening.
-*/
 
-/* [TODO]
-    onResize
-    • onResize: IEvent‹object›
-    Defined in xterm.d.ts:675
-    Adds an event listener for when the terminal is resized. The event value contains the new size.
-    returns an IDisposable to stop listening.
-*/
+ // [TODO]
+ //    onRender
+ //    • onRender: IEvent‹object›
+ //    Defined in xterm.d.ts:668
+ //    Adds an event listener for when rows are rendered. The event value contains the start row and end rows of the rendered area (ranges from 0 to Terminal.rows - 1).
+ //    returns an IDisposable to stop listening.
 
-/* [TODO]
-    onScroll
-    • onScroll: IEvent‹number›
-    Defined in xterm.d.ts:654
-    Adds an event listener for when a scroll occurs. The event value is the new position of the viewport.
-    returns an IDisposable to stop listening.
-*/
 
-/*  [TODO]
-    onSelectionChange
-    • onSelectionChange: IEvent‹void›
-    Defined in xterm.d.ts:660
-    Adds an event listener for when a selection change occurs.
-    returns an IDisposable to stop listening.
-*/
+ // [TODO]
+ //    onResize
+ //    • onResize: IEvent‹object›
+ //    Defined in xterm.d.ts:675
+ //    Adds an event listener for when the terminal is resized. The event value contains the new size.
+ //    returns an IDisposable to stop listening.
 
-/*  [TODO]
-    onTitleChange
-    • onTitleChange: IEvent‹string›
-    Defined in xterm.d.ts:682
-    Adds an event listener for when an OSC 0 or OSC 2 title change occurs. The event value is the new title.
-    returns an IDisposable to stop listening.
-*/
+
+ // [TODO]
+ //    onScroll
+ //    • onScroll: IEvent‹number›
+ //    Defined in xterm.d.ts:654
+ //    Adds an event listener for when a scroll occurs. The event value is the new position of the viewport.
+ //    returns an IDisposable to stop listening.
+
+
+  // [TODO]
+  //   onSelectionChange
+  //   • onSelectionChange: IEvent‹void›
+  //   Defined in xterm.d.ts:660
+  //   Adds an event listener for when a selection change occurs.
+  //   returns an IDisposable to stop listening.
+
+
+  // [TODO]
+  //   onTitleChange
+  //   • onTitleChange: IEvent‹string›
+  //   Defined in xterm.d.ts:682
+  //   Adds an event listener for when an OSC 0 or OSC 2 title change occurs. The event value is the new title.
+  //   returns an IDisposable to stop listening.
+
 
 /*  [TODO]
     parser
@@ -1061,19 +1073,19 @@ extern "C" {
     (EXPERIMENTAL) Get the parser interface to register custom escape sequence handlers.
 */
 
-/*  [TODO]
-    rows
-    • rows: number
-    Defined in xterm.d.ts:563
-    The number of rows in the terminal’s viewport. Use ITerminalOptions.rows to set this in the constructor and Terminal.resize for when the terminal exists.
-*/
+  // [TODO]
+  //   rows
+  //   • rows: number
+  //   Defined in xterm.d.ts:563
+  //   The number of rows in the terminal’s viewport. Use ITerminalOptions.rows to set this in the constructor and Terminal.resize for when the terminal exists.
 
-/*  [TODO]
-    textarea
-    • textarea: *HTMLTextAreaElement    undefined*
-    Defined in xterm.d.ts:556
-    The textarea that accepts input for the terminal.
-*/
+
+  // [TODO]
+  //   textarea
+  //   • textarea: *HTMLTextAreaElement    undefined*
+  //   Defined in xterm.d.ts:556
+  //   The textarea that accepts input for the terminal.
+
 
 /*  [TODO]
     unicode
@@ -1115,26 +1127,26 @@ extern "C" {
     Returns: void
 */
 
-/*  [TODO]
-    blur
-    ▸ blur(): void
-    Unfocus the terminal.
-    Returns: void
-*/
+  // [TODO]
+  //   blur
+  //   ▸ blur(): void
+  //   Unfocus the terminal.
+  //   Returns: void
 
-/*  [TODO]
-    clear
-    ▸ clear(): void
-    Clear the entire buffer, making the prompt line the new first line.
-    Returns: void
-*/
 
-/*  [TODO]
-    clearSelection
-    ▸ clearSelection(): void
-    Clears the current terminal selection.
-    Returns: void
-*/
+  // [TODO]
+  //   clear
+  //   ▸ clear(): void
+  //   Clear the entire buffer, making the prompt line the new first line.
+  //   Returns: void
+
+
+  // [TODO]
+  //   clearSelection
+  //   ▸ clearSelection(): void
+  //   Clears the current terminal selection.
+  //   Returns: void
+
 
 /*  [TODO]
     deregisterCharacterJoiner
@@ -1205,22 +1217,22 @@ extern "C" {
     Returns: *ISelectionPosition    undefined*
 */
 
-/*  [TODO]
-    hasSelection
-    ▸ hasSelection(): boolean
-    Gets whether the terminal has an active selection.
-    Returns: boolean
-*/
+  // [TODO]
+  //   hasSelection
+  //   ▸ hasSelection(): boolean
+  //   Gets whether the terminal has an active selection.
+  //   Returns: boolean
 
-/*  [TODO]
-    loadAddon
-    ▸ loadAddon(addon: ITerminalAddon): void
-    Loads an addon into this instance of xterm.js.
-    Parameters:
-    Name    Type    Description
-    addon   ITerminalAddon  The addon to load.
-    Returns: void
-*/
+
+  // [TODO]
+  //   loadAddon
+  //   ▸ loadAddon(addon: ITerminalAddon): void
+  //   Loads an addon into this instance of xterm.js.
+  //   Parameters:
+  //   Name    Type    Description
+  //   addon   ITerminalAddon  The addon to load.
+  //   Returns: void
+
 
     /// Opens the terminal within an element.
     ///
@@ -1306,16 +1318,16 @@ extern "C" {
     // Perform a full reset (RIS, aka ‘\x1bc’).
     // Returns: void
 
-/*  [TODO]
-    resize
-    ▸ resize(columns: number, rows: number): void
-    Resizes the terminal. It’s best practice to debounce calls to resize, this will help ensure that the pty can respond to the resize event before another one occurs.
-    Parameters:
-    Name    Type
-    columns     number
-    rows    number
-    Returns: void
-*/
+  // [TODO]
+  //   resize
+  //   ▸ resize(columns: number, rows: number): void
+  //   Resizes the terminal. It’s best practice to debounce calls to resize, this will help ensure that the pty can respond to the resize event before another one occurs.
+  //   Parameters:
+  //   Name    Type
+  //   columns     number
+  //   rows    number
+  //   Returns: void
+
 
 /*  [TODO]
     scrollLines
@@ -1509,31 +1521,31 @@ extern "C" {
     #[wasm_bindgen(method, js_name = write)]
     pub fn write_with_callback(this: &Terminal, data: String, callback: &Closure<dyn FnMut()>);
 
-/*  [TODO]
-    writeUtf8
-    ▸ writeUtf8(data: Uint8Array, callback?: function): void
-    Defined in xterm.d.ts:896
-    Write UTF8 data to the terminal.
-    deprecated use write instead
-    Parameters:
-    ▪ data: Uint8Array
-    The data to write to the terminal.
-    ▪Optional callback: function
-    Optional callback when data was processed.
-    ▸ (): void
-    Returns: void
-*/
+  // [TODO]
+  //   writeUtf8
+  //   ▸ writeUtf8(data: Uint8Array, callback?: function): void
+  //   Defined in xterm.d.ts:896
+  //   Write UTF8 data to the terminal.
+  //   deprecated use write instead
+  //   Parameters:
+  //   ▪ data: Uint8Array
+  //   The data to write to the terminal.
+  //   ▪Optional callback: function
+  //   Optional callback when data was processed.
+  //   ▸ (): void
+  //   Returns: void
 
-/*  [TODO]
-    writeln
-    ▸ writeln(data: string  Uint8Array, callback?: function): void
-    Writes data to the terminal, followed by a break line character (\n).
-    Parameters:
-    ▪ data: *string     Uint8Array*
-    The data to write to the terminal. This can either be raw bytes given as Uint8Array from the pty or a string. Raw bytes will always be treated as UTF-8 encoded, string data as UTF-16.
-    ▪Optional callback: function
-    Optional callback that fires when the data was processed by the parser.
-    ▸ (): void
-    Returns: void
-*/
+
+  // [TODO]
+  //   writeln
+  //   ▸ writeln(data: string  Uint8Array, callback?: function): void
+  //   Writes data to the terminal, followed by a break line character (\n).
+  //   Parameters:
+  //   ▪ data: *string     Uint8Array*
+  //   The data to write to the terminal. This can either be raw bytes given as Uint8Array from the pty or a string. Raw bytes will always be treated as UTF-8 encoded, string data as UTF-16.
+  //   ▪Optional callback: function
+  //   Optional callback that fires when the data was processed by the parser.
+  //   ▸ (): void
+  //   Returns: void
+
 }
