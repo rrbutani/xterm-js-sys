@@ -2,11 +2,9 @@
 
 [![Build Status][ci]][actions] [![License: MIT][license-badge]][license] [![crates.io][crates-badge]][crates] [![API Docs][docs-badge]][docs]
 
---
-
 Rust bindings for [xterm.js][xterm].
 
-### Features
+## Features
 
 Currently this covers about half the [xterm.js API](https://github.com/xtermjs/xterm.js/blob/master/typings/xterm.d.ts).
 
@@ -16,7 +14,7 @@ This crate has two features:
 
 This crate also does support the infrastructure [xterm.js][xterm] has for [addons](https://github.com/xtermjs/xterm.js#addons). Currently only the [xterm-addon-fit](https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-fit) package has [Rust bindings][fit-addon]. If you do end up making bindings for an [xterm.js][xterm] addon, feel free to send in a PR to update this list!
 
-#### xterm.js addons
+### xterm.js addons
 
 First party addon packages:
   - [attach][attach]: Unimplemented!
@@ -35,7 +33,7 @@ First party addon packages:
 [web-links]: https://www.npmjs.com/package/xterm-addon-web-links
 [webgl]: https://www.npmjs.com/package/xterm-addon-webgl
 
-### Usage
+## Usage
 
 Add this to your `Cargo.toml`:
 ```TOML
@@ -52,7 +50,7 @@ And make sure that your bundler/JS package manager is set to grab the correspond
 
 Make sure you also add the packages for any addons you're using; see our [examples' `package.json`](examples/package.json) for an example.
 
-### Examples
+## Examples
 
 This repo has a [few examples](examples) that show usage of the bindings, usage with the `ext` feature, and one use of the [tui][tui] backend.
 
@@ -64,11 +62,11 @@ It should (hopefully) just work! 🤞
 
 These examples are also deployed [here][examples].
 
-### Minimum Supported Rust Version (MSRV)
+## Minimum Supported Rust Version (MSRV)
 
 This crate is currently guaranteed to compile on stable Rust 1.42 and newer. We offer no guarantees that this will remain true in future releases but do promise to always support (at minimum) the latest stable Rust version and to document changes to the MSRV in the [changelog](CHANGELOG.md).
 
-### Contributing
+## Contributing
 
 PRs are (very) welcome!
 
