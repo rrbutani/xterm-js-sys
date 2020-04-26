@@ -39,6 +39,18 @@ jobs:
 
           grep -q "${T_VER}" CHANGELOG.md || exit 3
 
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Check the [changelog](https://github.com/rrbutani/xterm-js-sys/tree/${{ github.ref }}/CHANGELOG.md#${{ github.ref }}).
+          draft: false
+          prerelease: false
+
       - name: Publish
         run: |
           cargo publish --token ${{ secrets.CARGO_TOKEN }}
