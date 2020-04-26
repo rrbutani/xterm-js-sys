@@ -33,4 +33,11 @@ jobs:
             exit 2
           fi
 
+      - name: Check that this version has a changelog entry
+        run: |
+          T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          grep -q "${T_VER}" CHANGELOG.md || exit 3
+
+      - name: Publish
           cargo publish --token ${{ secrets.CARGO_TOKEN }}
