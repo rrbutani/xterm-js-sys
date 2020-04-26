@@ -20,36 +20,42 @@ pub fn run() -> Result<(), JsValue> {
     let document = window.document().expect("should have a document on window");
     let terminal_div = document.get_element_by_id("terminal").expect("should have a terminal div");
 
-    let term = Terminal::new(None);
+    let term_orig = Terminal::new(None);
 
-    // Make it 'static:
-    // Box::leak(Box::new(term));
+    term_orig.open(terminal_div);
 
-    term.open(terminal_div);
+    let term = term_orig.clone();
+    let l = term_orig.attach_key_event_listener(move |e| {
+        /// A port of the xterm.js echo demo:
+        let key = e.key();
+        let ev = e.dom_event();
 
-    let term_copy = term.clone();
-    let l = term.attach_key_event_listener(move |e| {
-        term_copy.write("a".to_string());
+        let printable = matches!((ev.alt_key(), ev.ctrl_key(), ev.meta_key()),
+            (false, false, false));
 
-        log!("yooo {:?}", e);
+        const ENTER_ASCII_KEY_CODE: u32 = 13;
+        const BACKSPACE_ASCII_KEY_CODE: u32 = 8;
+
+        match ev.key_code() {
+            ENTER_ASCII_KEY_CODE => term.write("\n\r\x1B[1;3;31m$ \x1B[0m".to_string()),
+            BACKSPACE_ASCII_KEY_CODE => term.write("\u{0008} \u{0008}".to_string()),
+            _ => term.write(key),
+        }
+
+        log!("[key event] got {:?}", e);
     });
 
     // Don't drop!
     Box::leak(Box::new(l));
+
+    let term = term_orig;
 
     term.focus();
 
     term.write(String::from("\x1B[35;31m hello\n"));
     term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m $ "));
 
-    // Closure::wrap(Box::new() as Box)
-
     // window.request_animation_frame()
-
-    // loop {
-    //     log!("hello!");
-
-    // }
 
     Ok(())
 }
