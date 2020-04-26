@@ -1,0 +1,34 @@
+on:
+  push:
+    # Only on tags:
+    tags: '*.*.*'
+
+name: release
+
+jobs:
+  publish:
+    name: Publishes to crates.io
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: wasm32-wasi
+          override: true
+
+      - name: Check that the tag matches the crate version.
+        uses: actions-rs/cargo@v1
+        run: |
+          C_VER="$(cargo pkgid | cut -d'#' -f2)"
+          T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          if [[ "${C_VER}" != "${T_VER}" ]]; then
+            echo "Crate version doesn't match the tag version! (`${C_VER}` vs `${T_VER}`)"
+            exit 2
+          fi
+
+          cargo publish --token ${{ secrets.CARGO_TOKEN }}
