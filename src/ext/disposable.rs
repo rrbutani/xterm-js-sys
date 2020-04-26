@@ -10,6 +10,7 @@ use js_sys::{Function, Object};
 /// A wrapper for [`Disposable`] that calls `dispose` on `Drop`.
 ///
 /// [`Disposable`]: crate::xterm::Disposable
+#[derive(Debug, Clone)]
 pub struct DisposableWrapper {
     inner: Disposable,
 }
@@ -33,8 +34,15 @@ impl Drop for DisposableWrapper {
 ///
 /// [`Disposable`]: crate::xterm::Disposable
 #[wasm_bindgen]
+#[derive(Debug, Clone)]
 pub struct NoOpDispose {
     obj: Object,
+}
+
+impl Default for NoOpDispose {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl NoOpDispose {
