@@ -6,3 +6,6 @@ Cargo.lock
 .cache
 dist
 node_modules
+
+# Release/CI
+ex
