@@ -48,7 +48,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --target ${{ matrix.target }} --all-targets --no-fail-fast -- --include-ignored
+          args: --target ${{ matrix.target }} --all-targets --no-fail-fast
 
       # We currently aren't set up to run tests on wasm:
       - name: Run cargo test release
@@ -56,7 +56,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --target ${{ matrix.target }} --all-targets --no-fail-fast --release -- --include-ignored
+          args: --target ${{ matrix.target }} --all-targets --no-fail-fast --release
 
   lint:
     needs: check
