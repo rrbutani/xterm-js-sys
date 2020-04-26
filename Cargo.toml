@@ -4,7 +4,29 @@ version = "4.5.0-alpha0"
 authors = ["Rahul Butani <rr.butani@gmail.com>"]
 edition = "2018"
 
+description = "Rust WebAssembly bindings for xterm.js."
+homepage = "https://github.com/rrbutani/xterm-js-sys"
+repository = "https://github.com/rrbutani/xterm-js-sys"
+
+readme = "README.md"
+
+keywords = ["xterm", "xterm.js", "tui-web", "tui"]
+categories = ["api-bindings", "command-line-interface", "external-ffi-bindings", "wasm", "web-programming"]
+
+license = "MIT"
+
+
+[badges]
+github-actions = { repository = "rrbutani/xterm-js-sys", workflow = "full" }
+# [TODO] # codecov = { repository = "rrbutani/xterm-js-sys", branch = "master", service = "github" }
+
+is-it-maintained-issue-resolution = { repository = "rrbutani/xterm-js-sys" }
+is-it-maintained-open-issues = { repository = "rrbutani/xterm-js-sys" }
+maintenance = { status = "actively-developed" }
+
+
 [lib]
+
 
 [dependencies]
 js-sys = "0.3.37"
