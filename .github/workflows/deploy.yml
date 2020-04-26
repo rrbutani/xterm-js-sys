@@ -44,10 +44,10 @@ jobs:
             cargo update
             nom="$(cargo pkgid | cut -d# -f1 | rev | cut -d/ -f1 | rev)"
             yarn install
-            yarn run release -- --public-url https://rrbutani.github.io/xterm-js-sys/examples/${nom}/
+            yarn run release --public-url https://rrbutani.github.io/xterm-js-sys/examples/${nom}/
             cd -
             mv "examples/${nom}/dist" "ex/${nom}"
-            echo "${nom}" >> ex/index.html
+            echo "<a href='${nom}/index.html'>${nom}</a>" >> ex/index.html
           done
 
       - name: Move everything into place
