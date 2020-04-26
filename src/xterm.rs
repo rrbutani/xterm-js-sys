@@ -825,6 +825,7 @@ extern "C" {
     /// (This is a [duck-typed interface]).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
     pub type Buffer;
 
     /// Gets the line within the buffer where the top of the bottom page is
@@ -883,6 +884,7 @@ extern "C" {
     /// (This is a [duck-typed interface]).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
     pub type Disposable;
 
     #[wasm_bindgen(structural, method, js_name = dispose)]
@@ -896,6 +898,7 @@ extern "C" {
     /// (This is a [duck-typed interface]).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
     pub type KeyEventData;
 
     /// Gets the `String` representing this key event that will be sent to
@@ -916,6 +919,7 @@ extern "C" {
 extern "C" {
     /// The class that represents an xterm.js terminal.
     #[wasm_bindgen(extends = Disposable)]
+    #[derive(Debug, Clone)]
     pub type Terminal;
 
     /// Creates a new Terminal object.
@@ -960,7 +964,7 @@ extern "C" {
     /// it to the underlying pty as binary data, e.g.
     /// `pty.write(Buffer.from(data, 'binary'))`.
     ///
-    /// Returns an [`Disposable`] to stop listening.
+    /// Returns a [`Disposable`] to stop listening.
     ///
     /// See [`attach_binary_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
@@ -990,13 +994,14 @@ extern "C" {
     /// ([`KeyEventData`]) contains the string that will be sent in the data
     /// event as well as the DOM event that triggered it.
     ///
-    /// Returns an [`Disposable`] to stop listening.
+    /// Returns a [`Disposable`] to stop listening.
     ///
     /// See [`attach_key_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
     ///
     /// [`Disposable`]: Disposable
     /// [`KeyEventData`]: KeyEventData
+    /// [`attach_key_event_listener`]: Terminal::attach_key_event_listener
     #[wasm_bindgen(method, js_name = onKey)]
     pub fn on_key(this: &Terminal, listener: &Closure<dyn FnMut(KeyEventData)>) -> Disposable;
 
@@ -1151,12 +1156,9 @@ extern "C" {
     Returns: void
 */
 
-/*  [TODO]
-    focus
-    ▸ focus(): void
-    Focus the terminal.
-    Returns: void
-*/
+    /// Focus the terminal.
+    #[wasm_bindgen(method, js_name = focus)]
+    pub fn focus(this: &Terminal);
 
 /*  [TODO]
     getOption
