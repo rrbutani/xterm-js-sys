@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "basic"
+]
+
+[profile.release]
+lto = true
+debug = true
