@@ -3,6 +3,10 @@ name = "basic"
 version = "0.1.0"
 authors = ["Rahul Butani <rr.butani@gmail.com>"]
 edition = "2018"
+publish = false
+
+workspace = ".."
+
 
 [dependencies]
 xterm-js-sys = { path = "../../", version = "4.5.0-alpha0" }
