@@ -40,4 +40,5 @@ jobs:
           grep -q "${T_VER}" CHANGELOG.md || exit 3
 
       - name: Publish
+        run: |
           cargo publish --token ${{ secrets.CARGO_TOKEN }}
