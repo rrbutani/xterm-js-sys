@@ -44,9 +44,10 @@ jobs:
             cargo update
             nom="$(cargo pkgid | cut -d# -f1 | rev | cut -d/ -f1 | rev)"
             yarn install
-            yarn run release
+            yarn run release -- --public-url https://rrbutani.github.io/xterm-js-sys/examples/${nom}/
             cd -
             mv "examples/${nom}/dist" "ex/${nom}"
+            echo "${nom}" >> ex/index.html
           done
 
       - name: Move everything into place
@@ -54,7 +55,7 @@ jobs:
           mkdir -p deploy
           mv ex deploy/examples
           mv target/wasm32-wasi/doc deploy/docs
-          echo "Try /examples or /docs." > deploy/index.txt
+          echo "Try /examples or /docs." > deploy/index.html
 
       - name: Prepare tag
         id: prepare_tag
