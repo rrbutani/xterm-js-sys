@@ -32,7 +32,7 @@ jobs:
 
       - name: Add wasm32-wasi target (needed to build bindgen)
         run: |
-          rustup +"${matrix.rust}" target install wasm32-wasi
+          rustup +${{ matrix.rust }} target install wasm32-wasi
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
