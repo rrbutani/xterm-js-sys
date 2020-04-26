@@ -78,7 +78,7 @@ PRs are (very) welcome!
 [actions]: https://github.com/rrbutani/xterm-js-sys/actions
 [license]: https://opensource.org/licenses/MIT
 [crates]: https://crates.io/crates/xterm-js-sys
-[docs]: https://rrbutani.github.io/xterm-js-sys/docs
+[docs]: https://rrbutani.github.io/xterm-js-sys/docs/xterm_js_sys
 
 [examples]: https://rrbutani.github.io/xterm-js-sys/examples
 

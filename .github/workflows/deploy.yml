@@ -54,6 +54,7 @@ jobs:
           mkdir -p deploy
           mv ex deploy/examples
           mv target/wasm32-wasi/doc deploy/docs
+          echo "Try /examples or /docs." > deploy/index.txt
 
       - name: Prepare tag
         id: prepare_tag
