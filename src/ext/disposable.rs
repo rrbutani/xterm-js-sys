@@ -1,4 +1,4 @@
-//! A concrete type and an adapter for [`Disposable`].
+//! Utilities for [`Disposable`].
 //!
 //! [`Disposable`]: crate::xterm::Disposable
 
@@ -7,6 +7,9 @@ use wasm_bindgen::{JsValue, JsCast};
 
 use js_sys::{Object, Function};
 
+/// A wrapper for [`Disposable`] that calls `dispose` on `Drop`.
+///
+/// [`Disposable`]: crate::xterm::Disposable
 pub struct DisposableWrapper {
     inner: Disposable,
 }
@@ -23,6 +26,12 @@ impl Drop for DisposableWrapper {
     }
 }
 
+/// A type that satisfies the [`Disposable`] interface and does nothing on
+/// `dispose`.
+///
+/// Can be used wherever an `IDisposable` is required.
+///
+/// [`Disposable`]: crate::xterm::Disposable
 #[wasm_bindgen]
 pub struct NoOpDispose {
     obj: Object,
