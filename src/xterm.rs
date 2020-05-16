@@ -123,27 +123,11 @@ pub enum LogLevel {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A string representing a renderer type.
 pub enum RendererType {
+    /// t
     Dom = "dom",
+    /// t
     Canvas = "canvas",
 }
-
-// #[allow(unused)]
-// macro_rules! calculated_doc {
-//     ($(#[$($attr:tt)*])* $(#[doc = $doc:expr])* $thing:item) => {
-//         $([$($attr)*])*
-//         $(#[doc = $doc])* $thing
-//     };
-// }
-
-// macro_rules! calculated_doc_wasm {
-//     (#[wasm_bindgen($get_or_set:tt $js_name:ident)] $(#[doc = $doc:expr])* $thing:item) => {
-//         #[wasm_bindgen($get_or_set = $js_name)]
-//         $(#[doc = $doc])* $thing
-//     };
-// }
-
-#[allow(unused_macros)]
-macro_rules! discard { ($($t:tt)*) => {}; }
 
 macro_rules! wasm_struct {
     (
@@ -188,64 +172,6 @@ macro_rules! wasm_struct {
 
         #[wasm_bindgen]
         impl $nom {
-            // $(/*$(*/
-            //     // // calculated_doc! {
-            //     //     #[wasm_bindgen(getter = $js_name)]
-            //     //     #[doc = "Getter."]
-            //     //     // #[doc = core::stringify!($priv_field)]
-            //     //     pub fn $priv_field(&self) -> $priv_field_ty {
-            //     //         self.$priv_field.clone()
-            //     //     }
-            //     // // }
-
-            //     // // calculated_doc! {
-            //     //     #[wasm_bindgen(setter = $js_name)]
-            //     //     #[doc = "Setter."]
-            //     //     // #[doc = core::stringify!($priv_field)]
-            //     //     pub fn $set(&mut self, $priv_field: $priv_field_ty) {
-            //     //         self.$priv_field = $priv_field;
-            //     //     }
-            //     // // }
-
-            //     // calculated_doc_wasm! {
-            //     //     #[wasm_bindgen(getter = $js_name)]
-            //     //     #[doc = "Getter."]
-            //     //     #[doc = $priv_field]
-            //     //     pub fn $priv_field(&self) -> $priv_field_ty {
-            //     //         self.$priv_field.clone()
-            //     //     }
-            //     // }
-
-            //     // // calculated_doc! {
-            //     //     #[wasm_bindgen(setter = $js_name)]
-            //     //     #[doc = "Setter."]
-            //     //     // #[doc = core::stringify!($priv_field)]
-            //     //     pub fn $set(&mut self, $priv_field: $priv_field_ty) {
-            //     //         self.$priv_field = $priv_field;
-            //     //     }
-            //     // // }
-
-            //     $(
-            //         #[wasm_bindgen(getter = $js_name)]
-            //         #[doc = "Getter.\n\n"]
-            //     )?
-            //     // $(#[$metas_field])+
-
-            //     $(
-            //         pub fn $priv_field(&self) -> $priv_field_ty {
-            //             self.$priv_field.clone()
-            //         }
-
-            //         #[wasm_bindgen(setter = $js_name)]
-            //         #[doc = "Setter.\n"]
-            //         pub fn $set(&mut self, $priv_field: $priv_field_ty) {
-            //             self.$priv_field = $priv_field;
-            //         }
-            //     )?
-
-            //     // $(pub fn $field(&self) -> &$field_ty { self.$field })?
-
-            // /*)?*/)*
             $(
                 $(#[doc = $docs_field])*
 
@@ -253,16 +179,9 @@ macro_rules! wasm_struct {
                 // dealing with a private field:
                 $(
                     #[allow(unused_doc_comments)]
-                    // discard! { $field }
                     #[cfg(__never__)]
                     fn $field() -> () { }
                 )?
-
-                // $(
-                //     #[doc(hidden)]
-                //     #[allow(bad_style)]
-                //     const $field: () = ();
-                // )?
 
                 $(
                     #[doc = "\n\nGetter."]
@@ -277,7 +196,6 @@ macro_rules! wasm_struct {
                 // Again: garbage to swallow the doc comment.
                 $(
                     #[allow(unused_doc_comments)]
-                    // discard! { $field }
                     #[cfg(__never__)]
                     fn $field() -> () { }
                 )?
