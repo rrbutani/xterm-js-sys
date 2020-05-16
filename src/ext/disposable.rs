@@ -11,6 +11,7 @@ use js_sys::{Function, Object};
 ///
 /// [`Disposable`]: crate::xterm::Disposable
 #[derive(Debug, Clone)]
+#[cfg_attr(docs, doc(cfg(feature = "ext")))]
 pub struct DisposableWrapper {
     inner: Disposable,
 }
@@ -35,6 +36,7 @@ impl Drop for DisposableWrapper {
 /// [`Disposable`]: crate::xterm::Disposable
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
+#[cfg_attr(docs, doc(cfg(feature = "ext")))]
 pub struct NoOpDispose {
     obj: Object,
 }
@@ -45,6 +47,7 @@ impl Default for NoOpDispose {
     }
 }
 
+#[cfg_attr(docs, doc(cfg(feature = "ext")))]
 impl NoOpDispose {
     pub fn new() -> Self {
         let obj = Object::new();

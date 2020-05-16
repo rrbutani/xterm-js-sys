@@ -25,6 +25,7 @@ use wasm_bindgen::prelude::*;
 //     }
 // }
 
+#[cfg_attr(docs, doc(cfg(feature = "ext")))]
 impl Terminal {
     /// Attaches a binary event listener and returns a [`DisposableWrapper`]
     /// that can be dropped to make xterm.js stop sending the event listener
@@ -36,6 +37,7 @@ impl Terminal {
     /// leak the closure that is produced here!
     ///
     /// [`Terminal::on_binary`]: Terminal::on_binary
+    #[allow(trivial_casts)]
     pub fn attach_binary_event_listener<F>(&self, listener: F) -> DisposableWrapper
     where
         F: FnMut(String),
@@ -58,6 +60,7 @@ impl Terminal {
     /// leak the closure that is produced here!
     ///
     /// [`Terminal::on_key`]: Terminal::on_key
+    #[allow(trivial_casts)]
     pub fn attach_key_event_listener<F>(&self, listener: F) -> DisposableWrapper
     where
         F: FnMut(KeyEventData),
