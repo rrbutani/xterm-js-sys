@@ -1,4 +1,5 @@
-#![deny(intra_doc_link_resolution_failure)]
+#![cfg_attr(docs, feature(doc_cfg))]
+#![cfg_attr(docs, feature(external_doc))]
 
 extern crate wasm_bindgen;
 
