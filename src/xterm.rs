@@ -102,16 +102,42 @@ pub enum RendererType {
     Canvas = "canvas",
 }
 
+// #[allow(unused)]
+// macro_rules! calculated_doc {
+//     ($(#[$($attr:tt)*])* $(#[doc = $doc:expr])* $thing:item) => {
+//         $([$($attr)*])*
+//         $(#[doc = $doc])* $thing
+//     };
+// }
+
+// macro_rules! calculated_doc_wasm {
+//     (#[wasm_bindgen($get_or_set:tt $js_name:ident)] $(#[doc = $doc:expr])* $thing:item) => {
+//         #[wasm_bindgen($get_or_set = $js_name)]
+//         $(#[doc = $doc])* $thing
+//     };
+// }
+
+#[allow(unused_macros)]
+macro_rules! discard { ($($t:tt)*) => {}; }
+
 macro_rules! wasm_struct {
     (
         #[wasm_bindgen]
         $(#[$metas:meta])*
         pub struct $nom:ident {
             $(
-                $(#[$metas_field:meta])+
+                $(#[doc = $docs_field:literal])*
+                $(#[wasm_bindgen($($wasm_opt:ident = $wasm_val:tt),+)])?
+                // $(#[$metas_field:meta])*
                 $(pub $field:ident: $field_ty:ty)?
-                $(|clone(set = $set:ident, js_name = $js_name:ident $(, pub = $public:ident)?)
-                    $priv_field:ident: $priv_field_ty:ty )?
+                $(|
+                    clone(
+                        set = $set:ident,
+                        js_name = $js_name:ident
+                        $(, pub = $public:ident)?
+                    )
+                    $priv_field:ident: $priv_field_ty:ty
+                )?
                 ,
             )+
         }
@@ -120,7 +146,9 @@ macro_rules! wasm_struct {
         $(#[$metas])*
         pub struct $nom {
             $(
-                $(#[$metas_field])+
+                $(#[doc = $docs_field])*
+                $(#[wasm_bindgen($($wasm_opt = $wasm_val),+)])?
+                // $(#[$metas_field])*
                 $(pub $field: $field_ty)?
                 $(
                     $(
@@ -135,17 +163,63 @@ macro_rules! wasm_struct {
 
         #[wasm_bindgen]
         impl $nom {
-            $($(
-                #[wasm_bindgen(getter = $js_name)]
-                pub fn $priv_field(&self) -> $priv_field_ty {
-                    self.$priv_field.clone()
-                }
+            // $(/*$(*/
+            //     // // calculated_doc! {
+            //     //     #[wasm_bindgen(getter = $js_name)]
+            //     //     #[doc = "Getter."]
+            //     //     // #[doc = core::stringify!($priv_field)]
+            //     //     pub fn $priv_field(&self) -> $priv_field_ty {
+            //     //         self.$priv_field.clone()
+            //     //     }
+            //     // // }
 
-                #[wasm_bindgen(setter = $js_name)]
-                pub fn $set(&mut self, $priv_field: $priv_field_ty) {
-                    self.$priv_field = $priv_field;
-                }
-            )?)*
+            //     // // calculated_doc! {
+            //     //     #[wasm_bindgen(setter = $js_name)]
+            //     //     #[doc = "Setter."]
+            //     //     // #[doc = core::stringify!($priv_field)]
+            //     //     pub fn $set(&mut self, $priv_field: $priv_field_ty) {
+            //     //         self.$priv_field = $priv_field;
+            //     //     }
+            //     // // }
+
+            //     // calculated_doc_wasm! {
+            //     //     #[wasm_bindgen(getter = $js_name)]
+            //     //     #[doc = "Getter."]
+            //     //     #[doc = $priv_field]
+            //     //     pub fn $priv_field(&self) -> $priv_field_ty {
+            //     //         self.$priv_field.clone()
+            //     //     }
+            //     // }
+
+            //     // // calculated_doc! {
+            //     //     #[wasm_bindgen(setter = $js_name)]
+            //     //     #[doc = "Setter."]
+            //     //     // #[doc = core::stringify!($priv_field)]
+            //     //     pub fn $set(&mut self, $priv_field: $priv_field_ty) {
+            //     //         self.$priv_field = $priv_field;
+            //     //     }
+            //     // // }
+
+            //     $(
+            //         #[wasm_bindgen(getter = $js_name)]
+            //         #[doc = "Getter.\n\n"]
+            //     )?
+            //     // $(#[$metas_field])+
+
+            //     $(
+            //         pub fn $priv_field(&self) -> $priv_field_ty {
+            //             self.$priv_field.clone()
+            //         }
+
+            //         #[wasm_bindgen(setter = $js_name)]
+            //         #[doc = "Setter.\n"]
+            //         pub fn $set(&mut self, $priv_field: $priv_field_ty) {
+            //             self.$priv_field = $priv_field;
+            //         }
+            //     )?
+
+            //     // $(pub fn $field(&self) -> &$field_ty { self.$field })?
+
         }
     };
 }
