@@ -28,6 +28,12 @@ jobs:
           args: --all-features
           # → target/wasm32-wasi/doc
 
+      - name: Run cargo rustdoc # just to show the stats!
+        uses: actions-rs/cargo@v1
+        with:
+          command: rustdoc
+          args: --all-features -- --cfg docs -Z unstable-options --show-coverage
+
       - uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: 'latest'
