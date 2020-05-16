@@ -50,11 +50,13 @@ And make sure that your bundler/JS package manager is set to grab the correspond
 
 Make sure you also add the packages for any addons you're using; see our [examples' `package.json`](examples/package.json) for an example.
 
+The [xterm.js documentation](https://xtermjs.org/docs/) is a good reference for actual usage of the API; these bindings are almost always one to one.
+
 ## Examples
 
-This repo has a [few examples](examples) that show usage of the bindings, usage with the `ext` feature, and one use of the [tui][tui] backend.
+This repo has a [few examples][examples-src] that show usage of the bindings, usage with the `ext` feature, and one use of the [tui][tui] backend.
 
-To build these, enter the folder of the example you wish to run (i.e. [examples/basic](examples/basic)), and:
+To build these, enter the folder of the example you wish to run (i.e. [examples/basic][examples-src-basic], and:
   - install the packages (`npm i` or `yarn install`)
   - run the watch script (`npm run watch` or `yarn run watch`)
 
@@ -81,6 +83,8 @@ PRs are (very) welcome!
 [docs]: https://rrbutani.github.io/xterm-js-sys/docs/xterm_js_sys
 
 [examples]: https://rrbutani.github.io/xterm-js-sys/examples
+[examples-src]: https://github.com/rrbutani/xterm-js-sys/tree/master/examples
+[examples-src-basic]: https://github.com/rrbutani/xterm-js-sys/tree/master/examples/basic
 
 [xterm]: https://github.com/xtermjs/xterm.js/
 [tui]: https://github.com/fdehau/tui-rs
