@@ -220,6 +220,51 @@ macro_rules! wasm_struct {
 
             //     // $(pub fn $field(&self) -> &$field_ty { self.$field })?
 
+            // /*)?*/)*
+            $(
+                $(#[doc = $docs_field])*
+
+                // Some garbage to swallow the doc comment in case we're not
+                // dealing with a private field:
+                $(
+                    #[allow(unused_doc_comments)]
+                    // discard! { $field }
+                    #[cfg(__never__)]
+                    fn $field() -> () { }
+                )?
+
+                // $(
+                //     #[doc(hidden)]
+                //     #[allow(bad_style)]
+                //     const $field: () = ();
+                // )?
+
+                $(
+                    #[doc = "\n\nGetter."]
+                    #[wasm_bindgen(getter = $js_name)]
+                    pub fn $priv_field(&self) -> $priv_field_ty {
+                        self.$priv_field.clone()
+                    }
+                )?
+
+                $(#[doc = $docs_field])*
+
+                // Again: garbage to swallow the doc comment.
+                $(
+                    #[allow(unused_doc_comments)]
+                    // discard! { $field }
+                    #[cfg(__never__)]
+                    fn $field() -> () { }
+                )?
+
+                $(
+                    #[doc = "\n\nSetter."]
+                    #[wasm_bindgen(setter = $js_name)]
+                    pub fn $set(&mut self, $priv_field: $priv_field_ty) {
+                        self.$priv_field = $priv_field;
+                    }
+                )?
+            )*
         }
     };
 }
