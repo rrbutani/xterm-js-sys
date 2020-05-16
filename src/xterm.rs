@@ -1,9 +1,9 @@
-//! Bindings for the Xterm.js public API.
+//! Bindings for the xterm.js public API.
 //!
 //! Unfortunately we can't (yet) generate the below from the TypeScript type
-//! definitions for Xterm.js, so we do it by hand.
+//! definitions for xterm.js, so we do it by hand.
 //!
-//! This isn't a pure mechanical translation of the Xterm.js bindings; docs have
+//! This isn't a pure mechanical translation of the xterm.js bindings; docs have
 //! been adjusted in places (mainly just to link to the right things on the Rust
 //! side) but most importantly interfaces have been converted to either concrete
 //! Rust types (that are accessible from JavaScript), imported types (duck types
@@ -17,12 +17,12 @@
 //! Rust side).
 //!
 //! In general, the rule used for interfaces has been:
-//!   - If instances are constructed by users of the Xterm.js API and _written_
-//!     (i.e. _given_ to the Xterm.js API and never _received_ through a field
+//!   - If instances are constructed by users of the xterm.js API and _written_
+//!     (i.e. _given_ to the xterm.js API and never _received_ through a field
 //!     access or a method call), we have a corresponding _concrete type_ that
 //!     satisfies the interface. This cannot be used to manipulate/interact with
 //!     externally constructed instances of the interface.
-//!   - If instances are given by Xterm.js API and never constructed by users of
+//!   - If instances are given by xterm.js API and never constructed by users of
 //!     the API (i.e. `IBuffer` or `IBufferLine`), an externed JavaScript type
 //!     is made (or rather, we get `wasm-bindgen` to make the necessary glue so
 //!     we can access the fields/methods of the interface on whatever object we
@@ -42,28 +42,53 @@
 
 use wasm_bindgen::prelude::*;
 
+/// An alias for [`String`].
 pub type Str = String;
 
+/// The type of the bell notification the terminal will use.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BellStyle {
+    /// No bell notification.
     None = "none",
+    /// [Removed](https://github.com/xtermjs/xterm.js/issues/1155).
+    #[deprecated(
+        since = "3.0.0",
+        note = "See: https://github.com/xtermjs/xterm.js/issues/1155"
+    )]
+    /// A visual bell notification.
+    Visual = "visual",
+    /// An auditory bell notification.
     Sound = "sound",
+    /// [Removed](https://github.com/xtermjs/xterm.js/issues/1155).
+    #[deprecated(
+        since = "3.0.0",
+        note = "See: https://github.com/xtermjs/xterm.js/issues/1155"
+    )]
+    Both = "both",
 }
 
+/// The style of the cursor.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CursorStyle {
+    /// Block cursor style: `█`.
     Block = "block",
+    /// Underline cursor style: `_`.
     Underline = "underline",
+    /// Bar cursor style: `|`.
     Bar = "bar",
 }
 
+/// The modifier key hold to multiply scroll speed.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FastScrollModifier {
+    /// The 'alt' key.
     Alt = "alt",
+    /// The 'ctrl' key.
     Ctrl = "ctrl",
+    /// The 'shift' key.
     Shift = "shift",
 }
 
@@ -285,79 +310,79 @@ pub struct Theme {
     |clone(set = set_black, js_name = black)
     black: Option<Str>,
 
-    /// ANSI blue (eg. `\x1b[34m`)
+    /// ANSI blue (eg. `\x1b[34m`).
     |clone(set = set_blue, js_name = blue)
     blue: Option<Str>,
 
-    /// ANSI bright black (eg. `\x1b[1;30m`)
+    /// ANSI bright black (eg. `\x1b[1;30m`).
     |clone(set = set_bright_black, js_name = brightBlack)
     bright_black: Option<Str>,
 
-    /// ANSI bright blue (eg. `\x1b[1;34m`)
+    /// ANSI bright blue (eg. `\x1b[1;34m`).
     |clone(set = set_bright_blue, js_name = brightBlue)
     bright_blue: Option<Str>,
 
-    /// ANSI bright cyan (eg. `\x1b[1;36m`)
+    /// ANSI bright cyan (eg. `\x1b[1;36m`).
     |clone(set = set_bright_cyan, js_name = brightCyan)
     bright_cyan: Option<Str>,
 
-    /// ANSI bright green (eg. `\x1b[1;32m`)
+    /// ANSI bright green (eg. `\x1b[1;32m`).
     |clone(set = set_bright_green, js_name = brightGreen)
     bright_green: Option<Str>,
 
-    /// ANSI bright magenta (eg. `\x1b[1;35m`)
+    /// ANSI bright magenta (eg. `\x1b[1;35m`).
     |clone(set = set_bright_magenta, js_name = brightMagenta)
     bright_magenta: Option<Str>,
 
-    /// ANSI bright red (eg. `\x1b[1;31m`)
+    /// ANSI bright red (eg. `\x1b[1;31m`).
     |clone(set = set_bright_red, js_name = brightRed)
     bright_red: Option<Str>,
 
-    /// ANSI bright white (eg. `\x1b[1;37m`)
+    /// ANSI bright white (eg. `\x1b[1;37m`).
     |clone(set = set_bright_white, js_name = brightWhite)
     bright_white: Option<Str>,
 
-    /// ANSI bright yellow (eg. `\x1b[1;33m`)
+    /// ANSI bright yellow (eg. `\x1b[1;33m`).
     |clone(set = set_bright_yellow, js_name = brightYellow)
     bright_yellow: Option<Str>,
 
-    /// The cursor color
+    /// The cursor color.
     |clone(set = set_cursor, js_name = cursor)
     cursor: Option<Str>,
 
-    /// The accent color of the cursor (fg color for a block cursor)
+    /// The accent color of the cursor (fg color for a block cursor).
     |clone(set = set_cursor_accent, js_name = cursorAccent)
     cursor_accent: Option<Str>,
 
-    /// ANSI cyan (eg. `\x1b[36m`)
+    /// ANSI cyan (eg. `\x1b[36m`).
     |clone(set = set_cyan, js_name = cyan)
     cyan: Option<Str>,
 
-    /// The default foreground color
+    /// The default foreground color.
     |clone(set = set_foreground, js_name = foreground)
     foreground: Option<Str>,
 
-    /// ANSI green (eg. `\x1b[32m`)
+    /// ANSI green (eg. `\x1b[32m`).
     |clone(set = set_green, js_name = green)
     green: Option<Str>,
 
-    /// ANSI magenta (eg. `\x1b[35m`)
+    /// ANSI magenta (eg. `\x1b[35m`).
     |clone(set = set_magenta, js_name = magenta)
     magenta: Option<Str>,
 
-    /// ANSI red (eg. `\x1b[31m`)
+    /// ANSI red (eg. `\x1b[31m`).
     |clone(set = set_red, js_name = red)
     red: Option<Str>,
 
-    /// The selection background color (can be transparent)
+    /// The selection background color (can be transparent).
     |clone(set = set_selection, js_name = selection)
     selection: Option<Str>,
 
-    /// ANSI white (eg. `\x1b[37m`)
+    /// ANSI white (eg. `\x1b[37m`).
     |clone(set = set_white, js_name = white)
     white: Option<Str>,
 
-    /// ANSI yellow (eg. `\x1b[33m`)
+    /// ANSI yellow (eg. `\x1b[33m`).
     |clone(set = set_yellow, js_name = yellow)
     yellow: Option<Str>,
 }}
@@ -563,7 +588,7 @@ pub struct TerminalOptions {
     pub allow_transparency: Option<bool>,
 
     /// A data uri of the sound to use for the bell when
-    /// `TerminalOptions.bellStyle` = 'sound'.
+    /// [`TerminalOptions.bell_style`] = 'sound'.
     |clone(set = set_bell_sound, js_name = bellSound)
     bell_sound: Option<Str>,
 
@@ -695,7 +720,8 @@ pub struct TerminalOptions {
     #[wasm_bindgen(js_name = screenReaderMode)]
     pub screen_reader_mode: Option<bool>,
 
-    /// The scrolling speed multiplier used for adjusting normal scrolling speed.
+    /// The scrolling speed multiplier used for adjusting normal scrolling
+    /// speed.
     #[wasm_bindgen(js_name = scrollSensitivity)]
     pub scroll_sensitivity: Option<f32>,
 
@@ -735,6 +761,8 @@ pub struct TerminalOptions {
     word_separator: Option<Str>,
 }}
 
+/// A Color for use with xterm.js.
+///
 /// Can represent:
 ///   - the Default color (0),
 ///   - a Palette number (0 to 255, inclusive).
@@ -777,7 +805,7 @@ extern "C" {
     ///   - A wide character (eg. CJK)
     ///   - An emoji
     #[wasm_bindgen(structural, method, js_name = getChars)]
-    pub fn get_chars(this: &BufferCell) -> String;
+    pub fn get_chars(this: &BufferCell) -> Str;
 
     /// Gets the UTF32 codepoint of single characters, if content is a combined
     /// string it returns the codepoint of the last character in the string.
@@ -931,7 +959,7 @@ extern "C" {
         trim_right: Option<bool>,
         start_column: Option<u16>,
         end_column: Option<u16>,
-    ) -> String;
+    ) -> Str;
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -1022,7 +1050,7 @@ extern "C" {
     ///
     /// [`Terminal::onData`]: Terminal::onData
     #[wasm_bindgen(structural, method, getter = key)]
-    pub fn key(this: &KeyEventData) -> String;
+    pub fn key(this: &KeyEventData) -> Str;
 
     /// Gets the actual DOM Event ([`KeyboardEvent`]) that triggered the event.
     ///
@@ -1053,7 +1081,7 @@ extern "C" {
     pub fn buffer(this: &Terminal) -> Buffer;
 
     /// The number of columns in the terminal’s viewport. Use
-    /// `TerminalOptions.cols` to set this in the [constructor] and
+    /// [`TerminalOptions.cols`] to set this in the [constructor] and
     /// [`Terminal::resize`] for when the terminal exists.
     ///
     /// [`TerminalOptions.cols`]: TerminalOptions.cols
@@ -1088,7 +1116,7 @@ extern "C" {
     /// [`Disposable`]: Disposable
     /// [`attach_binary_event_listener`]: Terminal::attach_binary_event_listener
     #[wasm_bindgen(method, js_name = onBinary)]
-    pub fn on_binary(this: &Terminal, listener: &Closure<dyn FnMut(String)>) -> Disposable;
+    pub fn on_binary(this: &Terminal, listener: &Closure<dyn FnMut(Str)>) -> Disposable;
 
     /// Adds an event listener for the cursor moves.
     ///
@@ -1599,7 +1627,7 @@ extern "C" {
     ///             UTF-8 encoded Rust `String`s to UTF-16 JS strings) and just
     ///             makes things simpler.
     #[wasm_bindgen(method, js_name = write)]
-    pub fn write(this: &Terminal, data: String);
+    pub fn write(this: &Terminal, data: Str);
 
     /// Writes data to the terminal and takes a callback.
     ///
@@ -1618,7 +1646,7 @@ extern "C" {
     ///
     /// [`write`]: Terminal::write
     #[wasm_bindgen(method, js_name = write)]
-    pub fn write_with_callback(this: &Terminal, data: String, callback: &Closure<dyn FnMut()>);
+    pub fn write_with_callback(this: &Terminal, data: Str, callback: &Closure<dyn FnMut()>);
 
 // [TODO]
 //   writeUtf8
