@@ -66,7 +66,7 @@ These examples are also deployed [here][examples].
 
 ## Minimum Supported Rust Version (MSRV)
 
-This crate is currently guaranteed to compile on stable Rust 1.43 and newer. We offer no guarantees that this will remain true in future releases but do promise to always support (at minimum) the latest stable Rust version and to document changes to the MSRV in the [changelog](CHANGELOG.md).
+This crate is currently guaranteed to compile on stable Rust 1.43 and newer. We offer no guarantees that this will remain true in future releases but do promise to always support (at minimum) the latest stable Rust version and to document changes to the MSRV in the [changelog][changelog].
 
 ## Contributing
 
@@ -76,6 +76,8 @@ PRs are (very) welcome!
 [license-badge]: https://img.shields.io/github/license/rrbutani/xterm-js-sys?color=orange&style=for-the-badge
 [crates-badge]: https://img.shields.io/crates/v/xterm-js-sys?style=for-the-badge
 [docs-badge]: https://img.shields.io/badge/docs-latest-blue.svg?style=for-the-badge
+
+[changelog]: https://github.com/rrbutani/xterm-js-sys/tree/master/CHANGELOG.md
 
 [actions]: https://github.com/rrbutani/xterm-js-sys/actions
 [license]: https://opensource.org/licenses/MIT
