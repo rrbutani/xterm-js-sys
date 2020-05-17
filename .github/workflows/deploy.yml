@@ -25,7 +25,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --all-features
+          args: --all-features --document-private-items
           # → target/wasm32-wasi/doc
 
       - name: Run cargo rustdoc # just to show the stats!

@@ -37,7 +37,7 @@ jobs:
         run: |
           T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          grep -q "${T_VER}" CHANGELOG.md || exit 3
+          grep -q "# ${T_VER}" CHANGELOG.md || exit 3
 
       - name: Create Release
         uses: actions/create-release@latest
