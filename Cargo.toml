@@ -58,3 +58,7 @@ ext = []
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown", "wasm32-wasi"]
 rustdoc-args = ["--cfg", "docs"]
+
+
+[patch.crates-io]
+wasm-bindgen = { git = "https://github.com/rrbutani/wasm-bindgen.git" } # TODO: switch back once things get merged!
