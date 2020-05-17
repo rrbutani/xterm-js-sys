@@ -49,6 +49,7 @@ impl Default for NoOpDispose {
 
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 impl NoOpDispose {
+    /// Constructs a new [`NoOpDispose`].
     pub fn new() -> Self {
         let obj = Object::new();
 

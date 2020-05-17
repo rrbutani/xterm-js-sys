@@ -96,15 +96,27 @@ pub enum FastScrollModifier {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A string representing text font weight.
 pub enum FontWeight {
+    /// Normal font weight.
+    Normal = "normal",
+    /// Bold font weight.
     Bold = "bold",
+    /// 100 font weight.
     _100 = "100",
+    /// 200 font weight.
     _200 = "200",
+    /// 300 font weight.
     _300 = "300",
+    /// 400 font weight.
     _400 = "400",
+    /// 500 font weight.
     _500 = "500",
+    /// 600 font weight.
     _600 = "600",
+    /// 700 font weight.
     _700 = "700",
+    /// 800 font weight.
     _800 = "800",
+    /// 900 font weight.
     _900 = "900",
 }
 
@@ -112,10 +124,15 @@ pub enum FontWeight {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A string representing log level.
 pub enum LogLevel {
+    /// Show debug (and above) log level information (all logs).
     Debug = "debug",
+    /// Show information (and above) log level information.
     Info = "info",
+    /// Show warning (and above) log level information.
     Warn = "warn",
+    /// Show errors.
     Error = "error",
+    /// Show no logs.
     Off = "off",
 }
 
@@ -123,9 +140,10 @@ pub enum LogLevel {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A string representing a renderer type.
 pub enum RendererType {
-    /// t
+    /// The DOM renderer. This is faster but doesn't support some features
+    /// (letter spacing, blinking cursor). As such, this is the _fallback_.
     Dom = "dom",
-    /// t
+    /// The Canvas renderer.
     Canvas = "canvas",
 }
 
