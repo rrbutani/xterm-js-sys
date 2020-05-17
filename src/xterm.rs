@@ -877,7 +877,10 @@ extern "C" {
     ///             is being looped over to avoid creating new objects for every
     ///             cell.
     #[wasm_bindgen(structural, method, js_name = getCell)]
-    pub fn get_cell(this: &BufferLine, cell: Option<BufferCell>) -> Option<BufferCell>;
+    pub fn get_cell(
+        this: &BufferLine,
+        cell: Option<BufferCell>,
+    ) -> Option<BufferCell>;
 
     /// Gets the line as a string. Note that this is gets only the string for
     /// the line, not taking [`BufferLine::is_wrapped`] into account.
@@ -1052,7 +1055,10 @@ extern "C" {
     /// [`Disposable`]: Disposable
     /// [`attach_binary_event_listener`]: Terminal::attach_binary_event_listener
     #[wasm_bindgen(method, js_name = onBinary)]
-    pub fn on_binary(this: &Terminal, listener: &Closure<dyn FnMut(Str)>) -> Disposable;
+    pub fn on_binary(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(Str)>,
+    ) -> Disposable;
 
     /// Adds an event listener for the cursor moves.
     ///
@@ -1064,7 +1070,10 @@ extern "C" {
     /// [`Disposable`]: Disposable
     /// [`attach_cursor_move_event_listener`]: Terminal::attach_cursor_move_event_listener
     #[wasm_bindgen(method, js_name = onCursorMove)]
-    pub fn on_cursor_mode(this: &Terminal, listener: &Closure<dyn FnMut()>) -> Disposable;
+    pub fn on_cursor_mode(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut()>,
+    ) -> Disposable;
 
     // [TODO]
     //   onCursorMove
@@ -1093,7 +1102,10 @@ extern "C" {
     /// [`KeyEventData`]: KeyEventData
     /// [`attach_key_event_listener`]: Terminal::attach_key_event_listener
     #[wasm_bindgen(method, js_name = onKey)]
-    pub fn on_key(this: &Terminal, listener: &Closure<dyn FnMut(KeyEventData)>) -> Disposable;
+    pub fn on_key(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(KeyEventData)>,
+    ) -> Disposable;
 
     // [TODO]
     //    onLineFeed
@@ -1582,7 +1594,11 @@ extern "C" {
     ///
     /// [`write`]: Terminal::write
     #[wasm_bindgen(method, js_name = write)]
-    pub fn write_with_callback(this: &Terminal, data: Str, callback: &Closure<dyn FnMut()>);
+    pub fn write_with_callback(
+        this: &Terminal,
+        data: Str,
+        callback: &Closure<dyn FnMut()>,
+    );
 
 // [TODO]
 //   writeUtf8

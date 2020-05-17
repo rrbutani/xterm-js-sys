@@ -1,6 +1,6 @@
+extern crate console_error_panic_hook;
 extern crate wasm_bindgen;
 extern crate web_sys;
-extern crate console_error_panic_hook;
 
 extern crate xterm_js_sys;
 
@@ -18,7 +18,9 @@ pub fn run() -> Result<(), JsValue> {
     // window object.
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
-    let terminal_div = document.get_element_by_id("terminal").expect("should have a terminal div");
+    let terminal_div = document
+        .get_element_by_id("terminal")
+        .expect("should have a terminal div");
 
     let term_orig = Terminal::new(None);
 
@@ -30,15 +32,21 @@ pub fn run() -> Result<(), JsValue> {
         let key = e.key();
         let ev = e.dom_event();
 
-        let printable = matches!((ev.alt_key(), ev.ctrl_key(), ev.meta_key()),
-            (false, false, false));
+        let printable = matches!(
+            (ev.alt_key(), ev.ctrl_key(), ev.meta_key()),
+            (false, false, false)
+        );
 
         const ENTER_ASCII_KEY_CODE: u32 = 13;
         const BACKSPACE_ASCII_KEY_CODE: u32 = 8;
 
         match ev.key_code() {
-            ENTER_ASCII_KEY_CODE => term.write("\n\r\x1B[1;3;31m$ \x1B[0m".to_string()),
-            BACKSPACE_ASCII_KEY_CODE => term.write("\u{0008} \u{0008}".to_string()),
+            ENTER_ASCII_KEY_CODE => {
+                term.write("\n\r\x1B[1;3;31m$ \x1B[0m".to_string())
+            }
+            BACKSPACE_ASCII_KEY_CODE => {
+                term.write("\u{0008} \u{0008}".to_string())
+            }
             _ => term.write(key),
         }
 

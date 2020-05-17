@@ -1,7 +1,5 @@
 #![cfg_attr(docs, feature(doc_cfg))]
 #![cfg_attr(docs, feature(external_doc))]
-
-
 #![cfg_attr(docs, doc(include = "../README.md"))]
 //!
 // ^ is there so it looks like we have at some crate level docs when building

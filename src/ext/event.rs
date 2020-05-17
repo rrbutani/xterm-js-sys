@@ -38,12 +38,16 @@ impl Terminal {
     ///
     /// [`Terminal::on_binary`]: Terminal::on_binary
     #[allow(trivial_casts)]
-    pub fn attach_binary_event_listener<F>(&self, listener: F) -> DisposableWrapper
+    pub fn attach_binary_event_listener<F>(
+        &self,
+        listener: F,
+    ) -> DisposableWrapper
     where
         F: FnMut(String),
         F: 'static,
     {
-        let listener = Closure::wrap(Box::new(listener) as Box<dyn FnMut(String)>);
+        let listener =
+            Closure::wrap(Box::new(listener) as Box<dyn FnMut(String)>);
         let ret = self.on_binary(&listener).into();
 
         Closure::forget(listener);
@@ -66,7 +70,8 @@ impl Terminal {
         F: FnMut(KeyEventData),
         F: 'static,
     {
-        let listener = Closure::wrap(Box::new(listener) as Box<dyn FnMut(KeyEventData)>);
+        let listener =
+            Closure::wrap(Box::new(listener) as Box<dyn FnMut(KeyEventData)>);
         let ret = self.on_key(&listener).into();
 
         Closure::forget(listener);
