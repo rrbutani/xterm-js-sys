@@ -3,6 +3,11 @@ members = [
     "basic"
 ]
 
+
 [profile.release]
 lto = true
 debug = true
+
+
+[patch.crates-io]
+wasm-bindgen = { git = "https://github.com/rrbutani/wasm-bindgen.git" } # TODO: switch back once things get merged!
