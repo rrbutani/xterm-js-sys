@@ -85,8 +85,15 @@ jobs:
           command: fmt
           args: --all -- --check
 
+      # Until this gets fixed: https://github.com/rust-lang/rust-clippy/issues/4612
+      # we'll run cargo clean first...
+      - name: Run cargo clean
+        uses: actions-rs/cargo@v1
+        with:
+          command: clean
+
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all -- -D warnings
+          args: --all --all-features -- -D warnings
