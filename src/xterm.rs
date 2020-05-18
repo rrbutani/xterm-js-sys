@@ -204,6 +204,7 @@ macro_rules! wasm_struct {
                 $(
                     #[doc = "\n\nGetter."]
                     #[wasm_bindgen(getter = $js_name)]
+                    #[must_use]
                     pub fn $priv_field(&self) -> $priv_field_ty {
                         self.$priv_field.clone()
                     }

@@ -1,6 +1,6 @@
 //! Glue for the Xterm.js types.
 
-use super::xterm::*;
+use super::xterm::Disposable;
 
 use wasm_bindgen::prelude::*;
 

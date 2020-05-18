@@ -8,11 +8,11 @@ use wasm_bindgen::{JsCast, JsValue};
 use js_sys::{Function, Object};
 
 /// A wrapper for [`Disposable`] that calls `dispose` on `Drop`.
-///
-/// [`Disposable`]: crate::xterm::Disposable
 #[derive(Debug, Clone)]
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[allow(clippy::module_name_repetitions)]
 pub struct DisposableWrapper {
+    /// The actual [`Disposable`] instance that's being wrapped.
     inner: Disposable,
 }
 
@@ -38,6 +38,7 @@ impl Drop for DisposableWrapper {
 #[derive(Debug, Clone)]
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 pub struct NoOpDispose {
+    /// JavaScript object that just has a no-op `dispose` function.
     obj: Object,
 }
 
@@ -50,6 +51,7 @@ impl Default for NoOpDispose {
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 impl NoOpDispose {
     /// Constructs a new [`NoOpDispose`].
+    #[must_use]
     pub fn new() -> Self {
         let obj = Object::new();
 

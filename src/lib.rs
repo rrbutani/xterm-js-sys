@@ -42,6 +42,13 @@
     html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5"
 )]
 
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::missing_docs_in_private_items)]
+#![allow(clippy::type_repetition_in_bounds)]
+#![allow(clippy::doc_markdown)]
+// ^ Until this gets merged: rust-lang/rust-clippy/pull/5611
+
 // TODO:
 //  - colours for badges in the README
 //  - deny the warnings here
