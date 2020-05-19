@@ -28,7 +28,7 @@ pub fn run() -> Result<(), JsValue> {
 
     let term = term_orig.clone();
     let l = term_orig.attach_key_event_listener(move |e| {
-        /// A port of the xterm.js echo demo:
+        // A port of the xterm.js echo demo:
         let key = e.key();
         let ev = e.dom_event();
 
@@ -47,7 +47,8 @@ pub fn run() -> Result<(), JsValue> {
             BACKSPACE_ASCII_KEY_CODE => {
                 term.write("\u{0008} \u{0008}".to_string())
             }
-            _ => term.write(key),
+            _ if printable => term.write(key),
+            _ => { },
         }
 
         log!("[key event] got {:?}", e);
