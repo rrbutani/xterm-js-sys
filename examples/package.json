@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "watch": "parcel index.html",
-    "release": "WASM_PACK_PROFILE=release parcel build index.html"
+    "release": "WASM_PACK_PROFILE=release NODE_ENV=production parcel build index.html",
+    "//": "drop WASM_PACK_PROFILE=release when (if) things get merged"
   },
   "dependencies": {
     "xterm": "^4.5.0",
@@ -14,8 +15,18 @@
     "xterm-addon-web-links": "^0.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-syntax-import-meta": "^7.8.3",
     "parcel-bundler": "^1.12.4",
-    "parcel-plugin-wasm.rs": "^1.2.15",
+    "parcel-plugin-wasm.rs": "rrbutani/parcel-plugin-wasm.rs",
+    "//": "^ should be switched back if/when the PR gets merged..",
+    "//parcel-plugin-wasm.rs": "file:../../../../../JS/parcel-plugin-wasm.rs",
     "typescript": "^3.8.3"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-syntax-import-meta"
+    ]
   }
 }
