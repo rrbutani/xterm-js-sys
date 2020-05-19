@@ -27,3 +27,18 @@ features = [
 
 [lib]
 crate-type = ["cdylib"]
+
+
+[package.metadata.wasm-pack.profile.dev.wasm-bindgen]
+debug-js-glue = true
+demangle-name-section = true
+dwarf-debug-info = true
+
+[package.metadata.wasm-pack.profile.release]
+# wasm-opt = ["-O4"]
+wasm-opt = ["-O"]
+
+[package.metadata.wasm-pack.profile.release.wasm-bindgen]
+debug-js-glue = false
+demangle-name-section = true
+dwarf-debug-info = true
