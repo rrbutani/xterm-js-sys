@@ -61,8 +61,8 @@ pub fn run() -> Result<(), JsValue> {
 
     term.focus();
 
-    term.write(String::from("\x1B[35;31m hello\n"));
-    term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m $ "));
+    term.write(String::from("\x1B[35;31m hello!\n"));
+    term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m with 🦀\n$ "));
     // window.request_animation_frame()
 
     Ok(())
