@@ -1157,17 +1157,21 @@ extern "C" {
         (EXPERIMENTAL) Get the parser interface to register custom escape sequence handlers.
     */
 
-    // [TODO]
-    //   rows
-    //   • rows: number
-    //   Defined in xterm.d.ts:563
-    //   The number of rows in the terminal’s viewport. Use ITerminalOptions.rows to set this in the constructor and Terminal.resize for when the terminal exists.
+    /// The number of rows in the terminal’s viewport. Use
+    /// [`TerminalOptions.rows`] to set this in the [constructor] and
+    /// [`Terminal.resize`] for when the terminal exists.
+    ///
+    /// [`TerminalOptions.rows`]: TerminalOptions.rows
+    /// [constructor]: Terminal::new
+    /// [`Terminal::resize`]: Terminal::resize
+    #[wasm_bindgen(method, getter = rows)]
+    pub fn rows(this: &Terminal) -> u16;
 
-    // [TODO]
-    //   textarea
-    //   • textarea: *HTMLTextAreaElement    undefined*
-    //   Defined in xterm.d.ts:556
-    //   The textarea that accepts input for the terminal.
+    /// The [textarea] that accepts input for the terminal.
+    ///
+    /// [textarea]: web_sys::HtmlTextAreaElement
+    #[wasm_bindgen(method, getter = textarea)]
+    pub fn textarea(this: &Terminal) -> Option<web_sys::HtmlTextAreaElement>;
 
     /*  [TODO]
         unicode

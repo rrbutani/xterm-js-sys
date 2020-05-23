@@ -42,6 +42,7 @@ features = [
     # "HtmlElement",
     "Element",
     "KeyboardEvent",
+    "HtmlTextAreaElement",
 ]
 
 
