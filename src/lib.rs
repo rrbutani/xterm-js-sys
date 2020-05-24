@@ -54,6 +54,8 @@
 //  - add in an example/crate level docs here
 //  - add in the attr for marking feature specific things in docs
 
+mod readonly_array;
+pub use readonly_array::ReadOnlyArray;
 pub mod xterm;
 
 #[cfg(feature = "ext")]
