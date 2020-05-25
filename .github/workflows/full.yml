@@ -19,7 +19,7 @@ jobs:
           - wasm32-unknown-unknown
           - wasm32-wasi
 
-    continue-on-error: ${{ startsWith(matrix.rust, "nightly") }}
+    continue-on-error: ${{ startsWith(matrix.rust, nightly) }}
 
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
       matrix:
         rust: [ stable, nightly ]
 
-    continue-on-error: ${{ startsWith(matrix.rust, "nightly") }}
+    continue-on-error: ${{ startsWith(matrix.rust, nightly) }}
 
     runs-on: ubuntu-latest
     steps:
