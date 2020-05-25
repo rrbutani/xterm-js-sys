@@ -19,6 +19,8 @@ jobs:
           - wasm32-unknown-unknown
           - wasm32-wasi
 
+    continue-on-error: ${{ matrix.rust == "nightly" }}
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -66,6 +68,8 @@ jobs:
       fail-fast: false
       matrix:
         rust: [ stable, nightly ]
+
+    continue-on-error: ${{ matrix.rust == "nightly" }}
 
     runs-on: ubuntu-latest
     steps:
