@@ -20,10 +20,10 @@ use wasm_bindgen::{
     JsCast,
 };
 
-use core::convert::{AsRef, identity as id};
+use core::convert::{identity as id, AsRef};
 use core::fmt::Debug;
 use core::marker::PhantomData;
-use core::mem::{ManuallyDrop, transmute};
+use core::mem::{transmute, ManuallyDrop};
 use core::ops::Deref;
 
 /// Mirrors [TypeScript's `ReadOnlyArray` interface][TS].
@@ -58,7 +58,7 @@ impl<T: JsCast> From<Array> for ReadOnlyArray<T> {
         // can successfully be cast into `T` here and this is fine.
         Self {
             inner,
-            _t: PhantomData
+            _t: PhantomData,
         }
     }
 }
@@ -81,8 +81,7 @@ macro_rules! forward {
 //
 // [arr]: https://docs.rs/js-sys/0.3.36/src/js_sys/lib.rs.html#128
 impl<T: JsCast> ReadOnlyArray<T> {
-
-    forward!{
+    forward! {
         /// Retrieves the element at the index (returns `undefined` if the index
         /// is out of range).
         get: (&self, index: u32) -> JsValue
@@ -361,7 +360,10 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ) -> Option<T> {
         // If we can't cast into `T`, return false (it's not what we're looking
         // for).
-        self.inner.find(&mut typify(false, predicate, id)).dyn_into().ok()
+        self.inner
+            .find(&mut typify(false, predicate, id))
+            .dyn_into()
+            .ok()
     }
 
     /// Typed version of [`Array::find_index`].
@@ -390,20 +392,19 @@ impl<T: JsCast> ReadOnlyArray<T> {
         &self,
         callback: impl FnMut(T, u32, Self) -> Vec<T>,
     ) -> Self {
-        self.inner.flat_map(&mut typify(
-            Vec::<JsValue>::new(),
-            callback,
-            |v: Vec<T>| v.iter().map(Into::into).collect()
-        )).into()
+        self.inner
+            .flat_map(&mut typify(
+                Vec::<JsValue>::new(),
+                callback,
+                |v: Vec<T>| v.iter().map(Into::into).collect(),
+            ))
+            .into()
     }
 
     /// Typed version of [`Array::for_each`].
     ///
     /// Elements that can't be casted into `T` are automatically ignored.
-    pub fn typed_for_each(
-        &self,
-        callback: impl FnMut(T, u32, Self),
-    ) {
+    pub fn typed_for_each(&self, callback: impl FnMut(T, u32, Self)) {
         // Skip elements that can't be cast into `T`.
         self.inner.for_each(&mut typify((), callback, id))
     }
@@ -481,17 +482,20 @@ impl<T: JsCast> ReadOnlyArray<T> {
         initial_value: A,
     ) -> A {
         self.inner
-            .reduce(&mut move |acc: JsValue, val: JsValue, idx, arr: Array| {
-                let acc = acc.dyn_into().unwrap();
+            .reduce(
+                &mut move |acc: JsValue, val: JsValue, idx, arr: Array| {
+                    let acc = acc.dyn_into().unwrap();
 
-                let acc = if let Ok(val) = val.dyn_into() {
-                    predicate(acc, val, idx, arr.into())
-                } else {
-                    acc
-                };
+                    let acc = if let Ok(val) = val.dyn_into() {
+                        predicate(acc, val, idx, arr.into())
+                    } else {
+                        acc
+                    };
 
-                acc.into()
-            }, &initial_value.into())
+                    acc.into()
+                },
+                &initial_value.into(),
+            )
             .dyn_into()
             .unwrap()
     }
@@ -507,17 +511,20 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ) -> A {
         // Exact same inner function as `typed_reduce`.
         self.inner
-            .reduce_right(&mut move |acc, val, idx, arr| {
-                let acc = acc.dyn_into().unwrap();
+            .reduce_right(
+                &mut move |acc, val, idx, arr| {
+                    let acc = acc.dyn_into().unwrap();
 
-                let acc = if let Ok(val) = val.dyn_into() {
-                    predicate(acc, val, idx, arr.into())
-                } else {
-                    acc
-                };
+                    let acc = if let Ok(val) = val.dyn_into() {
+                        predicate(acc, val, idx, arr.into())
+                    } else {
+                        acc
+                    };
 
-                acc.into()
-            }, &initial_value.into())
+                    acc.into()
+                },
+                &initial_value.into(),
+            )
             .dyn_into()
             .unwrap()
     }
@@ -544,10 +551,10 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::iter`].
     ///
     /// Elements that can't be casted into `T` are omitted.
-    pub fn typed_iter<'a>(&'a self) -> impl Iterator<Item = T> + 'a{
-        self.inner.iter().filter_map(|val: JsValue| {
-            val.dyn_into().ok()
-        })
+    pub fn typed_iter<'a>(&'a self) -> impl Iterator<Item = T> + 'a {
+        self.inner
+            .iter()
+            .filter_map(|val: JsValue| val.dyn_into().ok())
     }
 
     /// Typed version of [`Array::to_vec`].
@@ -571,8 +578,9 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Returns `Err(JsValue)`s for elements that could not be casted as `T` and
     /// elements that would have caused `TypeError`s (i.e. non-objects). See
     /// [`js_sys::Iterator::next`] for more details about the latter case.
-    pub fn typed_entries(&self)
-            -> impl Iterator<Item = (u32, Result<T, JsValue>)> {
+    pub fn typed_entries(
+        &self,
+    ) -> impl Iterator<Item = (u32, Result<T, JsValue>)> {
         self.typed_keys().zip(self.typed_values())
     }
 
@@ -608,15 +616,21 @@ impl<T: JsCast> ReadOnlyArray<T> {
 
 /////////////// The impls `wasm-bindgen` would normally provide. ///////////////
 impl<T: JsCast> AsRef<ReadOnlyArray<T>> for ReadOnlyArray<T> {
-    fn as_ref(&self) -> &Self { self }
+    fn as_ref(&self) -> &Self {
+        self
+    }
 }
 
 impl<T: JsCast> AsRef<JsValue> for ReadOnlyArray<T> {
-    fn as_ref(&self) -> &JsValue { self.inner.as_ref() }
+    fn as_ref(&self) -> &JsValue {
+        self.inner.as_ref()
+    }
 }
 
 impl<T: JsCast> AsRef<Object> for ReadOnlyArray<T> {
-    fn as_ref(&self) -> &Object { self.inner.as_ref() }
+    fn as_ref(&self) -> &Object {
+        self.inner.as_ref()
+    }
 }
 
 impl<T: JsCast> Clone for ReadOnlyArray<T> {
@@ -635,19 +649,27 @@ impl<T: JsCast> Debug for ReadOnlyArray<T> {
 impl<T: JsCast> Deref for ReadOnlyArray<T> {
     type Target = Object;
 
-    fn deref(&self) -> &Object { self.inner.deref() }
+    fn deref(&self) -> &Object {
+        self.inner.deref()
+    }
 }
 
 impl<T: JsCast> From<ReadOnlyArray<T>> for JsValue {
-    fn from(arr: ReadOnlyArray<T>) -> Self { arr.inner.into() }
+    fn from(arr: ReadOnlyArray<T>) -> Self {
+        arr.inner.into()
+    }
 }
 
 impl<T: JsCast> From<ReadOnlyArray<T>> for Object {
-    fn from(arr: ReadOnlyArray<T>) -> Self { arr.inner.into() }
+    fn from(arr: ReadOnlyArray<T>) -> Self {
+        arr.inner.into()
+    }
 }
 
 impl<T: JsCast> From<JsValue> for ReadOnlyArray<T> {
-    fn from(val: JsValue) -> Self { <Array as From<JsValue>>::from(val).into() }
+    fn from(val: JsValue) -> Self {
+        <Array as From<JsValue>>::from(val).into()
+    }
 }
 
 impl<T: JsCast> FromWasmAbi for ReadOnlyArray<T> {
@@ -680,19 +702,27 @@ impl<T: JsCast> JsCast for ReadOnlyArray<T> {
         // We use `#[repr(transparent)]` for `ReadOnlyArray<T>` with the inner
         // type being `Array` so this is safe.
         #[allow(unsafe_code)]
-        unsafe { transmute(Array::unchecked_from_js_ref(val)) }
+        unsafe {
+            transmute(Array::unchecked_from_js_ref(val))
+        }
     }
 
     // `Array` overrides this so we shall too.
-    fn is_type_of(val: &JsValue) -> bool { Array::is_array(val) }
+    fn is_type_of(val: &JsValue) -> bool {
+        Array::is_array(val)
+    }
 }
 
 impl<T: JsCast> OptionFromWasmAbi for ReadOnlyArray<T> {
-    fn is_none(abi: &Self::Abi) -> bool { Array::is_none(abi) }
+    fn is_none(abi: &Self::Abi) -> bool {
+        Array::is_none(abi)
+    }
 }
 
 impl<'a, T: JsCast> OptionIntoWasmAbi for &'a ReadOnlyArray<T> {
-    fn none() -> Self::Abi { Array::none() }
+    fn none() -> Self::Abi {
+        Array::none()
+    }
 }
 
 // We use the derive for this instead because it'll work and because we'll
@@ -711,11 +741,12 @@ impl<T: JsCast> RefFromWasmAbi for ReadOnlyArray<T> {
 
     #[allow(unsafe_code)]
     unsafe fn ref_from_abi(js: Self::Abi) -> Self::Anchor {
-
         // Again, because of `#[repr(transparent)]` (on `ManuallyDrop` and on
         // `ReadOnlyArray`) this is safe.
         #[allow(unsafe_code, unused_unsafe)]
-        unsafe { transmute(Array::ref_from_abi(js)) }
+        unsafe {
+            transmute(Array::ref_from_abi(js))
+        }
     }
 }
 
