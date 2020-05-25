@@ -48,7 +48,9 @@ use core::ops::Deref;
 #[repr(transparent)]
 #[derive(PartialEq, Eq)]
 pub struct ReadOnlyArray<T: JsCast> {
+    /// The `Array` we're backed by.
     inner: Array,
+    /// Marker for `T`.
     _t: PhantomData<T>,
 }
 
@@ -84,6 +86,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     forward! {
         /// Retrieves the element at the index (returns `undefined` if the index
         /// is out of range).
+        #[must_use]
         get: (&self, index: u32) -> JsValue
 
         /// The `concat()` method is used to merge two or more arrays. This
@@ -91,12 +94,14 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// new array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat)
+        #[must_use]
         concat: (&self, array: &Array) -> Array
 
         /// The `every()` method tests whether all elements in the array pass
         /// the test implemented by the provided function.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+        #[must_use]
         every: (
             &self,
             predicate: &mut dyn FnMut(JsValue, u32, Array) -> bool,
@@ -106,6 +111,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// pass the test implemented by the provided function.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
+        #[must_use]
         filter: (
             &self,
             predicate: &mut dyn FnMut(JsValue, u32, Array) -> bool,
@@ -116,6 +122,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// `undefined` is returned.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
+        #[must_use]
         find: (
             &self,
             predicate: &mut dyn FnMut(JsValue, u32, Array) -> bool
@@ -126,6 +133,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// is returned.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
+        #[must_use]
         find_index: (
             &self,
             predicate: &mut dyn FnMut(JsValue, u32, Array) -> bool
@@ -135,12 +143,14 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// concatenated into it recursively up to the specified depth.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat)
+        #[must_use]
         flat: (&self, depth: i32) -> Array
 
         /// The `flatMap()` method first maps each element using a mapping
         /// function, then flattens the result into a new array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap)
+        #[must_use]
         flat_map: (
             &self,
             callback: &mut dyn FnMut(JsValue, u32, Array) -> Vec<JsValue>,
@@ -156,18 +166,21 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// certain element, returning true or false as appropriate.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes)
+        #[must_use]
         includes: (&self, value: &JsValue, from_index: i32) -> bool
 
         /// The `indexOf()` method returns the first index at which a given
         /// element can be found in the array, or -1 if it is not present.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
+        #[must_use]
         index_of: (&self, value: &JsValue, from_index: i32) -> i32
 
         /// The `join()` method joins all elements of an array (or an array-like
         /// object) into a string and returns this string.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join)
+        #[must_use]
         join: (&self, delimiter: &str) -> JsString
 
         /// The `lastIndexOf()` method returns the last index at which a given
@@ -175,6 +188,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// array is searched backwards, starting at fromIndex.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf)
+        #[must_use]
         last_index_of: (&self, value: &JsValue, from_index: i32) -> i32
 
         /// The length property of an object which is an instance of type Array
@@ -183,6 +197,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// the highest index in the array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length)
+        #[must_use]
         length: (&self) -> u32
 
         /// `map()` calls a provided callback function once for each element in
@@ -193,6 +208,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// which have been deleted or which have never been assigned a value).
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+        #[must_use]
         map: (
             &self,
             predicate: &mut dyn FnMut(JsValue, u32, Array) -> JsValue,
@@ -203,6 +219,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// single value.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce)
+        #[must_use]
         reduce: (
             &self,
             predicate: &mut dyn FnMut(JsValue, JsValue, u32, Array) -> JsValue,
@@ -214,6 +231,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// single value.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight)
+        #[must_use]
         reduce_right: (
             &self,
             predicate: &mut dyn FnMut(JsValue, JsValue, u32, Array) -> JsValue,
@@ -228,6 +246,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// produced from a [`ReadOnlyArray`] is not a problem.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)
+        #[must_use]
         slice: (&self, start: u32, end: u32) -> Array
 
         /// The `some()` method tests whether at least one element in the array
@@ -237,6 +256,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
+        #[must_use]
         some: (&self, predicate: &mut dyn FnMut(JsValue) -> bool) -> bool
 
         /// The `toLocaleString()` method returns a string representing the
@@ -245,6 +265,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// locale-specific String (such as a comma “,”).
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toLocaleString)
+        #[must_use]
         to_locale_string: (
             &self,
             locales: &JsValue,
@@ -255,30 +276,36 @@ impl<T: JsCast> ReadOnlyArray<T> {
         /// array and its elements.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toString)
+        #[must_use]
         to_string: (&self) -> JsString
 
         /// Returns an iterator over the values of the JS array.
+        #[must_use]
         iter: (&self) -> js_sys::ArrayIter<'_>
 
         /// Converts the JS array into a new `Vec`.
+        #[must_use]
         to_vec: (&self) -> Vec<JsValue>
 
         /// The `keys()` method returns a new Array Iterator object that
         /// contains the keys for each index in the array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys)
+        #[must_use]
         keys: (&self) -> js_sys::Iterator
 
         /// The `entries()` method returns a new Array Iterator object that
         /// contains the key/value pairs for each index in the array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/entries)
+        #[must_use]
         entries: (&self) -> js_sys::Iterator
 
         /// The `values()` method returns a new Array Iterator object that
         /// contains the values for each index in the array.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values)
+        #[must_use]
         values: (&self) -> js_sys::Iterator
     }
 
@@ -286,11 +313,14 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Array.
     ///
     /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray)
+    #[must_use]
     pub fn is_array(value: &JsValue) -> bool {
         Array::is_array(value)
     }
 }
 
+/// Wraps an array iter function so that it only sees actual types instead of
+/// [`JsValue`].
 fn typify<T: JsCast, R, R2: Clone>(
     on_type_mismatch: R2,
     mut func: impl FnMut(T, u32, ReadOnlyArray<T>) -> R,
@@ -305,6 +335,9 @@ fn typify<T: JsCast, R, R2: Clone>(
     }
 }
 
+/// Converts an `i32` into an `Option<u32>` (following the JS convention where
+/// -1 indicates an error/lack of an element).
+#[allow(clippy::cast_sign_loss)]
 fn idx_to_opt(idx: i32) -> Option<u32> {
     match idx {
         -1 => None,
@@ -319,11 +352,13 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Returns `None` when the element can't be casted into `T` or the index is
     /// out of bounds.
+    #[must_use]
     pub fn typed_get(&self, index: u32) -> Option<T> {
         self.inner.get(index).dyn_into().ok()
     }
 
     /// Typed version of [`Array::concat`].
+    #[must_use]
     pub fn typed_concat(&self, array: &Self) -> Self {
         self.inner.concat(&array.inner).into()
     }
@@ -342,6 +377,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::filter`].
     ///
     /// Elements that can't be casted into `T` are automatically filtered out.
+    #[must_use]
     pub fn typed_filter(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
@@ -354,6 +390,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::find`].
     ///
     /// Elements that can't be casted into `T` are automatically ignored.
+    #[must_use]
     pub fn typed_find(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
@@ -371,6 +408,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Elements that can't be casted into `T` are automatically ignored.
     ///
     /// Returns `None` when the element can't be found.
+    #[must_use]
     pub fn typed_find_index(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
@@ -381,6 +419,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     }
 
     /// Typed version of [`Array::flat`].
+    #[must_use]
     pub fn typed_flat(&self, depth: i32) -> Self {
         self.inner.flat(depth).into()
     }
@@ -388,6 +427,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::flat_map`].
     ///
     /// Elements that can't be casted into `T` are automatically ignored.
+    #[must_use]
     pub fn typed_flat_map(
         &self,
         callback: impl FnMut(T, u32, Self) -> Vec<T>,
@@ -459,6 +499,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Elements that can't be cast into `T` are mapped to
     /// [`JsValue::UNDEFINED`].
+    #[must_use]
     pub fn typed_map<R: JsCast>(
         &self,
         predicate: impl FnMut(T, u32, Self) -> R,
@@ -476,6 +517,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Effectively 'skips' elements that can't be cast to `T` (just returns the
     /// accumulator as is for those elements).
+    #[must_use]
     pub fn typed_reduce<A: JsCast>(
         &self,
         mut predicate: impl FnMut(A, T, u32, Self) -> A,
@@ -504,6 +546,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Effectively 'skips' elements that can't be cast to `T` (just returns the
     /// accumulator as is for those elements).
+    #[must_use]
     pub fn typed_reduce_right<A: JsCast>(
         &self,
         mut predicate: impl FnMut(A, T, u32, Self) -> A,
@@ -530,6 +573,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     }
 
     /// Typed version of [`Array::slice`].
+    #[must_use]
     pub fn typed_slice(&self, start: u32, end: u32) -> Self {
         self.inner.slice(start, end).into()
     }
@@ -538,6 +582,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Elements that can't be casted into `T` are effectively ignored (`false`
     /// is returned).
+    #[must_use]
     pub fn typed_some(&self, mut predicate: impl FnMut(T) -> bool) -> bool {
         self.inner.some(&mut move |val: JsValue| {
             val.dyn_into().map(|t| predicate(t)).unwrap_or(false)
@@ -560,11 +605,13 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::to_vec`].
     ///
     /// Elements that can't be casted into `T` are omitted.
+    #[must_use]
     pub fn typed_to_vec(&self) -> Vec<T> {
         self.typed_iter().collect()
     }
 
     /// Typed version of [`Array::keys`].
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     pub fn typed_keys(&self) -> impl Iterator<Item = u32> {
         self.inner
             .keys()
@@ -600,6 +647,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
 // Extra methods
 impl<T: JsCast> ReadOnlyArray<T> {
     /// Produces a copy of the array that is mutable (i.e. an [`Array`]).
+    #[must_use]
     pub fn mutable_array_copy(&self) -> Array {
         self.inner.clone()
     }
@@ -609,6 +657,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ///
     /// Indexing into this array (for valid indexes), for example, should always
     /// produce `Some(_)`s.
+    #[must_use]
     pub fn excluding_other_types(&self) -> Self {
         self.typed_filter(|_, _, _| true)
     }
@@ -701,7 +750,7 @@ impl<T: JsCast> JsCast for ReadOnlyArray<T> {
     fn unchecked_from_js_ref(val: &JsValue) -> &Self {
         // We use `#[repr(transparent)]` for `ReadOnlyArray<T>` with the inner
         // type being `Array` so this is safe.
-        #[allow(unsafe_code)]
+        #[allow(unsafe_code, clippy::transmute_ptr_to_ptr)]
         unsafe {
             transmute(Array::unchecked_from_js_ref(val))
         }
