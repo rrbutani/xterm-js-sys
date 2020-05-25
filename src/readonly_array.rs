@@ -70,6 +70,7 @@ macro_rules! forward {
         $(#[$m:meta])*
         $f:ident: (&$s:ident$(, $arg:ident: $t:ty)* $(,)?) $(-> $ret:ty)?
     )+) => {$(
+        $(#[$m])*
         pub fn $f(&$s $(, $arg: $t)*) $(-> $ret)? {
             $s.inner.$f($($arg),*)
         }
@@ -315,40 +316,45 @@ fn idx_to_opt(idx: i32) -> Option<u32> {
 
 // Typechecked versions of the above:
 impl<T: JsCast> ReadOnlyArray<T> {
+    /// Typed version of [`Array::get`].
+    ///
+    /// Returns `None` when the element can't be casted into `T` or the index is
+    /// out of bounds.
     pub fn typed_get(&self, index: u32) -> Option<T> {
         self.inner.get(index).dyn_into().ok()
     }
 
+    /// Typed version of [`Array::concat`].
     pub fn typed_concat(&self, array: &Self) -> Self {
         self.inner.concat(&array.inner).into()
     }
 
+    /// Typed version of [`Array::every`].
+    ///
+    /// Returns `false` is any of the elements can't be casted into `T`.
     pub fn typed_every(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
     ) -> bool {
-        // self.inner.every(&mut move |val: JsValue, idx, arr: Array| {
-        //     if let Ok(v) = val.dyn_into() {
-        //         predicate(v, idx, arr.into())
-        //     } else {
-        //         // If it failed to convert, return false.
-        //         false
-        //     }
-        // })
         // If we can't cast into `T`, return false.
         self.inner.every(&mut typify(false, predicate, id))
     }
 
+    /// Typed version of [`Array::filter`].
+    ///
+    /// Elements that can't be casted into `T` are automatically filtered out.
     pub fn typed_filter(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
     ) -> Self {
-        // self.inner.filter(&mut move |val: JsValue, idx, arr: A)
         // If we can't cast into `T`, return false (i.e. filter the element
         // out).
         self.inner.filter(&mut typify(false, predicate, id)).into()
     }
 
+    /// Typed version of [`Array::find`].
+    ///
+    /// Elements that can't be casted into `T` are automatically ignored.
     pub fn typed_find(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
@@ -358,6 +364,11 @@ impl<T: JsCast> ReadOnlyArray<T> {
         self.inner.find(&mut typify(false, predicate, id)).dyn_into().ok()
     }
 
+    /// Typed version of [`Array::find_index`].
+    ///
+    /// Elements that can't be casted into `T` are automatically ignored.
+    ///
+    /// Returns `None` when the element can't be found.
     pub fn typed_find_index(
         &self,
         predicate: impl FnMut(T, u32, Self) -> bool,
@@ -367,25 +378,18 @@ impl<T: JsCast> ReadOnlyArray<T> {
         idx_to_opt(idx)
     }
 
+    /// Typed version of [`Array::flat`].
     pub fn typed_flat(&self, depth: i32) -> Self {
         self.inner.flat(depth).into()
     }
 
+    /// Typed version of [`Array::flat_map`].
+    ///
+    /// Elements that can't be casted into `T` are automatically ignored.
     pub fn typed_flat_map(
         &self,
         callback: impl FnMut(T, u32, Self) -> Vec<T>,
     ) -> Self {
-        // self.inner.flat_map(&mut move |val: JsValue, idx, arr: Array| {
-        //     if let Ok(v) = val.dyn_into() {
-        //         let v = callback(v, idx, arr.into());
-
-        //         // Because we need to do this, we can't use `typify`.
-        //         v.iter().map(Into::into).collect()
-        //     } else {
-        //         Vec::new()
-        //     }
-        // })
-
         self.inner.flat_map(&mut typify(
             Vec::<JsValue>::new(),
             callback,
@@ -393,6 +397,9 @@ impl<T: JsCast> ReadOnlyArray<T> {
         )).into()
     }
 
+    /// Typed version of [`Array::for_each`].
+    ///
+    /// Elements that can't be casted into `T` are automatically ignored.
     pub fn typed_for_each(
         &self,
         callback: impl FnMut(T, u32, Self),
@@ -401,6 +408,8 @@ impl<T: JsCast> ReadOnlyArray<T> {
         self.inner.for_each(&mut typify((), callback, id))
     }
 
+    /// Typed version of [`Array::includes`].
+    ///
     /// Note that this takes the element to search for by value (we have no way
     /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
     /// better off using [`ReadOnlyArray::includes`]; it will be cheaper (but
@@ -409,10 +418,14 @@ impl<T: JsCast> ReadOnlyArray<T> {
         self.inner.includes(&value.into(), from_index)
     }
 
+    /// Typed version of [`Array::index_of`].
+    ///
     /// Note that this takes the element to search for by value (we have no way
     /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
     /// better off using [`ReadOnlyArray::index_of`]; it will be cheaper (but
     /// possibly less ergonomic).
+    ///
+    /// Returns `None` when the element can't be found.
     pub fn typed_index_of(&self, value: T, from_index: i32) -> Option<u32> {
         let idx = self.inner.index_of(&value.into(), from_index);
 
@@ -421,10 +434,14 @@ impl<T: JsCast> ReadOnlyArray<T> {
 
     // Nothing to typify for `Array::join`.
 
+    /// Typed version of [`Array::last_index_of`].
+    ///
     /// Note that this takes the element to search for by value (we have no way
     /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
     /// better off using [`ReadOnlyArray::last_index_of`]; it will be cheaper
     /// (but possibly less ergonomic).
+    ///
+    /// Returns `None` when the element can't be found.
     pub fn typed_last_index_of(
         &self,
         value: T,
@@ -437,6 +454,8 @@ impl<T: JsCast> ReadOnlyArray<T> {
 
     // Nothing to typify for `Array::length`.
 
+    /// Typed version of [`Array::map`].
+    ///
     /// Elements that can't be cast into `T` are mapped to
     /// [`JsValue::UNDEFINED`].
     pub fn typed_map<R: JsCast>(
@@ -452,6 +471,8 @@ impl<T: JsCast> ReadOnlyArray<T> {
             .into()
     }
 
+    /// Typed version of [`Array::reduce`].
+    ///
     /// Effectively 'skips' elements that can't be cast to `T` (just returns the
     /// accumulator as is for those elements).
     pub fn typed_reduce<A: JsCast>(
@@ -475,6 +496,8 @@ impl<T: JsCast> ReadOnlyArray<T> {
             .unwrap()
     }
 
+    /// Typed version of [`Array::reduce_right`].
+    ///
     /// Effectively 'skips' elements that can't be cast to `T` (just returns the
     /// accumulator as is for those elements).
     pub fn typed_reduce_right<A: JsCast>(
@@ -484,7 +507,7 @@ impl<T: JsCast> ReadOnlyArray<T> {
     ) -> A {
         // Exact same inner function as `typed_reduce`.
         self.inner
-            .reduce_right(&mut move |acc: JsValue, val: JsValue, idx, arr: Array| {
+            .reduce_right(&mut move |acc, val, idx, arr| {
                 let acc = acc.dyn_into().unwrap();
 
                 let acc = if let Ok(val) = val.dyn_into() {
@@ -499,10 +522,15 @@ impl<T: JsCast> ReadOnlyArray<T> {
             .unwrap()
     }
 
+    /// Typed version of [`Array::slice`].
     pub fn typed_slice(&self, start: u32, end: u32) -> Self {
         self.inner.slice(start, end).into()
     }
 
+    /// Typed version of [`Array::some`].
+    ///
+    /// Elements that can't be casted into `T` are effectively ignored (`false`
+    /// is returned).
     pub fn typed_some(&self, mut predicate: impl FnMut(T) -> bool) -> bool {
         self.inner.some(&mut move |val: JsValue| {
             val.dyn_into().map(|t| predicate(t)).unwrap_or(false)
@@ -513,37 +541,66 @@ impl<T: JsCast> ReadOnlyArray<T> {
 
     // Nothing to typify for `Array::to_string`.
 
+    /// Typed version of [`Array::iter`].
+    ///
+    /// Elements that can't be casted into `T` are omitted.
     pub fn typed_iter<'a>(&'a self) -> impl Iterator<Item = T> + 'a{
         self.inner.iter().filter_map(|val: JsValue| {
             val.dyn_into().ok()
         })
     }
 
+    /// Typed version of [`Array::to_vec`].
+    ///
+    /// Elements that can't be casted into `T` are omitted.
     pub fn typed_to_vec(&self) -> Vec<T> {
         self.typed_iter().collect()
     }
 
+    /// Typed version of [`Array::keys`].
     pub fn typed_keys(&self) -> impl Iterator<Item = u32> {
-        self.inner.keys().into_iter().filter_map(Result::ok).filter_map(|val: JsValue| {
-            val.as_f64().map(|f| f as u32)
-        })
+        self.inner
+            .keys()
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter_map(|val: JsValue| val.as_f64().map(|f| f as u32))
     }
 
-    pub fn typed_entries(&self) -> impl Iterator<Item = (u32, Result<T, JsValue>)> {
+    /// Typed version of [`Array::entries`].
+    ///
+    /// Returns `Err(JsValue)`s for elements that could not be casted as `T` and
+    /// elements that would have caused `TypeError`s (i.e. non-objects). See
+    /// [`js_sys::Iterator::next`] for more details about the latter case.
+    pub fn typed_entries(&self)
+            -> impl Iterator<Item = (u32, Result<T, JsValue>)> {
         self.typed_keys().zip(self.typed_values())
     }
 
+    /// Typed version of [`Array::values`].
+    ///
+    /// Returns `Err(JsValue)`s for elements that could not be casted as `T` and
+    /// elements that would have caused `TypeError`s (i.e. non-objects). See
+    /// [`js_sys::Iterator::next`] for more details about the latter case.
     pub fn typed_values(&self) -> impl Iterator<Item = Result<T, JsValue>> {
-        self.inner.values().into_iter().map(|v| v.and_then(JsCast::dyn_into))
+        self.inner
+            .values()
+            .into_iter()
+            .map(|v| v.and_then(JsCast::dyn_into))
     }
 }
 
 // Extra methods
 impl<T: JsCast> ReadOnlyArray<T> {
+    /// Produces a copy of the array that is mutable (i.e. an [`Array`]).
     pub fn mutable_array_copy(&self) -> Array {
         self.inner.clone()
     }
 
+    /// Produces a copy of the array that excludes any elements that can't be
+    /// cast as `T`.
+    ///
+    /// Indexing into this array (for valid indexes), for example, should always
+    /// produce `Some(_)`s.
     pub fn excluding_other_types(&self) -> Self {
         self.typed_filter(|_, _, _| true)
     }
