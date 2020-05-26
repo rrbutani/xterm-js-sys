@@ -15,23 +15,33 @@ use core::ops::{Deref, DerefMut};
 /// of the `xterm` module docs for more information.
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 pub trait XtermDisposable {
+    /// Disposes of the instance. Dual of [`Disposable::dispose`].
+    ///
+    /// This can involve unregistering an event listener or cleaning up
+    /// resources or anything else that should happen when an instance is
+    /// disposed of.
     fn dispose(&self);
 
-    // fn into_js(&self) -> Disposable where Self: Clone + 'static {
-    //     let b = Box::leak(Box::new(self.clone()));
-    //     b.into_js_inner().unchecked_into()
-    // }
+    //////////////// Internal Functions For Interface Mirroring ////////////////
 
+    /// Copy of [`IntoJsInterface::to_by_ref`].
+    ///
+    /// [`IntoJsInterface::to_by_ref`]: IntoJsInterface::to_by_ref
     fn into_js_by_ref(&self) -> Disposable where Self: Clone + 'static {
         self.clone().into_js()
     }
 
+    /// Copy of [`IntoJsInterface::to`].
+    ///
+    /// [`IntoJsInterface::to`]: IntoJsInterface::to_by_ref
     fn into_js(self) -> Disposable where Self: Sized + 'static {
         let b = Box::leak(Box::new(self));
         b.into_js_inner().unchecked_into()
     }
 
-    #[doc(hidden)]
+    /// Internal version of `into_js_by_ref` that doesn't leak `self`.
+    ///
+    /// Useful for trait hierarchies.
     fn into_js_inner(&'static self) -> Object where Self: 'static {
         let disp: Box<dyn FnMut(JsValue)> = Box::new(move |_s| Self::dispose(self));
         let disp = Closure::wrap(disp);
@@ -46,9 +56,11 @@ pub trait XtermDisposable {
     }
 }
 
+// Anything that implements `XtermDisposable` (and is `Clone + 'static`)
+// implements `IntoJsInterface<Disposable>`.
 impl<D> IntoJsInterface<Disposable> for D
 where
-    D: XtermDisposable + Clone + Sized + 'static
+    D: XtermDisposable + Clone + 'static
 {
     fn to(self) -> Disposable { self.into_js() }
     fn to_by_ref(&self) -> Disposable { self.into_js_by_ref() }
@@ -142,6 +154,7 @@ impl NoOpDispose {
     }
 }
 
+// This makes it so that we get an `XtermDisposable` and `IntoJsInterface` impl.
 impl AsRef<Disposable> for NoOpDispose {
     fn as_ref(&self) -> &Disposable {
         JsCast::unchecked_ref(&self.obj)
@@ -158,6 +171,10 @@ impl Deref for NoOpDispose {
 
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 impl Terminal {
+    /// [`Terminal`] constructor that encloses the resulting [`Terminal`] in a
+    /// [`DisposableWrapper`].
+    ///
+    /// This is otherwise identical to [`Terminal::new`].
     pub fn new_with_wrapper(
         options: Option<TerminalOptions>
     ) -> DisposableWrapper<Terminal> {
