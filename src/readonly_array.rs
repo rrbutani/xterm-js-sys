@@ -699,7 +699,7 @@ impl<T: JsCast> Deref for ReadOnlyArray<T> {
     type Target = Object;
 
     fn deref(&self) -> &Object {
-        self.inner.deref()
+        &*self.inner
     }
 }
 

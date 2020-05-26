@@ -971,8 +971,30 @@ extern "C" {
     #[derive(Debug, Clone)]
     pub type Disposable;
 
+    /// Disposes of the instance.
+    ///
+    /// This can involve unregistering an event listener or cleaning up
+    /// resources or anything else that should happen when an instance is
+    /// disposed of.
     #[wasm_bindgen(structural, method, js_name = dispose)]
     pub fn dispose(this: &Disposable);
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// An addon that can provide additional functionality to the terminal.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[wasm_bindgen(extends = Disposable)]
+    #[derive(Debug, Clone)]
+    pub type TerminalAddon;
+
+    /// This is called when the addon is activated.
+    #[wasm_bindgen(structural, method, js_name = activate)]
+    pub fn activate(this: &TerminalAddon, terminal: Terminal);
+
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -1322,7 +1344,7 @@ extern "C" {
     ///             be visible (have dimensions) when open is called as several
     ///             DOM-based measurements need to be performed when this
     ///             function is called.
-    #[wasm_bindgen(method, js_name = "open")]
+    #[wasm_bindgen(method, js_name = open)]
     pub fn open(this: &Terminal, parent: web_sys::Element);
 
     /*  [TODO]

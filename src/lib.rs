@@ -56,6 +56,7 @@
 
 mod readonly_array;
 pub use readonly_array::ReadOnlyArray;
+
 pub mod xterm;
 
 #[cfg(feature = "ext")]
