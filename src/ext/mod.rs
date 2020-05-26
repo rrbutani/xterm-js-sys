@@ -6,6 +6,7 @@ use wasm_bindgen::convert::{FromWasmAbi, IntoWasmAbi};
 use wasm_bindgen::JsCast;
 
 #[doc(hidden)]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod _obj_macro_support {
     pub use js_sys::{Object, Reflect};
     pub use wasm_bindgen::JsValue;
@@ -14,7 +15,7 @@ pub mod _obj_macro_support {
 
 /// Defines a JS object with some properties.
 #[macro_export]
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! object {
     ({
         $($f:ident: $v:expr),* $(,)?
@@ -81,17 +82,19 @@ macro_rules! object {
 /// of interfaces that subclass some base class:
 /// ```rust
 /// # use wasm_bindgen::{convert::{FromWasmAbi, IntoWasmAbi}, JsCast};
-/// fn bar<I>(inst: impl IntoJsInterface<I>)
+/// # use xterm_js_sys::ext::IntoJsInterface;
+/// # #[allow(dead_code)]
+/// pub fn bar<I>(inst: impl IntoJsInterface<I>)
 /// where
 ///     I: FromWasmAbi + IntoWasmAbi + JsCast,
 ///     I: AsRef<js_sys::Iterator>,
 /// {
-///    inst.to()
+///    inst.to();
 /// }
 /// ```
 ///
 /// But it's still unclear if/how this is useful.
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
     /// Convert to an instance of the JS interface type.
     fn to(self) -> Interface;
@@ -106,7 +109,7 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
     fn to_by_ref(&self) -> Interface;
 }
 
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[doc(inline)]
 pub use super::object;
 

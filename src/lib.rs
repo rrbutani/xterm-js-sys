@@ -1,6 +1,6 @@
-#![cfg_attr(docs, feature(doc_cfg))]
-#![cfg_attr(docs, feature(external_doc))]
-#![cfg_attr(docs, doc(include = "../README.md"))]
+#![cfg_attr(all(docs, not(doctest)), feature(doc_cfg))]
+#![cfg_attr(all(docs, not(doctest)), feature(external_doc))]
+#![cfg_attr(all(docs, not(doctest)), doc(include = "../README.md"))]
 //!
 // ^ is there so it looks like we have at some crate level docs when building
 // without `--cfg docs` (i.e. on stable, when not building docs).
@@ -60,9 +60,9 @@ pub use readonly_array::ReadOnlyArray;
 pub mod xterm;
 
 #[cfg(feature = "ext")]
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod ext;
 
 #[cfg(feature = "tui-backend")]
-#[cfg_attr(docs, doc(cfg(feature = "tui-backend")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "tui-backend")))]
 pub mod tui;

@@ -13,7 +13,7 @@ use core::ops::{Deref, DerefMut};
 ///
 /// See the ["mirroring interfaces" section](../../xterm#mirroring-interfaces)
 /// of the `xterm` module docs for more information.
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub trait XtermDisposable {
     /// Disposes of the instance. Dual of [`Disposable::dispose`].
     ///
@@ -88,7 +88,7 @@ impl<D: AsRef<Disposable> + Clone + 'static> XtermDisposable for D {
 
 /// A wrapper for [`Disposable`] that calls `dispose` on `Drop`.
 #[derive(Debug, Clone)]
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[allow(clippy::module_name_repetitions)]
 pub struct DisposableWrapper<D: XtermDisposable> {
     /// The actual [`Disposable`] instance that's being wrapped.
@@ -125,7 +125,7 @@ impl<D: XtermDisposable> Drop for DisposableWrapper<D> {
 /// [`Disposable`]: crate::xterm::Disposable
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub struct NoOpDispose {
     /// JavaScript object that just has a no-op `dispose` function.
     obj: Object,
@@ -137,7 +137,7 @@ impl Default for NoOpDispose {
     }
 }
 
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl NoOpDispose {
     /// Constructs a new [`NoOpDispose`].
     #[must_use]
@@ -169,7 +169,7 @@ impl Deref for NoOpDispose {
     }
 }
 
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Terminal {
     /// [`Terminal`] constructor that encloses the resulting [`Terminal`] in a
     /// [`DisposableWrapper`].

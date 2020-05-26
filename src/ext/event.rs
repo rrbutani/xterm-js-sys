@@ -25,7 +25,7 @@ use wasm_bindgen::prelude::*;
 //     }
 // }
 
-#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Terminal {
     /// Attaches a binary event listener and returns a [`DisposableWrapper`]
     /// that can be dropped to make xterm.js stop sending the event listener
