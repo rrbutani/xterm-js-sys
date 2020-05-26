@@ -22,23 +22,164 @@
 //!     access or a method call), we have a corresponding _concrete type_ that
 //!     satisfies the interface. This cannot be used to manipulate/interact with
 //!     externally constructed instances of the interface.
-//!   - If instances are given by xterm.js API and never constructed by users of
-//!     the API (i.e. `IBuffer` or `IBufferLine`), an externed JavaScript type
-//!     is made (or rather, we get `wasm-bindgen` to make the necessary glue so
-//!     we can access the fields/methods of the interface on whatever object we
-//!     get passed that has said fields/methods).
+//!   - If instances are given by the xterm.js API and never constructed by
+//!     users of the API (i.e. `IBuffer` or `IBufferLine`), an extern-ed
+//!     JavaScript type is made (or rather, we get `wasm-bindgen` to make the
+//!     necessary glue so we can access the fields/methods of the interface on
+//!     whatever object we get passed that has said fields/methods).
 //!   - If we need to both consume and produce implementations of an interface
-//!     we do both of the above.
+//!     we'd do both of the above (as of this writing we haven't had to do this
+//!     for any type).
 //!   - If we need to be able to have more than one true concrete type
 //!     satisfying the interface on the Rust side, we also create a Rust trait
-//!     that matches the shape of the interface along with an `Into` impl that
-//!     makes an instance of the concrete type (which is basically type erased)
-//!     from implementations of the trait. This is useful when there's some
-//!     generality involved (i.e. a interface requires a field that's a function
-//!     that takes `U` and returns `V`).
+//!     that matches the shape of the interface along with a blanket impl for
+//!     the trait that makes it so that all `wasm-bindgen` 'implementations' of
+//!     the interface also get an impl of the trait. See the [section on
+//!     mirroring interfaces](#mirroring-interfaces) for more details.
 //!
 //! See: [this](https://github.com/rustwasm/wasm-bindgen/issues/18) and
 //! [this](https://github.com/rustwasm/wasm-bindgen/issues/1341).
+//!
+//! ### Mirroring Interfaces
+//!
+//! As mentioned, when it's desirable to construct types that satisfy an
+//! interface within Rust, we create a Rust trait that's mirror of the interface
+//! in question. [`XtermAddon`] (behind the `ext` feature) is probably the best
+//! example of this; we want to be able to make it so that addons can be written
+//! in Rust.
+//!
+//! So, to make this possible we do these things:
+//!   - Make a Rust trait that matches the interface.
+//!   - Add a blanket impl so that the Rust trait is implemented for all the
+//!     types `wasm-bindgen` produces that impl the type.
+//!       + `wasm-bindgen` represents things like extending a class and
+//!         implementing interfaces with [`Deref`] and [`AsRef`] impls that
+//!         literally 'convert' the type into an instance of the type they're
+//!         subclassing/implementing.
+//!       + This works because internally these instances are represented by a
+//!         [`JsValue`] that (I think) is just an object that holds all the
+//!         methods the object has (including the methods that are part of the
+//!         interface). When one of these methods is actually called on the Rust
+//!         side of things, the [`JsValue`] (or a special `wasm-bindgen`
+//!         reference to it, at least) is passed across the FFI boundary to a
+//!         special JS function that `wasm-bindgen` made which knows to look up
+//!         the function that we want in the JS value and call it with the
+//!         arguments we passed.
+//!
+//! Okay! So at this point, we've got a Rust trait that mirrors a JS interface
+//! and all things that implement the interface impl the Rust trait
+//! automagically. Presumably, when we want to write an impl of the interface on
+//! the Rust side of things, we just impl the trait.
+//!
+//! And this works, but there's one catch: if we're just using the impls of the
+//! interface that we made in Rust, this will work just fine. Implementations
+//! that are actually written in JavaScript will internally go call their JS
+//! methods and the thing in Rust that's using the trait implementation won't be
+//! any the wiser.
+//!
+//! But, if we want to pass along implementations written in Rust to a
+//! _JavaScript user of the interface_, this isn't enough.
+//!
+//! Addons are a good example, again. It isn't enough to just be able to write
+//! something in Rust that has the shape of an addon; the point here is that
+//! we're able to pass it to xterm.js and actually use it! So, to do this, there
+//! are some more things we have to understand and do.
+//!
+//! First some background:
+//!   - So, `wasm-bindgen` represents interfaces as concrete types that contain
+//!     a [`JsValue`] that (presumably) contains all the methods needed to
+//!     satisfy the interface.
+//!   - The [`AsRef`] and [`Deref`] impls pretty much just take the inner
+//!     [`JsValue`] and put it into a different type that'll use the [`JsValue`]
+//!     to look up and call different functions; this works because the JS value
+//!     is just an object with a table of methods — all the methods the object
+//!     has, not just the ones belonging to the interface we were treating the
+//!     object as an instance of. The interface types (and regular class types
+//!     for that matter) and kind of just a window into the object's methods,
+//!     showing us a limited subset of what the object actually has.
+//!   - The mechanism by which this casting happens is [`JsCast::unchecked_ref`]
+//!     (and the other methods on [`JsCast`]). As the docs on that method say,
+//!     no checking actually happens! We're pretty much just changing the label
+//!     that lets us know what methods the corresponding JS value actually has
+//!     (as in, we're going from, for example, `Terminal` to `Disposable` but
+//!     nothing has actually changed; the literal bits that represent the
+//!     variable are the same, but the type has changed which will let us call
+//!     different methods that will look up and call different methods on the JS
+//!     side). There are checked variants in [`JsCast`]; I think the way this
+//!     works is by having JS functions per type/interface that check that an
+//!     object actually has all the things it needs to have for an interface.
+//!     [`JsCast::instanceof`] calls the JS function that does this and the
+//!     checked casts (i.e. [`JsCast::dyn_ref`]) calls it.
+//!   - So, anyways, anytime a JS function takes something that "satisfies an
+//!     interface" it gets represented, via `wasm-bindgen`, as taking an
+//!     instance of the type that corresponds to the interface. As in, something
+//!     that takes an Addon won't take `impl Addon` or even `dyn Addon`, it'll
+//!     just take `Addon` (sidenote: if you think about what the [`JsValue`]
+//!     inside the interface types actually contain, it's basically the same as
+//!     the vtables in trait objects — except that the table has all the methods
+//!     in the actual type and that this is how all method calls work in JS).
+//!   - All this is to say that what we need to do is make a [`JsValue`] that
+//!     has entries for the methods that are part of the interface where each
+//!     entry actually points to the Rust functions that are part of the
+//!     implementation of the trait we're trying to pass along to JS. Once we
+//!     have such an object, we can cast it as the concrete type that
+//!     `wasm-bindgen` has given us for the interface and then be on our way.
+//!
+//! A couple of other considerations, though:
+//!   - First, we'd like to this in a generic way (i.e. make it so that any
+//!     Rust trait impl for a particular trait can be turned into it's concrete
+//!     interface type counterpart) and we _can_, but we need to be able to
+//!     distinguish between actual JS implementations and Rust implementations
+//!     (both of which implement the Rust trait) because we don't want to
+//!     'double wrap' the JS implementation (i.e. if we were to do the above
+//!     for a JS impl for a particular method call on the interface we'd be
+//!     calling a JS function that calls a Rust function that then calls the
+//!     actual JS function, when we could have just called the JS function).
+//!      + Luckily, this is not hard to remedy; we can have the function that
+//!        turns the trait impl into the concrete type be a part of the trait
+//!        _and_ we can provide a default impl that does the wrapped. Then, we
+//!        can have the blanket impl (which is bounded by [`AsRef`] anyways)
+//!        just call `as_ref`.
+//!   - Being able to turn Rust function into things that can be called from JS
+//!     comes with some restrictions:
+//!      + All types in each function have to be Wasm ABI compatible which means
+//!        no lifetimes or generics or trait objects, etc. This actually isn't
+//!        a problem for us since we're mirroring a JS interface which means the
+//!        functions are Wasm ABI compliant anyways.
+//!      + The functions and everything they point to have to be `'static`. This
+//!        is because we can't enforce lifetimes across the FFI boundary.
+//!        Realistically this probably means using `Box::leak` whenever a Rust
+//!        trait impl needs to be passed along to JS.
+//!         * Rather than do this leaking internally, we'll let the user do it.
+//!           We enforce the `'static` bit by having the `into_js` method on the
+//!           trait require a `'static` lifetime. So, in order to actually
+//!           convert their impl for use with JS users will have to leak it.
+//!         * Update: for symmetry with the _actually backed by a JS impl_ case,
+//!           we do preform the leaking (we don't want to require a `'static`
+//!           reference for JS impls which would require users to leak them
+//!           unnecessarily).
+//!      + Traits that take a mutable reference to self **and** have more than
+//!        one method aren't possible (safely) because the closures we pass
+//!        along hold a reference to the actual instance and we can't have
+//!        mutability with aliasing. So, we'll just make all trait methods only
+//!        take an immutable reference to self (as `wasm-bindgen` does). Rust
+//!        trait implementors will need to use interior mutability.
+//!
+//! The final piece required is an extension method that takes the Rust trait
+//! impl instead of the concrete type and then converts it to concrete type
+//! using the trait impl and passes the concrete type instance along to the
+//! `wasm-bindgen` method that expects it.
+//!
+//! [`JsValue`]: wasm_bindgen::JsValue
+//! [`JsCast`]: wasm_bindgen::JsCast
+//! [`JsCast::unchecked_ref`]: wasm_bindgen::JsCast::unchecked_ref
+//! [`JsCast::dyn_ref`]: wasm_bindgen::JsCast::dyn_ref
+//! [`JsCast::instanceof`]: wasm_bindgen::JsCast::instanceof
+//!
+//! [`XtermAddon`]: super::ext::addon::XtermAddon
+//!
+//! [`Deref`]: core::ops::Deref
+//! [`AsRef`]: core::convert::AsRef
 
 use wasm_bindgen::prelude::*;
 
