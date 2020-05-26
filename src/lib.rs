@@ -43,7 +43,7 @@
 #![allow(clippy::type_repetition_in_bounds)]
 #![allow(clippy::doc_markdown)]
 // ^ Until this gets merged: rust-lang/rust-clippy/pull/5611
-#![doc(test(attr(deny(rust_2018_idioms, warnings))))]
+#![doc(test(attr(deny(rust_2018_idioms, warnings), allow(unused_extern_crates))))]
 #![doc(
     html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5"
 )]

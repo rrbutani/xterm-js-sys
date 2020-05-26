@@ -70,11 +70,13 @@ macro_rules! object {
 /// you be generic over the interface you're asking for? Something like this:
 /// ```rust
 /// # use wasm_bindgen::{convert::{FromWasmAbi, IntoWasmAbi}, JsCast};
-/// fn foo<I>(inst: impl IntoJsInterface<I>)
+/// # use xterm_js_sys::ext::IntoJsInterface;
+/// # #[allow(dead_code)]
+/// pub fn foo<I>(inst: impl IntoJsInterface<I>)
 /// where
 ///     I: FromWasmAbi + IntoWasmAbi + JsCast,
 /// {
-///    inst.to()
+///    inst.to();
 /// }
 /// ```
 ///
