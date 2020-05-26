@@ -17,9 +17,9 @@ pub mod _obj_macro_support {
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! object {
-    ({
+    (
         $($f:ident: $v:expr),* $(,)?
-    }) => {{
+    ) => {{
         let obj = $crate::ext::_obj_macro_support::Object::new();
 
         $crate::ext::object! { obj += {

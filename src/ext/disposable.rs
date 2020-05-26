@@ -17,6 +17,7 @@ use core::ops::{Deref, DerefMut};
 /// See the ["mirroring interfaces" section](../../xterm#mirroring-interfaces)
 /// of the `xterm` module docs for more information.
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+#[allow(clippy::module_name_repetitions)]
 pub trait XtermDisposable {
     /// Disposes of the instance. Dual of [`Disposable::dispose`].
     ///
@@ -59,7 +60,7 @@ pub trait XtermDisposable {
             Box::new(move |_s| Self::dispose(self));
         let disp = Closure::wrap(disp);
 
-        let obj = object!({ dispose: disp });
+        let obj = object! { dispose: disp };
 
         Closure::forget(disp);
 
@@ -162,15 +163,9 @@ impl NoOpDispose {
     /// Constructs a new [`NoOpDispose`].
     #[must_use]
     pub fn new() -> Self {
-        let obj = Object::new();
-
-        let obj = Object::define_property(
-            &obj,
-            &JsValue::from_str("dispose"),
-            Function::new_no_args("return;").as_ref(),
-        );
-
-        Self { obj }
+        Self {
+            obj: object! { dispose: Function::new_no_args("return;") },
+        }
     }
 }
 
@@ -195,6 +190,7 @@ impl Terminal {
     /// [`DisposableWrapper`].
     ///
     /// This is otherwise identical to [`Terminal::new`].
+    #[must_use]
     pub fn new_with_wrapper(
         options: Option<TerminalOptions>,
     ) -> DisposableWrapper<Terminal> {
