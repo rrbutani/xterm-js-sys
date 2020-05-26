@@ -22,20 +22,27 @@ pub trait XtermDisposable {
     //     b.into_js_inner().unchecked_into()
     // }
 
-    fn into_js(self) -> Disposable where Self: 'static {
-        let b = Box::leak(Box::new(self);
+    fn into_js_by_ref(&self) -> Disposable where Self: Clone + 'static {
+        self.clone().into_js()
+    }
+
+    fn into_js(self) -> Disposable where Self: Sized + 'static {
+        let b = Box::leak(Box::new(self));
         b.into_js_inner().unchecked_into()
     }
 
     #[doc(hidden)]
     fn into_js_inner(&'static self) -> Object where Self: 'static {
-        let disp: Box<dyn FnMut(JsValue)> = Box::new(|_s| Self::dispose(self));
+        let disp: Box<dyn FnMut(JsValue)> = Box::new(move |_s| Self::dispose(self));
         let disp = Closure::wrap(disp);
+
+        let obj = object!({
+            dispose: disp
+        });
+
         Closure::forget(disp);
 
-        object!({
-            dispose: disp
-        })
+        obj
     }
 }
 
@@ -54,7 +61,7 @@ impl<D: AsRef<Disposable> + Clone + 'static> XtermDisposable for D {
         Disposable::dispose(self.as_ref())
     }
 
-    fn into_js(&self) -> Disposable {
+    fn into_js(self) -> Disposable {
         self.as_ref().clone()
     }
 }

@@ -2,20 +2,27 @@
 
 use super::xterm::{Disposable, Terminal, TerminalOptions};
 
+use wasm_bindgen::convert::{FromWasmAbi, IntoWasmAbi};
+use wasm_bindgen::JsCast;
+
+#[doc(hidden)]
+pub mod _obj_macro_support {
+    pub use js_sys::{Object, Reflect};
+    pub use wasm_bindgen::JsValue;
+    pub use core::stringify;
+}
+
 /// Defines a JS object with some properties.
 #[macro_export]
 macro_rules! object {
     ({
         $($f:ident: $v:expr),* $(,)?
     }) => {{
+        let obj = $crate::ext::_obj_macro_support::Object::new();
 
-        let obj = js_sys::Object::new();
-
-        object! {
-            obj += {
+        $crate::ext::object! { obj += {
                 $($f: $v),*
-            }
-        }
+        }}
 
         obj
     }};
@@ -23,11 +30,13 @@ macro_rules! object {
     ($nom:ident += {
         $($f:ident: $v:expr),* $(,)?
     }) => {$(
-        let $nom = js_sys::Object::define_property(
+        let _ = $crate::ext::_obj_macro_support::Reflect::set(
             &$nom,
-            &wasm_bindgen::JsValue::from_str(core::stringify!($f)),
+            &$crate::ext::_obj_macro_support::JsValue::from_str(
+                $crate::ext::_obj_macro_support::stringify!($f)
+            ),
             ($v).as_ref(),
-        );
+        ).unwrap();
     )*};
 }
 
