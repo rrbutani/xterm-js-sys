@@ -2,10 +2,13 @@
 //!
 //! [`Disposable`]: crate::xterm::Disposable
 
-use super::{object, Disposable, Terminal, TerminalOptions, IntoJsInterface};
+use super::{object, Disposable, IntoJsInterface, Terminal, TerminalOptions};
 
-use wasm_bindgen::{prelude::{wasm_bindgen, Closure}, JsCast, JsValue};
 use js_sys::{Function, Object};
+use wasm_bindgen::{
+    prelude::{wasm_bindgen, Closure},
+    JsCast, JsValue,
+};
 
 use core::ops::{Deref, DerefMut};
 
@@ -27,14 +30,20 @@ pub trait XtermDisposable {
     /// Copy of [`IntoJsInterface::to_by_ref`].
     ///
     /// [`IntoJsInterface::to_by_ref`]: IntoJsInterface::to_by_ref
-    fn into_js_by_ref(&self) -> Disposable where Self: Clone + 'static {
+    fn into_js_by_ref(&self) -> Disposable
+    where
+        Self: Clone + 'static,
+    {
         self.clone().into_js()
     }
 
     /// Copy of [`IntoJsInterface::to`].
     ///
     /// [`IntoJsInterface::to`]: IntoJsInterface::to_by_ref
-    fn into_js(self) -> Disposable where Self: Sized + 'static {
+    fn into_js(self) -> Disposable
+    where
+        Self: Sized + 'static,
+    {
         let b = Box::leak(Box::new(self));
         b.into_js_inner().unchecked_into()
     }
@@ -42,13 +51,15 @@ pub trait XtermDisposable {
     /// Internal version of `into_js_by_ref` that doesn't leak `self`.
     ///
     /// Useful for trait hierarchies.
-    fn into_js_inner(&'static self) -> Object where Self: 'static {
-        let disp: Box<dyn FnMut(JsValue)> = Box::new(move |_s| Self::dispose(self));
+    fn into_js_inner(&'static self) -> Object
+    where
+        Self: 'static,
+    {
+        let disp: Box<dyn FnMut(JsValue)> =
+            Box::new(move |_s| Self::dispose(self));
         let disp = Closure::wrap(disp);
 
-        let obj = object!({
-            dispose: disp
-        });
+        let obj = object!({ dispose: disp });
 
         Closure::forget(disp);
 
@@ -60,10 +71,15 @@ pub trait XtermDisposable {
 // implements `IntoJsInterface<Disposable>`.
 impl<D> IntoJsInterface<Disposable> for D
 where
-    D: XtermDisposable + Clone + 'static
+    D: XtermDisposable + Clone + 'static,
 {
-    fn to(self) -> Disposable { self.into_js() }
-    fn to_by_ref(&self) -> Disposable { self.into_js_by_ref() }
+    fn to(self) -> Disposable {
+        self.into_js()
+    }
+
+    fn to_by_ref(&self) -> Disposable {
+        self.into_js_by_ref()
+    }
 }
 
 /// In the `wasm-bindgen` world, things that impl an interface or extend a class
@@ -104,11 +120,15 @@ impl<D: XtermDisposable> From<D> for DisposableWrapper<D> {
 impl<D: XtermDisposable> Deref for DisposableWrapper<D> {
     type Target = D;
 
-    fn deref(&self) -> &D { &self.inner }
+    fn deref(&self) -> &D {
+        &self.inner
+    }
 }
 
 impl<D: XtermDisposable> DerefMut for DisposableWrapper<D> {
-    fn deref_mut(&mut self) -> &mut D { &mut self.inner }
+    fn deref_mut(&mut self) -> &mut D {
+        &mut self.inner
+    }
 }
 
 impl<D: XtermDisposable> Drop for DisposableWrapper<D> {
@@ -176,7 +196,7 @@ impl Terminal {
     ///
     /// This is otherwise identical to [`Terminal::new`].
     pub fn new_with_wrapper(
-        options: Option<TerminalOptions>
+        options: Option<TerminalOptions>,
     ) -> DisposableWrapper<Terminal> {
         Self::new(options).into()
     }

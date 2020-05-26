@@ -8,9 +8,9 @@ use wasm_bindgen::JsCast;
 #[doc(hidden)]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod _obj_macro_support {
+    pub use core::stringify;
     pub use js_sys::{Object, Reflect};
     pub use wasm_bindgen::JsValue;
-    pub use core::stringify;
 }
 
 /// Defines a JS object with some properties.
