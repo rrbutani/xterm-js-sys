@@ -2,7 +2,7 @@
 //!
 //! [`Disposable`]: crate::xterm::Disposable
 
-use super::DisposableWrapper;
+use super::{DisposableWrapper, Disposable};
 use crate::xterm::{KeyEventData, Terminal};
 
 use wasm_bindgen::prelude::*;
@@ -41,7 +41,7 @@ impl Terminal {
     pub fn attach_binary_event_listener<F>(
         &self,
         listener: F,
-    ) -> DisposableWrapper
+    ) -> DisposableWrapper<Disposable>
     where
         F: FnMut(String),
         F: 'static,
@@ -65,7 +65,10 @@ impl Terminal {
     ///
     /// [`Terminal::on_key`]: Terminal::on_key
     #[allow(trivial_casts)]
-    pub fn attach_key_event_listener<F>(&self, listener: F) -> DisposableWrapper
+    pub fn attach_key_event_listener<F>(
+        &self,
+        listener: F,
+    ) -> DisposableWrapper<Disposable>
     where
         F: FnMut(KeyEventData),
         F: 'static,

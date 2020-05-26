@@ -63,18 +63,28 @@ impl<D: AsRef<Disposable> + Clone + 'static> XtermDisposable for D {
 #[derive(Debug, Clone)]
 #[cfg_attr(docs, doc(cfg(feature = "ext")))]
 #[allow(clippy::module_name_repetitions)]
-pub struct DisposableWrapper {
+pub struct DisposableWrapper<D: XtermDisposable> {
     /// The actual [`Disposable`] instance that's being wrapped.
-    inner: Disposable,
+    inner: D,
 }
 
-impl From<Disposable> for DisposableWrapper {
-    fn from(inner: Disposable) -> Self {
+impl<D: XtermDisposable> From<D> for DisposableWrapper<D> {
+    fn from(inner: D) -> Self {
         Self { inner }
     }
 }
 
-impl Drop for DisposableWrapper {
+impl<D: XtermDisposable> Deref for DisposableWrapper<D> {
+    type Target = D;
+
+    fn deref(&self) -> &D { &self.inner }
+}
+
+impl<D: XtermDisposable> DerefMut for DisposableWrapper<D> {
+    fn deref_mut(&mut self) -> &mut D { &mut self.inner }
+}
+
+impl<D: XtermDisposable> Drop for DisposableWrapper<D> {
     fn drop(&mut self) {
         self.inner.dispose()
     }
@@ -120,5 +130,22 @@ impl NoOpDispose {
 impl AsRef<Disposable> for NoOpDispose {
     fn as_ref(&self) -> &Disposable {
         JsCast::unchecked_ref(&self.obj)
+    }
+}
+
+impl Deref for NoOpDispose {
+    type Target = Disposable;
+
+    fn deref(&self) -> &Disposable {
+        self.as_ref()
+    }
+}
+
+#[cfg_attr(docs, doc(cfg(feature = "ext")))]
+impl Terminal {
+    pub fn new_with_wrapper(
+        options: Option<TerminalOptions>
+    ) -> DisposableWrapper<Terminal> {
+        Self::new(options).into()
     }
 }
