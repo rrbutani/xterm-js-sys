@@ -40,6 +40,18 @@ macro_rules! object {
     )*};
 }
 
+// pub trait IntoJsInterface {
+//     type Interface: FromWasmAbi + IntoWasmAbi + JsCast;
+
+//     fn into(self) -> Self::Interface;
+//     fn into_by_ref(&self) -> Self::Interface;
+// }
+
+pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
+    fn to(self) -> Interface;
+    fn to_by_ref(&self) -> Interface;
+}
+
 use super::object;
 
 pub mod disposable;

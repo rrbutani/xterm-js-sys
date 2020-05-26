@@ -2,7 +2,7 @@
 //!
 //! [`Disposable`]: crate::xterm::Disposable
 
-use super::{object, Disposable, Terminal, TerminalOptions};
+use super::{object, Disposable, Terminal, TerminalOptions, IntoJsInterface};
 
 use wasm_bindgen::{prelude::{wasm_bindgen, Closure}, JsCast, JsValue};
 use js_sys::{Function, Object};
@@ -44,6 +44,14 @@ pub trait XtermDisposable {
 
         obj
     }
+}
+
+impl<D> IntoJsInterface<Disposable> for D
+where
+    D: XtermDisposable + Clone + Sized + 'static
+{
+    fn to(self) -> Disposable { self.into_js() }
+    fn to_by_ref(&self) -> Disposable { self.into_js_by_ref() }
 }
 
 /// In the `wasm-bindgen` world, things that impl an interface or extend a class
