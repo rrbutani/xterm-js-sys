@@ -1469,14 +1469,12 @@ extern "C" {
     //   Gets whether the terminal has an active selection.
     //   Returns: boolean
 
-    // [TODO]
-    //   loadAddon
-    //   ▸ loadAddon(addon: ITerminalAddon): void
-    //   Loads an addon into this instance of xterm.js.
-    //   Parameters:
-    //   Name    Type    Description
-    //   addon   ITerminalAddon  The addon to load.
-    //   Returns: void
+    /// Loads an addon into this instance of the xterm.js [`Terminal`].
+    ///
+    /// Takes:
+    ///   - addon: The addon to load.
+    #[wasm_bindgen(method, js_name = loadAddon)]
+    pub fn load_addon(this: &Terminal, addon: TerminalAddon);
 
     /// Opens the terminal within an element.
     ///
