@@ -28,9 +28,9 @@ pub trait XtermDisposable {
 
     //////////////// Internal Functions For Interface Mirroring ////////////////
 
-    /// Copy of [`IntoJsInterface::to_by_ref`].
+    /// Copy of [`IntoJsInterface::by_ref`].
     ///
-    /// [`IntoJsInterface::to_by_ref`]: IntoJsInterface::to_by_ref
+    /// [`IntoJsInterface::by_ref`]: IntoJsInterface::by_ref
     fn into_js_by_ref(&self) -> Disposable
     where
         Self: Clone + 'static,
@@ -40,7 +40,7 @@ pub trait XtermDisposable {
 
     /// Copy of [`IntoJsInterface::to`].
     ///
-    /// [`IntoJsInterface::to`]: IntoJsInterface::to_by_ref
+    /// [`IntoJsInterface::to`]: IntoJsInterface::to
     fn into_js(self) -> Disposable
     where
         Self: Sized + 'static,
@@ -78,7 +78,7 @@ where
         self.into_js()
     }
 
-    fn to_by_ref(&self) -> Disposable {
+    fn by_ref(&self) -> Disposable {
         self.into_js_by_ref()
     }
 }

@@ -108,7 +108,7 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
     /// `Clone` since as part of creating the instance the instance needs to be
     /// leaked (for methods to still work), but we'll leave that up to
     /// implementors.
-    fn to_by_ref(&self) -> Interface;
+    fn by_ref(&self) -> Interface;
 }
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]

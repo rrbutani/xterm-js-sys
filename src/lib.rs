@@ -53,9 +53,7 @@
 
 // TODO:
 //  - colours for badges in the README
-//  - deny the warnings here
 //  - add in an example/crate level docs here
-//  - add in the attr for marking feature specific things in docs
 
 mod readonly_array;
 pub use readonly_array::ReadOnlyArray;
