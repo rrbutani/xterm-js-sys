@@ -23,7 +23,7 @@ jobs:
           - wasm32-unknown-unknown
           - wasm32-wasi
         features:
-          - ""
+          - "''"
           - "ext"
           - "tui"
           - "ext,tui-backend"
