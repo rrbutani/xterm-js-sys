@@ -25,7 +25,7 @@ jobs:
         features:
           - "''"
           - "ext"
-          - "tui"
+          - "tui-backend"
           - "ext,tui-backend"
 
     continue-on-error: ${{ matrix.rust == 'nightly' }}
