@@ -13,15 +13,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust:
+        rust: &rust-versions
           - stable
           - beta
           - nightly
           - 1.43.0
-        target:
+        target: &targets
           - x86_64-unknown-linux-gnu
           - wasm32-unknown-unknown
           - wasm32-wasi
+        features: &features
+          - ""
+          - "ext"
+          - "tui"
+          - "ext,tui-backend"
 
     continue-on-error: ${{ matrix.rust == 'nightly' }}
 
@@ -40,13 +45,22 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --all-targets --all-features
+          args: >-
+            --target ${{ matrix.target }}
+            --all-targets
+            --no-default-features
+            --features ${{ matrix.features }}
 
       - name: Run cargo check release
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --all-targets --all-features --release
+          args: >-
+            --target ${{ matrix.target }}
+            --all-targets
+            --no-default-features
+            --features ${{ matrix.features }}
+            --release
 
       # We currently aren't set up to run tests on wasm:
       - name: Run cargo test
@@ -54,7 +68,11 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --target ${{ matrix.target }} --all-features --no-fail-fast
+          args: >-
+            --target ${{ matrix.target }}
+            --no-default-features
+            --features ${{ matrix.features }}
+            --no-fail-fast
 
       # We currently aren't set up to run tests on wasm:
       - name: Run cargo test release
@@ -62,7 +80,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --target ${{ matrix.target }} --all-features --no-fail-fast --release
+          args: >-
+            --target ${{ matrix.target }}
+            --no-default-features
+            --features ${{ matrix.features }}
+            --no-fail-fast
+            --release
 
   check-deps:
     needs: check
@@ -71,10 +94,8 @@ jobs:
     strategy:
       matrix:
         rust: nightly
-        target:
-          - x86_64-unknown-linux-gnu
-          - wasm32-unknown-unknown
-          - wasm32-wasi
+        target: *targets
+        features: *features
 
     # Don't fail the build; just warn us.
     continue-on-error: true
@@ -90,12 +111,17 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - run: >-
-          RUSTFLAGS="-D unused_crate_dependencies"
-          cargo check
-          --target ${{ matrix.target }}
-          --all-targets
-          --all-features
+      - name: Check dependencies
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: >-
+            --target ${{ matrix.target }}
+            --all-targets
+            --no-default-features
+            --features ${{ matrix.features }}
+        env:
+          RUSTFLAGS: '-D unused_crate_dependencies'
 
   lint:
     needs: check
