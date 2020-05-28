@@ -87,42 +87,6 @@ jobs:
             --no-fail-fast
             --release
 
-  check-deps:
-    needs: check
-    name: Check for unused dependencies
-
-    strategy:
-      matrix:
-        rust: nightly
-        target: *targets
-        features: *features
-
-    # Don't fail the build; just warn us.
-    continue-on-error: true
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
-
-      - name: Check dependencies
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: >-
-            --target ${{ matrix.target }}
-            --all-targets
-            --no-default-features
-            --features ${{ matrix.features }}
-        env:
-          RUSTFLAGS: '-D unused_crate_dependencies'
-
   lint:
     needs: check
     name: Format + run clippy
