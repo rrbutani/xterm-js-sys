@@ -10,10 +10,12 @@ repository = "https://github.com/rrbutani/xterm-js-sys"
 
 readme = "README.md"
 
-keywords = ["xterm", "xterm.js", "tui-web", "tui"]
+keywords = ["xterm", "xtermjs", "tui-web", "tui", "terminal"]
 categories = ["api-bindings", "command-line-interface", "external-ffi-bindings", "wasm", "web-programming"]
 
 license = "MIT"
+
+exclude = [".github"]
 
 
 [badges]
@@ -59,6 +61,8 @@ ext = []
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown", "wasm32-wasi"]
 rustdoc-args = ["--cfg", "docs"]
+all-features = true
+default-target = "wasm32-unknown-unknown"
 
 
 [patch.crates-io]
