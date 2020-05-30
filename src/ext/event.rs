@@ -1,6 +1,4 @@
-//! A concrete type and helpers for `IEvent`.
-//!
-//! [`Disposable`]: crate::xterm::Disposable
+//! Sugar for methods that take `IEvent`s.
 
 use super::{Disposable, DisposableWrapper};
 use crate::xterm::{KeyEventData, Terminal};

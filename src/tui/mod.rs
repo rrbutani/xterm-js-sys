@@ -4,7 +4,7 @@
 
 // extern crate tui;
 
-use tui as _;
 use crossterm as _;
+use tui as _;
 
 // TODO!
