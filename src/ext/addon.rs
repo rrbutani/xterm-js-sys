@@ -7,4 +7,5 @@
 /// This is the Rust version of the [`TerminalAddon`] interface.
 ///
 /// [`TerminalAddon`]: crate::xterm::TerminalAddon
+#[deny(clippy::module_name_repetitions)]
 pub trait XtermAddon {}
