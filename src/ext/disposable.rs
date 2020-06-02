@@ -7,7 +7,7 @@ use super::{object, Disposable, IntoJsInterface, Terminal, TerminalOptions};
 use js_sys::{Function, Object};
 use wasm_bindgen::{
     prelude::{wasm_bindgen, Closure},
-    JsCast, JsValue,
+    JsCast,
 };
 
 use core::ops::{Deref, DerefMut};
@@ -56,8 +56,8 @@ pub trait XtermDisposable {
     where
         Self: 'static,
     {
-        let disp: Box<dyn FnMut(JsValue)> =
-            Box::new(move |_s| Self::dispose(self));
+        let disp: Box<dyn FnMut()> =
+            Box::new(move || Self::dispose(self));
         let disp = Closure::wrap(disp);
 
         let obj = object! { dispose: disp };
@@ -68,16 +68,20 @@ pub trait XtermDisposable {
     }
 }
 
-// Anything that implements `XtermDisposable` (and is `Clone + 'static`)
-// implements `IntoJsInterface<Disposable>`.
+/// Anything that implements [`XtermDisposable`] (and is `Clone + 'static`)
+/// implements [`IntoJsInterface<Disposable>`][`IntoJsInterface`].
 impl<D> IntoJsInterface<Disposable> for D
 where
     D: XtermDisposable + Clone + 'static,
 {
+    /// Converts the [`XtermDisposable`] implementor into an instance of
+    /// [`Disposable`] (the corresponding JS interface).
     fn to(self) -> Disposable {
         self.into_js()
     }
 
+    /// Converts the [`XtermDisposable`] implementor into an instance of
+    /// [`Disposable`] (the corresponding JS interface) _by reference_.
     fn by_ref(&self) -> Disposable {
         self.into_js_by_ref()
     }
@@ -87,19 +91,34 @@ where
 /// `Deref` into it (technically, I think they only `Deref` into their immediate
 /// parent and then impl `AsRef` for all the other things they implement).
 ///
-/// We've chosen to represent the `Disposable` interface with a corresponding
+/// We've chosen to represent the [`Disposable`] interface with a corresponding
 /// Rust trait and this blanket impl implements the trait for all things that
 /// 'implement' the interface the `wasm-bindgen` way.
 ///
 /// See the ["mirroring interfaces" section](../../xterm#mirroring-interfaces)
 /// of the `xterm` module docs for more information.
 impl<D: AsRef<Disposable> + Clone + 'static> XtermDisposable for D {
+    /// `dispose` for types that implement the [`Disposable`] interface.
     fn dispose(&self) {
         Disposable::dispose(self.as_ref())
     }
 
+    /// `into_js_by_ref` for types that implement the [`Disposable`] interface.
+    ///
+    /// This differs from the default impl in that in manages to avoid a `Clone`
+    /// before effectively doing what `into_js` does.
+    fn into_js_by_ref(&self) -> Disposable {
+        AsRef::<Disposable>::as_ref(self).clone()
+    }
+
+    /// `into_js` for types that implement the [`Disposable`] interface.
+    ///
+    /// This differs from the default impl in that in manages to avoid "double
+    /// wrapping" the methods in the interface (types that impl [`Disposable`]
+    /// the `wasm-bindgen` way already have an wrapped up [`Object`] they can
+    /// hand us).
     fn into_js(self) -> Disposable {
-        self.as_ref().clone()
+        AsRef::<Disposable>::as_ref(&self).clone()
     }
 }
 
