@@ -1,6 +1,6 @@
 //! Glue for the Xterm.js types.
 
-use super::xterm::{Disposable, Terminal, TerminalOptions};
+use super::xterm::{Disposable, Terminal, TerminalAddon, TerminalOptions};
 
 use wasm_bindgen::convert::{FromWasmAbi, IntoWasmAbi};
 use wasm_bindgen::JsCast;
@@ -24,6 +24,18 @@ macro_rules! object {
 
         $crate::ext::object! { obj += {
                 $($f: $v),*
+        }}
+
+        obj
+    }};
+
+    (($base:expr) += {
+        $($f:ident: $v:expr),* $(,)?
+    }) => {{
+        let obj = $base;
+
+        $crate::ext::object! { obj += {
+            $($f: $v),*
         }}
 
         obj
