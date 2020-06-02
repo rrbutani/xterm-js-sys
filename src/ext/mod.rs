@@ -67,6 +67,14 @@ macro_rules! calculated_doc {
 /// you'll get it on convert rather than when you try to use the method in
 /// question _and_ you'll pay a performance penalty on every conversion).
 ///
+/// Note that this currently requires that you have you `IntoJsInterface` in
+/// scope. This is because this trait must be defined in the crate where this
+/// macro is called in order for the blanket impl that this macro produces for
+/// `IntoJsInterface` to type check. Rather than make it so that this macro only
+/// works in this crate it'll instead work in other crates with the stipulation
+/// that you need to mirror over the trait. Suboptimal, I know. And this
+/// probably renders the little utility the `IntoJsInterface` trait had moot.
+///
 /// [`IntoJsInterface`]: crate::ext::IntoJsInterface
 /// [`JsCast::checked_into`]: wasm_bindgen::JsCast::dyn_into
 #[macro_export]
@@ -94,7 +102,7 @@ macro_rules! interface {
             // functionality on your Rust trait, use an extension trait.
         )*
     }) => {
-        calculated_doc! {
+        $crate::calculated_doc! {
             #[doc = $crate::ext::_m_sprt::concat!(
                 " Rust version of the ",
                 "[`",
@@ -118,7 +126,7 @@ macro_rules! interface {
             )?
             {
                 $(
-                    calculated_doc! {
+                    $crate::calculated_doc! {
                         #[doc = "\n"]
                         #[doc = $crate::ext::_m_sprt::concat!(
                             " Dual of ",
@@ -140,7 +148,7 @@ macro_rules! interface {
                 )*
 
                 ////////// Internal Functions For Interface Mirroring //////////
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = " Copy of [`IntoJsInterface::by_ref`].\n"]
                     #[doc = "\n"]
                     #[doc = $crate::ext::_m_sprt::concat!(
@@ -157,7 +165,7 @@ macro_rules! interface {
                     }
                 }
 
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = " Copy of [`IntoJsInterface::to`].\n"]
                     #[doc = "\n"]
                     #[doc = $crate::ext::_m_sprt::concat!(
@@ -176,7 +184,7 @@ macro_rules! interface {
                     }
                 }
 
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = $crate::ext::_m_sprt::concat!(
                         " Internal version of [`into_js_by_ref`]",
                         "(",
@@ -232,7 +240,7 @@ macro_rules! interface {
                         struct Inner {
                             $($fn_name: Closure<dyn FnMut(
                                     $($arg_ty,)*
-                                )>
+                                ) $(-> $ret_ty)?>
                             ,)*
                         }
 
@@ -262,7 +270,7 @@ macro_rules! interface {
             $(#[$metas])*
         }
 
-        calculated_doc! {
+        $crate::calculated_doc! {
             #[doc = $crate::ext::_m_sprt::concat!(
                 " Anything that implements ",
                 "[`",
@@ -284,7 +292,7 @@ macro_rules! interface {
                 X: $nom,
                 X: $crate::ext::_m_sprt::Clone + 'static
             {
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = $crate::ext::_m_sprt::concat!(
                         " Converts the ",
                         "[`",
@@ -302,7 +310,7 @@ macro_rules! interface {
                     }
                 }
 
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = $crate::ext::_m_sprt::concat!(
                         " Converts the ",
                         "[`",
@@ -322,7 +330,7 @@ macro_rules! interface {
             }
         }
 
-        calculated_doc! {
+        $crate::calculated_doc! {
             #[doc = $crate::ext::_m_sprt::concat!(
                 " This provides an impl of the ",
                 "[`",
@@ -353,7 +361,7 @@ macro_rules! interface {
                 X: AsRef<$js_interface>,
             {
                 $(
-                    calculated_doc! {
+                    $crate::calculated_doc! {
                         #[doc = $crate::ext::_m_sprt::concat!(
                             " [`",
                                 $crate::ext::_m_sprt::stringify!($fn_name),
@@ -458,7 +466,7 @@ macro_rules! interface {
                     }
                 )*
 
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = $crate::ext::_m_sprt::concat!(
                         " [`into_js_by_ref`](",
                             $crate::ext::_m_sprt::stringify!($nom),
@@ -486,7 +494,7 @@ macro_rules! interface {
                     }
                 }
 
-                calculated_doc! {
+                $crate::calculated_doc! {
                     #[doc = $crate::ext::_m_sprt::concat!(
                         " [`into_js`](",
                             $crate::ext::_m_sprt::stringify!($nom),
