@@ -1,9 +1,9 @@
 #![cfg(feature = "ext")]
 
-use wasm_bindgen_test::*;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::convert::{FromWasmAbi, IntoWasmAbi};
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen_test::*;
 use xterm_js_sys::interface;
 
 // This is an ugly hack...
@@ -19,7 +19,6 @@ extern "C" {
 
     #[wasm_bindgen(structural, method)]
     pub fn frob(this: &Frobber, a: u64) -> u64;
-
 
     #[wasm_bindgen(structural, method)]
     pub fn quaz(this: &Frobber, a: u64, b: u16) -> u64;
@@ -88,7 +87,6 @@ extern "C" {
     #[wasm_bindgen(structural, method)]
     pub fn blab(this: &Blabber, b: String);
 
-
     #[wasm_bindgen(structural, method)]
     pub fn shout(this: &Blabber, inp: String) -> String;
 }
@@ -108,16 +106,24 @@ interface! {
 struct Blub;
 
 impl RustFrobber for Blub {
-    fn frob(&self, _a: u64) -> u64 { 12 }
-    fn quaz(&self, a: u64, b: u16) -> u64 { self.frob(a) + (b as u64) }
+    fn frob(&self, _a: u64) -> u64 {
+        12
+    }
+    fn quaz(&self, a: u64, b: u16) -> u64 {
+        self.frob(a) + (b as u64)
+    }
 }
 
 impl RustYap for Blub {
-    fn yap(&self) -> String { String::from("hello javascript!") }
+    fn yap(&self) -> String {
+        String::from("hello javascript!")
+    }
 }
 
 impl RustBlabber for Blub {
-    fn blab(&self, b: String) { console_log!("{}", b) }
+    fn blab(&self, b: String) {
+        console_log!("{}", b)
+    }
     fn shout(&self, inp: String) -> String {
         inp.to_uppercase()
     }
@@ -136,9 +142,15 @@ fn interface_with_extends() {
             assert_eq!(blab.frob(0), 12);
             assert_eq!(blab.quaz(0, 4), 16);
 
-            assert_eq!(AsRef::<super::Yap>::as_ref(blab).yap(), "hello javascript!".to_string());
+            assert_eq!(
+                AsRef::<super::Yap>::as_ref(blab).yap(),
+                "hello javascript!".to_string()
+            );
 
-            assert_eq!(blab.shout(AsRef::<super::Yap>::as_ref(blab).yap()), "HELLO JAVASCRIPT!".to_string());
+            assert_eq!(
+                blab.shout(AsRef::<super::Yap>::as_ref(blab).yap()),
+                "HELLO JAVASCRIPT!".to_string()
+            );
 
             blab.blab(blab.shout(AsRef::<super::Yap>::as_ref(blab).yap()))
         }
