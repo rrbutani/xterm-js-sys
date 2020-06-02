@@ -54,6 +54,11 @@ macro_rules! calculated_doc {
 ///     implementations of the Rust or implementations of the JS interface
 ///     with `impl IntoJsInterface<JsInterfaceName>`
 ///
+/// Note: if you get an error about "unconditional recursion" when using this
+/// macro or an error about a trait not being in scope, it's because a method
+/// that you added to the trait doesn't exist on the underlying JS interface.
+/// Apologies for the cryptic error!
+///
 /// [`IntoJsInterface`]: crate::ext::IntoJsInterface
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
@@ -180,14 +185,35 @@ macro_rules! interface {
                     where
                         Self: 'static,
                     {
-                        use $crate::ext::_m_sprt::{Box, Closure};
+                        use $crate::ext::_m_sprt::{Box, Closure, Object};
                         use $crate::ext::object;
 
                         let base = Object::new();
 
-                        // The things we extend, first:
+                        // First, let's verify that all the functions are
+                        // actually part of the JS interface.
+                        #[doc(hidden)]
+                        mod __isolate_js_interface {
+                            use super::*;
+                            use $js_interface as __js_iface;
+
+                            #[doc(hidden)]
+                            mod __check_that_the_interface_matches_the_trait {
+                                use super::__js_iface as Js;
+
+                                $(
+                                    #[allow(non_upper_case_globals, dead_code)]
+                                    const $fn_name: () = {
+                                        let _ = Js::$fn_name;
+                                        ()
+                                    };
+                                )*
+                            }
+                        }
+
+                        // Now we can begin. The things we extend, first:
                         $($(
-                            let base = $crate::ext::_m_sprt::Object::assign(
+                            let base = Object::assign(
                                 &base,
                                 &<Self as $ext_rs>::into_js_inner(self)
                             );
@@ -367,6 +393,58 @@ macro_rules! interface {
                         // do.
                         //
                         // This is mentioned in the macro's docs.
+                        //
+                        // Actually, one way we can do this kind of check is
+                        // to make a fake module (that's hidden) and to, within
+                        // it, not import the Rust trait but to import the JS
+                        // interface and then "use" the functions on the
+                        // interface we're after (not directly unfortunately —
+                        // structs don't work like that in Rust). We can use
+                        // them by doing something like:
+                        // ```rust
+                        // mod __testing {
+                        //   use super::$js_interface;
+                        //   const $fn_name: () = {
+                        //     let _ = $js_interface::$fn_name; ()
+                        //   };
+                        // }
+                        // ```
+                        // Unfortunately the `super::$js_interface` part won't
+                        // work if $js_interface is an absolute path and the
+                        // error message will (not so helpfully in this case)
+                        // suggest that we import the Rust trait into scope to
+                        // try to fix the problem which is possibly more
+                        // confusing in this case.
+                        //
+                        // So, I think we'll just leave it for now.
+                        //
+                        // Actually we can get around the above by having the
+                        // module above `use` $js_interface `as` something else
+                        // within a scope. So, let's do it!
+                        //
+                        // Okay! Done!
+                        //
+                        // Note that if you do things like have mismatched
+                        // parameters you might get the recursion error instead
+                        // (I _think_ if the inherent method is there it'll
+                        // resolve to it over the trait method, but I'm not
+                        // 100% sure).
+                        //
+                        // It's possible to expand the module hack above to
+                        // check for this too (you'd do something like:
+                        // ```rust
+                        // #[doc(hidden)]
+                        // fn $fn_name($($arg_name: arg_ty),*) $(-> $ret_ty)? {
+                        //   Js::$fn_name($($arg_name: arg_ty),*)
+                        // }
+                        // ```
+                        // which should error on any type/arity mismatches), but
+                        // I'll leave that for another day.
+                        //
+                        // Pretty sure about the inherent method thing and even
+                        // if that isn't true, we've still got the unconditional
+                        // recursion error.
+                        //
                         #[forbid(unconditional_recursion)]
                     }
                 )*
@@ -458,9 +536,9 @@ macro_rules! object {
     }) => {{
         let obj = $base;
 
-        $crate::ext::object! { obj += {
+        let _ = $crate::ext::object! { obj += {
             $($f: $v),*
-        }}
+        }};
 
         obj
     }};
