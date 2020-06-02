@@ -146,7 +146,7 @@ macro_rules! interface {
                     #[doc = "\n"]
                     #[doc = $crate::ext::_macro_support::concat!(
                         " [`IntoJsInterface::to`]: ",
-                        $crate::ext::_macro_support::stringify!(/*$*/crate),
+                            $crate::ext::_macro_support::stringify!(/*$*/crate),
                         "::ext::IntoJsInterface::to",
                     )]
                     >>>
@@ -161,9 +161,16 @@ macro_rules! interface {
                 }
 
                 calculated_doc! {
-                    #[doc = " Internal version of `into_js_by_ref` that doesn't leak `self`.\n"]
+                    #[doc = $crate::ext::_macro_support::concat!(
+                        " Internal version of [`into_js_by_ref`]",
+                        "(",
+                            $crate::ext::_macro_support::stringify!($nom),
+                            "::into_js_by_ref",
+                        ")",
+                        " that doesn't\n leak `self`.\n",
+                    )]
                     #[doc = "\n"]
-                    #[doc = " Useful for trait hierarchies."]
+                    #[doc = " Useful for trait/interface hierarchies."]
                     >>>
                     fn into_js_inner(&'static self) -> $crate::ext::_macro_support::Object
                     where
@@ -332,26 +339,25 @@ macro_rules! interface {
 
                 calculated_doc! {
                     #[doc = $crate::ext::_macro_support::concat!(
-                        "[`into_js_by_ref`](",
-                        $crate::ext::_macro_support::stringify!($nom),
+                        " [`into_js_by_ref`](",
+                            $crate::ext::_macro_support::stringify!($nom),
                         "::into_js_by_ref)",
-                    )]
-                    #[doc = " for types that implement the "]
-                    #[doc = $crate::ext::_macro_support::concat!(
+                        " for types that implement the\n ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($js_interface),
+                            $crate::ext::_macro_support::stringify!($js_interface),
                         "`]",
+                        " interface.\n",
                     )]
-                    #[doc = " interface.\n"]
                     #[doc = "\n"]
-                    #[doc = "This differs from the default impl in that it"]
-                    #[doc = "manages to avoid a `Clone` before effectively"]
-                    #[doc = "doing what"]
-                    #[doc = $crate::ext::_macro_support:concat!(
+                    #[doc = $crate::ext::_macro_support::concat!(
+                        " This differs from the default impl in that it",
+                        " manages to avoid a `Clone` before effectively\n",
+                        " doing what ",
                         "[`into_js`](",
                         $crate::ext::_macro_support::stringify!($nom),
                         "::into_js) does.",
                     )]
+                    >>>
                     fn into_js_by_ref(&self) -> $js_interface {
                         use $crate::ext::_macro_support::{AsRef, Clone};
 
@@ -361,33 +367,31 @@ macro_rules! interface {
 
                 calculated_doc! {
                     #[doc = $crate::ext::_macro_support::concat!(
-                        "[`into_js`](",
-                        $crate::ext::_macro_support::stringify!($nom),
+                        " [`into_js`](",
+                            $crate::ext::_macro_support::stringify!($nom),
                         "::into_js)",
-                    )]
-                    #[doc = " for types that implement the "]
-                    #[doc = $crate::ext::_macro_support::concat!(
+                        " for types that implement the\n ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($js_interface),
+                            $crate::ext::_macro_support::stringify!($js_interface),
                         "`]",
+                        " interface.\n",
                     )]
-                    #[doc = " interface.\n"]
                     #[doc = "\n"]
-                    #[doc = "This differs from the default impl in that it"]
-                    #[doc = "manages to avoid \"double wrapping\" the methods"]
-                    #[doc = "in the interface (types that impl "]
-                    #[doc = $crate::ext::_macro_support:concat!(
+                    #[doc = $crate::ext::_macro_support::concat!(
+                        " This differs from the default impl in that it",
+                        " manages to avoid \"double wrapping\" the methods\n",
+                        " in the interface (types that impl ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($js_interface),
+                            $crate::ext::_macro_support::stringify!($js_interface),
                         "`]",
-                    )]
-                    #[doc = " the `wasm-bindgen` way already have a wrapped up"]
-                    #[doc = $crate::ext::_macro_support:concat!(
+                        " the `wasm-bindgen` way already have\n",
+                        " a wrapped up",
                         " [`Object`](",
-                        $crate::ext::_macro_support::stringify!($crate),
+                            $crate::ext::_macro_support::stringify!(/*$*/crate),
                         "::ext::_macro_support::Object)",
+                        " they can hand us).",
                     )]
-                    #[doc = " they can hand us)."]
+                    >>>
                     fn into_js(self) -> $js_interface {
                         use $crate::ext::_macro_support::{AsRef, Clone};
 
