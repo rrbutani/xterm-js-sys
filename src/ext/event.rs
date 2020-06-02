@@ -1,7 +1,7 @@
 //! Sugar for methods that take `IEvent`s.
 
 use super::{Disposable, DisposableWrapper};
-use crate::xterm::{KeyEventData, Terminal, BufferNamespace, Buffer};
+use crate::xterm::{Buffer, BufferNamespace, KeyEventData, Terminal};
 
 use wasm_bindgen::prelude::*;
 
@@ -76,7 +76,6 @@ impl Terminal {
         ret
     }
 
-
     /// Attaches a key event listener and returns a [`DisposableWrapper`]
     /// that can be dropped to make xterm.js stop sending the event listener
     /// events.
@@ -133,5 +132,4 @@ impl BufferNamespace {
         Closure::forget(listener);
         ret
     }
-
 }

@@ -298,7 +298,6 @@ pub enum BufferType {
     Alternate = "alternate",
 }
 
-
 macro_rules! wasm_struct {
     (
         #[wasm_bindgen]
