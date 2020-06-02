@@ -135,7 +135,7 @@ fn interface_with_extends() {
     let blab: Blabber = blab.to();
 
     mod traitless {
-        // No traits in scope!
+        //! No traits in scope!
         pub fn inner(blab: &super::Blabber) {
             // These don't need `as_ref` calls since `Blabber` `Deref`s into `Frobber`
             // (since it's the first extends).

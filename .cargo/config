@@ -2,9 +2,10 @@
 target = "wasm32-wasi"
 rustdocflags = ["--cfg", "docs"]
 
+# Unfortunately the below breaks wasm-pack!
 # For running `cargo test --target wasm32-unknown-unknown` directly
-[target.wasm32-unknown-unknown]
-runner = "wasm-bindgen-test-runner"
+# [target.wasm32-unknown-unknown]
+# runner = "wasm-bindgen-test-runner"
 
-[alias]
-wasm-test = ["test", "--target", "wasm32-unknown-unknown", "--all-features", "--no-fail-fast"]
+# [alias]
+# wasm-test = ["test", "--target", "wasm32-unknown-unknown", "--all-features", "--no-fail-fast"]
