@@ -1128,6 +1128,52 @@ extern "C" {
     /// [`BufferLine::get_cell`]: BufferLine::get_cell
     #[wasm_bindgen(structural, method, js_name = getNullCell)]
     pub fn get_null_cell(this: &Buffer) -> BufferCell;
+
+    /// Gets the [type](BufferType) of the buffer.
+    #[wasm_bindgen(structural, method, getter = r#type)]
+    pub fn r#type(this: &Buffer) -> BufferType;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Represents the terminal's set of buffers.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type BufferNamespace;
+
+    /// Gets the active buffer. This will either be the [normal] or [alternate]
+    /// buffer.
+    ///
+    /// [normal]: BufferNamespace::normal
+    /// [alternate]: BufferNamespace::alternate
+    #[wasm_bindgen(structural, method, getter = active)]
+    pub fn active(this: &BufferNamespace) -> Buffer;
+
+    /// Gets the alternate buffer. This becomes the active buffer when an
+    /// application enters this mode via DECSET (`CSI ? 4 7 h`).
+    #[wasm_bindgen(structural, method, getter = alternate)]
+    pub fn alternate(this: &BufferNamespace) -> Buffer;
+
+    /// Gets the normal buffer.
+    #[wasm_bindgen(structural, method, getter = normal)]
+    pub fn normal(this: &BufferNamespace) -> Buffer;
+
+    /// Adds an event listener for when the active buffer changes.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_buffer_change_event_listener`] (if the `ext` feature is
+    /// enabled) for a friendlier version of this function.
+    ///
+    /// [`attach_buffer_change_event_listener`]: BufferNamespace::attach_buffer_change_event_listener
+    #[wasm_bindgen(method, js_name = onBufferChange)]
+    pub fn on_buffer_change(
+        this: &BufferNamespace,
+        listener: &Closure<dyn FnMut(Buffer)>,
+    ) -> Disposable;
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -1163,7 +1209,6 @@ extern "C" {
     /// This is called when the addon is activated.
     #[wasm_bindgen(structural, method, js_name = activate)]
     pub fn activate(this: &TerminalAddon, terminal: Terminal);
-
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -1209,7 +1254,7 @@ extern "C" {
     /// the normal buffer or the alt buffer depending on what’s running in the
     /// terminal.
     #[wasm_bindgen(method, getter = buffer)]
-    pub fn buffer(this: &Terminal) -> Buffer;
+    pub fn buffer(this: &Terminal) -> BufferNamespace;
 
     /// The number of columns in the terminal’s viewport. Use
     /// [`TerminalOptions.cols`] to set this in the [constructor] and
