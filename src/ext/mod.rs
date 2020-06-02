@@ -76,7 +76,7 @@ macro_rules! calculated_doc {
 /// probably renders the little utility the `IntoJsInterface` trait had moot.
 ///
 /// [`IntoJsInterface`]: crate::ext::IntoJsInterface
-/// [`JsCast::checked_into`]: wasm_bindgen::JsCast::dyn_into
+/// [`JsCast::dyn_into`]: wasm_bindgen::JsCast::dyn_into
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! interface {
