@@ -14,15 +14,15 @@ use wasm_bindgen::JsCast;
 #[doc(hidden)]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod _macro_support {
-    pub use core::{concat, stringify};
     pub use core::clone::Clone;
     pub use core::convert::AsRef;
     pub use core::marker::Sized;
+    pub use core::{concat, stringify};
     pub use std::boxed::Box;
 
     pub use js_sys::{Object, Reflect};
-    pub use wasm_bindgen::{JsValue, JsCast};
     pub use wasm_bindgen::prelude::Closure;
+    pub use wasm_bindgen::{JsCast, JsValue};
 }
 
 /// Uses the workaround detailed [here] to let us 'generate' a doc literal.
@@ -517,7 +517,7 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[doc(inline)]
-pub use super::{object, interface};
+pub use super::{interface, object};
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod disposable;

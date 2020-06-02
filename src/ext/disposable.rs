@@ -5,10 +5,7 @@
 use super::{object, Disposable, IntoJsInterface, Terminal, TerminalOptions};
 
 use js_sys::{Function, Object};
-use wasm_bindgen::{
-    prelude::wasm_bindgen,
-    JsCast,
-};
+use wasm_bindgen::{prelude::wasm_bindgen, JsCast};
 
 use core::ops::{Deref, DerefMut};
 

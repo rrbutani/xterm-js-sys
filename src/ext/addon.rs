@@ -2,8 +2,8 @@
 //!
 //! [Addons]: crate::xterm::TerminalAddon
 
-use super::{interface, Disposable, IntoJsInterface, TerminalAddon, Terminal};
 use super::disposable::XtermDisposable;
+use super::{interface, Disposable, IntoJsInterface, Terminal, TerminalAddon};
 
 interface! {
     #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
