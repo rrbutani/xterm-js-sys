@@ -533,9 +533,9 @@ macro_rules! object {
     ) => {{
         let obj = $crate::ext::_m_sprt::Object::new();
 
-        $crate::ext::object! { obj += {
+        let _ = $crate::ext::object! { obj += {
                 $($f: $v),*
-        }}
+        }};
 
         obj
     }};
@@ -562,8 +562,6 @@ macro_rules! object {
             ),
             ($v).as_ref(),
         ).unwrap();
-
-        ()
     )*}};
 }
 
