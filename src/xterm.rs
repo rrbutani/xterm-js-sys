@@ -233,9 +233,9 @@ pub enum FastScrollModifier {
     Shift = "shift",
 }
 
+/// A string representing text font weight.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-/// A string representing text font weight.
 pub enum FontWeight {
     /// Normal font weight.
     Normal = "normal",
@@ -261,9 +261,9 @@ pub enum FontWeight {
     _900 = "900",
 }
 
+/// A string representing log level.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-/// A string representing log level.
 pub enum LogLevel {
     /// Show debug (and above) log level information (all logs).
     Debug = "debug",
@@ -277,9 +277,9 @@ pub enum LogLevel {
     Off = "off",
 }
 
+/// A string representing a renderer type.
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-/// A string representing a renderer type.
 pub enum RendererType {
     /// The DOM renderer. This is faster but doesn't support some features
     /// (letter spacing, blinking cursor). As such, this is the _fallback_.
@@ -287,6 +287,17 @@ pub enum RendererType {
     /// The Canvas renderer.
     Canvas = "canvas",
 }
+
+/// A string representing the type of a buffer.
+#[wasm_bindgen]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum BufferType {
+    /// A normal buffer.
+    Normal = "normal",
+    /// An alternate buffer.
+    Alternate = "alternate",
+}
+
 
 macro_rules! wasm_struct {
     (
@@ -297,6 +308,7 @@ macro_rules! wasm_struct {
                 $(#[doc = $docs_field:literal])*
                 $(#[wasm_bindgen($($wasm_opt:ident = $wasm_val:tt),+)])?
                 // $(#[$metas_field:meta])*
+                $(#[deprecated($($depr:tt)+)])?
                 $(pub $field:ident: $field_ty:ty)?
                 $(|
                     clone(
@@ -317,6 +329,7 @@ macro_rules! wasm_struct {
                 $(#[doc = $docs_field])*
                 $(#[wasm_bindgen($($wasm_opt = $wasm_val),+)])?
                 // $(#[$metas_field])*
+                $(#[deprecated($($depr)+)])?
                 $(pub $field: $field_ty)?
                 $(
                     $(
@@ -476,7 +489,7 @@ wasm_struct! {
 ///
 /// To implement a feature, create a custom CSI hook like this:
 ///
-/// ```js
+/// ```ts
 /// term.parser.addCsiHandler({final: 't'}, params => {
 ///   const ps = params[0];
 ///   switch (ps) {
@@ -530,7 +543,6 @@ pub struct WindowOptions {
     /// No default implementation.
     #[wasm_bindgen(js_name = getScreenSizePixels)]
     pub get_screen_size_pixels: Option<bool>,
-
 
     /// Ps=13 Report xterm window position. Result is “CSI 3 ; x ; y t”. Ps=13 ;
     /// 2 Report xterm text-area position. Result is “CSI 3 ; x ; y t”.
@@ -656,6 +668,12 @@ wasm_struct! {
 /// (This is really an interface, but we just go and define our own type that
 /// satisfies the interface.)
 pub struct TerminalOptions {
+    /// Whether to allow the use of proposed API. When false, any usage of APIs
+    /// marked as experimental/proposed will throw an error. This defaults to
+    /// true currently, but will change to false in v5.0.
+    #[wasm_bindgen(js_name = allowProposedApi)]
+    pub allow_proposed_api: Option<bool>,
+
     /// Whether background should support non-opaque color. It must be set
     /// before executing the [`Terminal::open`] method and can’t be changed
     /// later without executing it again. Note that enabling this can negatively
@@ -742,6 +760,16 @@ pub struct TerminalOptions {
     /// The line height used to render text.
     #[wasm_bindgen(js_name = lineHeight)]
     pub line_height: Option<u16>,
+
+    /// The duration in milliseconds before link tooltip events fire when
+    /// hovering on a link.
+    #[wasm_bindgen(js_name = linkTooltipHoverDuration)]
+    #[deprecated(
+        since = "4.6.0",
+        note = "This will be removed when the link matcher API is removed. \
+        See: https://github.com/xtermjs/xterm.js/issues/2703"
+    )]
+    pub link_tooltip_hover_duration: Option<u16>,
 
     /// What log level to use, this will log for all levels below and including
     /// what is set:
@@ -876,7 +904,7 @@ extern "C" {
     /// [`is_bg_palette`]: BufferCell::is_bg_palette
     /// [`is_bg_default`]: BufferCell::is_bg_default
     #[wasm_bindgen(structural, method, js_name = getBgColorMode)]
-    pub fn getBgColorMode(this: &BufferCell) -> u8;
+    pub fn get_bg_color_mode(this: &BufferCell) -> u8;
 
     /// The character(s) within the cell. Examples of what this can contain:
     ///   - A normal width character
@@ -1059,7 +1087,7 @@ extern "C" {
     pub fn base_y(this: &Buffer) -> u16;
 
     /// Gets the x position of the cursor. This ranges between 0 (left side) and
-    /// [`Terminal::cols()`] - 1 (right side).
+    /// [`Terminal::cols()`] (after last cell of the row).
     ///
     /// [`Terminal::cols()`]: Terminal::cols
     #[wasm_bindgen(structural, method, getter = cursorX)]
@@ -1234,17 +1262,10 @@ extern "C" {
     /// [`Disposable`]: Disposable
     /// [`attach_cursor_move_event_listener`]: Terminal::attach_cursor_move_event_listener
     #[wasm_bindgen(method, js_name = onCursorMove)]
-    pub fn on_cursor_mode(
+    pub fn on_cursor_move(
         this: &Terminal,
         listener: &Closure<dyn FnMut()>,
     ) -> Disposable;
-
-    // [TODO]
-    //   onCursorMove
-    //   • onCursorMove: IEvent‹void›
-    //   Defined in xterm.d.ts:624
-    //
-    //   returns an IDisposable to stop listening.
 
     // [TODO]
     //    onData
@@ -1354,12 +1375,12 @@ extern "C" {
 
     /*  [TODO]
         addMarker
-        ▸ addMarker(cursorYOffset: number): IMarker
+        ▸ addMarker(cursorYOffset: number): IMarker | undefined
         deprecated use registerMarker instead.
         Parameters:
         Name    Type
         cursorYOffset   number
-        Returns: IMarker
+        Returns: IMarker | undefined
     */
 
     /*  [TODO]
@@ -1408,6 +1429,7 @@ extern "C" {
         deregisterLinkMatcher
         ▸ deregisterLinkMatcher(matcherId: number): void
         (EXPERIMENTAL) Deregisters a link matcher if it has been registered.
+        @deprecated The link matcher API is now deprecated in favor of the link provider API, see `registerLinkProvider`.
         Parameters:
         Name    Type    Description
         matcherId   number  The link matcher’s ID (returned after register)
@@ -1473,6 +1495,11 @@ extern "C" {
     ///
     /// Takes:
     ///   - addon: The addon to load.
+    ///
+    /// See [`load_xterm_addon`] (if the `ext` feature is enabled) for a
+    /// friendlier version of this function.
+    ///
+    /// [`load_xterm_addon`]: Terminal::load_xterm_addon
     #[wasm_bindgen(method, js_name = loadAddon)]
     pub fn load_addon(this: &Terminal, addon: TerminalAddon);
 
@@ -1484,7 +1511,7 @@ extern "C" {
     ///             DOM-based measurements need to be performed when this
     ///             function is called.
     #[wasm_bindgen(method, js_name = open)]
-    pub fn open(this: &Terminal, parent: web_sys::Element);
+    pub fn open(this: &Terminal, parent: web_sys::HtmlElement);
 
     /*  [TODO]
         paste
@@ -1529,6 +1556,7 @@ extern "C" {
         registerLinkMatcher
         ▸ registerLinkMatcher(regex: RegExp, handler: function, options?: ILinkMatcherOptions): number
         (EXPERIMENTAL) Registers a link matcher, allowing custom link patterns to be matched and handled.
+        @deprecated The link matcher API is now deprecated in favor of the link provider API, see `registerLinkProvider`.
         Parameters:
         ▪ regex: RegExp
         The regular expression to search for, specifically this searches the textContent of the rows. You will want to use \s to match a space ‘ ‘ character for example.
@@ -1547,12 +1575,12 @@ extern "C" {
 
     /*  [TODO]
         registerMarker
-        ▸ registerMarker(cursorYOffset: number): IMarker
+        ▸ registerMarker(cursorYOffset: number): IMarker | undefined
         (EXPERIMENTAL) Adds a marker to the normal buffer and returns it. If the alt buffer is active, undefined is returned.
         Parameters:
         Name    Type    Description
         cursorYOffset   number  The y position offset of the marker from the cursor.
-        Returns: IMarker
+        Returns: IMarker | undefined
     */
 
     // reset
@@ -1765,6 +1793,8 @@ extern "C" {
         data: Str,
         callback: &Closure<dyn FnMut()>,
     );
+
+// TODO: registerLinkProvider
 
 // [TODO]
 //   writeUtf8
