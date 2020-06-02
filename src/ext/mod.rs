@@ -31,12 +31,12 @@ pub mod _macro_support {
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! calculated_doc {
-  ( $(#[doc = $doc:expr])* $thing:item $(#[$metas:meta])* ) => {
-      $(
-      #[doc = $doc]
-      )*
+  ( $(#[doc = $doc:expr])* >>> $thing:item $(#[$metas:meta])* ) => {
       $(
       #[$metas]
+      )*
+      $(
+      #[doc = $doc]
       )*
       $thing
   };
@@ -53,15 +53,18 @@ macro_rules! calculated_doc {
 ///     the Rust trait that's generated; this can be used to accept
 ///     implementations of the Rust or implementations of the JS interface
 ///     with `impl IntoJsInterface<JsInterfaceName>`
+///
+/// [`IntoJsInterface`]: crate::ext::IntoJsInterface
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! interface {
     (
         $(#[$metas:meta])*
         $vis:vis trait $nom:ident
-            mirrors $js_interface:path
+            mirrors $js_interface:ident
             $(where
-                $(Self extends $ext_js:path as $ext_rs:path,)+)?
+                $(Self extends $ext_js:path as $ext_rs:path,)+
+            )?
     {
         $(
             $(#[$fn_metas:meta])*
@@ -78,47 +81,58 @@ macro_rules! interface {
         )*
     }) => {
         calculated_doc! {
-            #[doc = "This is the Rust version of the "]
             #[doc = $crate::ext::_macro_support::concat!(
-                "[`",
-                $crate::ext::_macro_support::stringify!($js_interface),
-                "`]",
+                " Rust version of the ",
+                "[`", $crate::ext::_macro_support::stringify!($js_interface), "`]",
+                " interface.\n",
             )]
-            #[doc = " interface.\n"]
             #[doc = "\n"]
-            #[doc = "See the [\"mirroring interfaces\" section]"]
             #[doc = $crate::ext::_macro_support::concat!(
+                " See the [\"mirroring interfaces\" section]",
                 "(",
-                $crate,
-                "::xterm#mirroring-interfaces",
+                    $crate::ext::_macro_support::stringify!(/*$*/crate),
+                    "::xterm#mirroring-interfaces",
                 ")",
+                "\n of the `xterm` module docs for more information.",
             )]
-            #[doc = "of the `xterm` module docs for more information."]
-
+            >>>
             $vis trait $nom
             $(where
                 $(Self: $ext_rs,)+
             )?
             {
                 $(
-                    $(#[$fn_metas])*
-                    fn $fn_name(
-                        &self,
-                        $(
-                            $arg_name: $arg_ty,
-                        )*
-                    ) $(-> $ret_ty)?;
+                    calculated_doc! {
+                        #[doc = "\n"]
+                        #[doc = $crate::ext::_macro_support::concat!(
+                            " Dual of ",
+                            "[`",
+                                $crate::ext::_macro_support::stringify!($js_interface),
+                                "::",
+                                $crate::ext::_macro_support::stringify!($fn_name),
+                            "`].",
+                        )]
+                        >>>
+                        fn $fn_name(
+                            &self,
+                            $(
+                                $arg_name: $arg_ty,
+                            )*
+                        ) $(-> $ret_ty)?;
+                        $(#[$fn_metas])*
+                    }
                 )*
 
                 //////////////// Internal Functions For Interface Mirroring ////////////////
                 calculated_doc! {
-                    #[doc = "Copy of [`IntoJsInterface::by_ref`].\n"]
+                    #[doc = " Copy of [`IntoJsInterface::by_ref`].\n"]
                     #[doc = "\n"]
-                    #[doc = "[`IntoJsInterface::by_ref`]: "]
                     #[doc = $crate::ext::_macro_support::concat!(
-                        $crate::ext::_macro_support::stringify!($crate),
+                        " [`IntoJsInterface::by_ref`]: ",
+                        $crate::ext::_macro_support::stringify!(/*$*/crate),
                         "::ext::IntoJsInterface::by_ref"
                     )]
+                    >>>
                     fn into_js_by_ref(&self) -> $js_interface
                     where
                         Self: $crate::ext::_macro_support::Clone + 'static,
@@ -128,13 +142,14 @@ macro_rules! interface {
                 }
 
                 calculated_doc! {
-                    #[doc = "Copy of [`IntoJsInterface::to`].\n"]
+                    #[doc = " Copy of [`IntoJsInterface::to`].\n"]
                     #[doc = "\n"]
-                    #[doc = "[`IntoJsInterface::to`]: "]
                     #[doc = $crate::ext::_macro_support::concat!(
-                        $crate::ext::_macro_support::stringify!($crate),
-                        "::ext::IntoJsInterface::to"
+                        " [`IntoJsInterface::to`]: ",
+                        $crate::ext::_macro_support::stringify!(/*$*/crate),
+                        "::ext::IntoJsInterface::to",
                     )]
+                    >>>
                     fn into_js(self) -> $js_interface
                     where
                         Self: $crate::ext::_macro_support::Sized + 'static,
@@ -146,29 +161,30 @@ macro_rules! interface {
                 }
 
                 calculated_doc! {
-                    #[doc = "Internal version of `into_js_by_ref` that doesn't leak `self`.\n"]
+                    #[doc = " Internal version of `into_js_by_ref` that doesn't leak `self`.\n"]
                     #[doc = "\n"]
-                    #[doc = "Useful for trait hierarchies."]
+                    #[doc = " Useful for trait hierarchies."]
+                    >>>
                     fn into_js_inner(&'static self) -> $crate::ext::_macro_support::Object
                     where
                         Self: 'static,
                     {
-                        use $crate::ext::_macro_support::{Box, Closure};
+                        use $crate::ext::_macro_support::{Box, Closure, Object};
                         use $crate::ext::object;
 
                         let base = Object::new();
 
                         // The things we extend, first:
-                        $(
+                        $($(
                             let base = Object::assign(
                                 &base,
                                 &<Self as $ext_rs>::into_js_inner(self)
                             );
-                        )*
+                        )*)?
 
                         // Next, the functions of the interface:
                         struct Inner {
-                            $($fn_name: Box<dyn FnMut(
+                            $($fn_name: Closure<dyn FnMut(
                                     $($arg_ty,)*
                                 )>
                             ,)*
@@ -178,13 +194,13 @@ macro_rules! interface {
                             $($fn_name,)*
                         } = Inner {
                             $($fn_name: {
-                                Box::new(move |$($arg_name: $arg_ty, )*| {
+                                Closure::wrap(Box::new(move |$($arg_name: $arg_ty, )*| {
                                     Self::$fn_name(self $(, $arg_name)*)
-                                })
+                                }))
                             })*
                         };
 
-                        let obj = object! { base += {
+                        let obj = object! { (base) += {
                             $($fn_name: $fn_name)*
                         }};
 
@@ -199,59 +215,59 @@ macro_rules! interface {
         }
 
         calculated_doc! {
-            #[doc = "Anything that implements "]
             #[doc = $crate::ext::_macro_support::concat!(
+                " Anything that implements ",
                 "[`",
-                $crate::ext::_macro_support::stringify!($nom),
+                    $crate::ext::_macro_support::stringify!($nom),
                 "`]",
-            )]
-            #[doc = " (and is `Clone + 'static`)\n"]
-            #[doc = "implements "]
-            #[doc = $crate::ext::_macro_support::concat!(
+                " (and is `Clone + 'static`) ",
+                "gets an implementation \n ",
+                " of ",
                 "[`IntoJsInterface<",
-                $crate::ext::_macro_support::stringify!($js_interface),
+                    $crate::ext::_macro_support::stringify!($js_interface),
                 ">`]",
-                "("
-                $crate::ext::_macro_support::stringify!($crate),
-                "::ext::IntoJsInterface)."
+                "(",
+                    $crate::ext::_macro_support::stringify!(/*$*/crate),
+                "::ext::IntoJsInterface).",
             )]
+            >>>
             impl<X> IntoJsInterface<$js_interface> for X
             where
                 X: $nom,
                 X: $crate::ext::_macro_support::Clone + 'static
             {
                 calculated_doc! {
-                    #[doc = "Converts the "]
                     #[doc = $crate::ext::_macro_support::concat!(
+                        " Converts the ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($nom),
+                            $crate::ext::_macro_support::stringify!($nom),
                         "`]",
-                    )]
-                    #[doc = " implementor into an instance of "]
-                    #[doc = $crate::ext::_macro_support::concat!(
+                        " implementor into an instance of ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($js_interface),
-                        "`] (the corresponding JS interface).",
+                            $crate::ext::_macro_support::stringify!($js_interface),
+                        "`]\n ",
+                        "(the corresponding JS interface).",
                     )]
+                    >>>
                     fn to(self) -> $js_interface {
                         $nom::into_js(self)
                     }
                 }
 
                 calculated_doc! {
-                    #[doc = "Converts the "]
                     #[doc = $crate::ext::_macro_support::concat!(
+                        " Converts the ",
                         "[`",
-                        $crate::ext::_macro_support::stringify!($nom),
+                            $crate::ext::_macro_support::stringify!($nom),
                         "`]",
-                    )]
-                    #[doc = " implementor into an instance of "]
-                    #[doc = $crate::ext::_macro_support::concat!(
+                        " implementor into an instance of ",
                         "[`",
                         $crate::ext::_macro_support::stringify!($js_interface),
-                        "`] (the corresponding JS interface) _by reference_.",
+                        "`]\n ",
+                        "(the corresponding JS interface) _by reference_.",
                     )]
-                    fn by_ref(self) -> $js_interface {
+                    >>>
+                    fn by_ref(&self) -> $js_interface {
                         $nom::into_js_by_ref(self)
                     }
                 }
@@ -259,52 +275,52 @@ macro_rules! interface {
         }
 
         calculated_doc! {
-            #[doc = "This provides an impl of the "]
             #[doc = $crate::ext::_macro_support::concat!(
+                " This provides an impl of the ",
                 "[`",
-                $crate::ext::_macro_support::stringify!($nom),
+                    $crate::ext::_macro_support::stringify!($nom),
                 "`]",
-            )]
-            #[doc = " Rust trait for all things that 'implement' the "]
-            #[doc = $crate::ext::_macro_support::concat!(
+                " Rust trait for all things that 'implement'\n ",
+                "the ",
                 "[`",
                 $crate::ext::_macro_support::stringify!($js_interface),
                 "`]",
+                " JS interface the `wasm-bindgen` way.\n",
             )]
-            #[doc = " JS interface the `wasm-bindgen` way.\n"]
             #[doc = "\n"]
-            #[doc = "See the [\"mirroring interfaces\" section]"]
             #[doc = $crate::ext::_macro_support::concat!(
+                " See the [\"mirroring interfaces\" section]",
                 "(",
-                $crate,
+                $crate::ext::_macro_support::stringify!(/*$*/crate),
                 "::xterm#mirroring-interfaces",
                 ")",
+                " of the\n ",
+                "`xterm` module docs for more information.",
             )]
-            #[doc = "of the `xterm` module docs for more information."]
+            >>>
             impl<X> $nom for X
             where
-                X: $crate::ext::_macro_support::Clone + 'static
-                $(X: $crate::ext::_macro_support::AsRef<$ext_js>,)*
+                X: $crate::ext::_macro_support::Clone + 'static,
+                $($(X: $crate::ext::_macro_support::AsRef<$ext_js>,)*)?
                 X: AsRef<$js_interface>,
             {
                 $(
                     calculated_doc! {
                         #[doc = $crate::ext::_macro_support::concat!(
-                            "[`",
-                            $crate::ext::_macro_support::stringify!($fn_name),
+                            " [`",
+                                $crate::ext::_macro_support::stringify!($fn_name),
                             "`](",
-                            $crate::ext::_macro_support::stringify!($nom),
-                            "::",
-                            $crate::ext::_macro_support::stringify!($fn_name),
+                                $crate::ext::_macro_support::stringify!($nom),
+                                "::",
+                                $crate::ext::_macro_support::stringify!($fn_name),
                             ")",
-                        )]
-                        #[doc = " for types that implement the "]
-                        #[doc = $crate::ext::_macro_support::concat!(
+                            " for types that implement the ",
                             "[`",
-                            $crate::ext::_macro_support::stringify!($js_interface),
+                                $crate::ext::_macro_support::stringify!($js_interface),
                             "`]",
+                            " interface.",
                         )]
-                        #[doc = " interface."]
+                        >>>
                         fn $fn_name(&self $(, $arg_name: $arg_ty)*) $(-> $ret_ty)? {
                             $js_interface::$fn_name(
                                 $crate::ext::_macro_support::AsRef::<$js_interface>::as_ref(self),
@@ -413,7 +429,7 @@ macro_rules! object {
 
     ($nom:ident += {
         $($f:ident: $v:expr),* $(,)?
-    }) => {$(
+    }) => {{$(
         let _ = $crate::ext::_macro_support::Reflect::set(
             &$nom,
             &$crate::ext::_macro_support::JsValue::from_str(
@@ -421,7 +437,9 @@ macro_rules! object {
             ),
             ($v).as_ref(),
         ).unwrap();
-    )*};
+
+        ()
+    )*}};
 }
 
 /// Represents a Rust type that satisfies a JS interface and can be turned into
@@ -495,7 +513,7 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[doc(inline)]
-pub use super::object;
+pub use super::{object, interface};
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod disposable;
