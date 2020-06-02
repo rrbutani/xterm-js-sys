@@ -1554,8 +1554,12 @@ extern "C" {
     ///             be visible (have dimensions) when open is called as several
     ///             DOM-based measurements need to be performed when this
     ///             function is called.
+    // Note: we intentionally deviate from the bindings here by using `Element`
+    // instead of `HtmlElement`; for whatever reason it's pretty tricky to get
+    // an `HtmlElement` for something that isn't the document's body with
+    // `web-sys`.
     #[wasm_bindgen(method, js_name = open)]
-    pub fn open(this: &Terminal, parent: web_sys::HtmlElement);
+    pub fn open(this: &Terminal, parent: web_sys::Element);
 
     /*  [TODO]
         paste
