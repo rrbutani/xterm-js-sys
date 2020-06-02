@@ -59,7 +59,16 @@ macro_rules! calculated_doc {
 /// that you added to the trait doesn't exist on the underlying JS interface.
 /// Apologies for the cryptic error!
 ///
+/// Also note that if you omit methods in the Rust interface you won't be
+/// warned! You'll only find out when a JS user tries to call one of the methods
+/// you missed at which point you'll get a runtime error 🙁 (we could use
+/// [`JsCast::dyn_into`]) instead of its unchecked counterpart but we don't
+/// since that's not really all that much better (still a runtime error, but
+/// you'll get it on convert rather than when you try to use the method in
+/// question _and_ you'll pay a performance penalty on every conversion).
+///
 /// [`IntoJsInterface`]: crate::ext::IntoJsInterface
+/// [`JsCast::checked_into`]: wasm_bindgen::JsCast::dyn_into
 #[macro_export]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! interface {
