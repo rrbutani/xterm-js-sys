@@ -1,3 +1,10 @@
 [build]
 target = "wasm32-wasi"
 rustdocflags = ["--cfg", "docs"]
+
+# For running `cargo test --target wasm32-unknown-unknown` directly
+[target.wasm32-unknown-unknown]
+runner = "wasm-bindgen-test-runner"
+
+[alias]
+wasm-test = ["test", "--target", "wasm32-unknown-unknown", "--all-features", "--no-fail-fast"]

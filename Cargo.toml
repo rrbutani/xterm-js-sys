@@ -47,6 +47,8 @@ features = [
     "HtmlTextAreaElement",
 ]
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
 
 [profile.release]
 lto = true
