@@ -12,7 +12,7 @@ This crate has two features:
    - `ext`: Adds some nicer, more rust-y functions on top of the core bindings; all the functions are in [this module](src/ext).
    - `tui-backend`: Provides an xterm.js backed backend for the [tui][tui] crate; located [here](src/tui).
 
-This crate also does support the infrastructure [xterm.js][xterm] has for [addons](https://github.com/xtermjs/xterm.js#addons). It also lets you [define your own addons in Rust][addon-ext-docs], if you'd like. Currently only the [xterm-addon-fit](https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-fit) package has [Rust bindings][fit-addon]. If you do end up making bindings for an [xterm.js][xterm] addon, feel free to send in a PR to update this list!
+This crate also does support the infrastructure [xterm.js][xterm] has for [addons](https://github.com/xtermjs/xterm.js#addons). It also lets you [define your own addons in Rust][addon-ext-docs], if you'd like. Currently only the [xterm-addon-fit](https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-fit) package has [Rust bindings][fit-addon]. If you do end up making bindings for an [xterm.js][xterm] addon (or your own addon in Rust), feel free to send in a PR to update this list!
 
 ### xterm.js addons
 
