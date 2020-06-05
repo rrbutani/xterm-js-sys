@@ -1441,23 +1441,17 @@ extern "C" {
         Returns: void
     */
 
-    // [TODO]
-    //   blur
-    //   ▸ blur(): void
-    //   Unfocus the terminal.
-    //   Returns: void
+    /// Unfocus the terminal.
+    #[wasm_bindgen(method, js_name = blur)]
+    pub fn blur(this: &Terminal);
 
-    // [TODO]
-    //   clear
-    //   ▸ clear(): void
-    //   Clear the entire buffer, making the prompt line the new first line.
-    //   Returns: void
+    /// Clear the entire buffer, making the prompt line the new first line.
+    #[wasm_bindgen(method, js_name = clear)]
+    pub fn clear(this: &Terminal);
 
-    // [TODO]
-    //   clearSelection
-    //   ▸ clearSelection(): void
-    //   Clears the current terminal selection.
-    //   Returns: void
+    /// Clears the current terminal selection.
+    #[wasm_bindgen(method, js_name = clearSelection)]
+    pub fn clear_selection(this: &Terminal);
 
     /*  [TODO]
         deregisterCharacterJoiner
@@ -1515,12 +1509,10 @@ extern "C" {
         Returns: any
     */
 
-    /*  [TODO]
-        getSelection
-        ▸ getSelection(): string
-        Gets the terminal’s current selection, this is useful for implementing copy behavior outside of xterm.js.
-        Returns: string
-    */
+    /// Gets the terminal’s current selection; this is useful for implementing copy
+    /// behavior outside of xterm.js.
+    #[wasm_bindgen(method, js_name = getSelection)]
+    pub fn get_selection(this: &Terminal) -> Str;
 
     /*  [TODO]
         getSelectionPosition
@@ -1529,11 +1521,9 @@ extern "C" {
         Returns: *ISelectionPosition    undefined*
     */
 
-    // [TODO]
-    //   hasSelection
-    //   ▸ hasSelection(): boolean
-    //   Gets whether the terminal has an active selection.
-    //   Returns: boolean
+    /// Gets whether the terminal has an active selection.
+    #[wasm_bindgen(method, js_name = hasSelection)]
+    pub fn has_selection(this: &Terminal) -> bool;
 
     /// Loads an addon into this instance of the xterm.js [`Terminal`].
     ///
@@ -1631,10 +1621,9 @@ extern "C" {
         Returns: IMarker | undefined
     */
 
-    // reset
-    // ▸ reset(): void
-    // Perform a full reset (RIS, aka ‘\x1bc’).
-    // Returns: void
+    /// Perform a full reset (RIS, aka ‘\x1bc’).
+    #[wasm_bindgen(method, js_name = reset)]
+    pub fn reset(this: &Terminal);
 
     // [TODO]
     //   resize
@@ -1666,12 +1655,9 @@ extern "C" {
         Returns: void
     */
 
-    /*  [TODO]
-        scrollToBottom
-        ▸ scrollToBottom(): void
-        Scrolls the display of the terminal to the bottom.
-        Returns: void
-    */
+    /// Scrolls the display of the terminal to the bottom.
+    #[wasm_bindgen(method, js_name = scrollToBottom)]
+    pub fn scroll_to_bottom(this: &Terminal);
 
     /*  [TODO]
         scrollToLine
@@ -1683,12 +1669,9 @@ extern "C" {
         Returns: void
     */
 
-    /*  [TODO]
-        scrollToTop
-        ▸ scrollToTop(): void
-        Scrolls the display of the terminal to the top.
-        Returns: void
-    */
+    /// Scrolls the display of the terminal to the top.
+    #[wasm_bindgen(method, js_name = scrollToTop)]
+    pub fn scroll_to_top(this: &Terminal);
 
     /*  [TODO]
         select
@@ -1702,12 +1685,9 @@ extern "C" {
         Returns: void
     */
 
-    /*  [TODO]
-        selectAll
-        ▸ selectAll(): void
-        Selects all text within the terminal.
-        Returns: void
-    */
+    /// Selects all text within the terminal.
+    #[wasm_bindgen(method, js_name = selectAll)]
+    pub fn select_all(this: &Terminal);
 
     /*  [TODO]
         selectLines
