@@ -41,25 +41,44 @@ jobs:
         id: features
         run: echo "::set-output name=key::$(echo '${{ matrix.features }}' | sed 's/,/+/g' )"
 
-      - uses: actions/cache@v2
+      - name: test
+        run: |
+          env
+          which rustc
+
+      - name: Cache the toolchain
+        uses: actions/cache@v2
+        with:
+          path: ~/.rustup
+          key: ${{ matrix.rust }}-${{ matrix.target }}
+          # Note: need to update matrix.rust to be the actual version (i.e. 1.44.0) and
+          # not just the alias.
+          restore-keys: |
+            ${{ matrix.rust }}-${{ matrix.target }}
+
+      - name: Cache the build artifacts
+        uses: actions/cache@v2
         with:
           path: |
-            ~/.rustup
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo
-          # Note that we're omitting a hash of Cargo.lock as part of the key because
-          # we don't actually commit lockfiles and Cargo can figure out when already
-          # built deps in `target` are no longer applicable.
+          # The key + restore-key combo means that things will still work if there
+          # aren't lock files at the start of the build _but_, lockfiles must be present
+          # by the end of the build.
           #
-          # The benefit of this is less work when dependencies change (we'll only
-          # rebuild the dependencies that changed rather than having to suffer a cache
-          # miss and rebuild everything). The downside is that the cache will grow to
-          # include more and more cruft until it's manually cleared.
+          # Previously we just didn't include lockfiles at all in the key which was
+          # problematic since it meant the cache was never updated.
           #
-          # To remedy the above, we run `cargo-cache` and `cargo-sweep` during the
-          # scheduled daily build.
+          # We also previously only cleaned up the cache on scheduled builds. Since
+          # scheduled builds never produce a different hash file, this would result in
+          # the cache never actually getting cleaned up. So, instead we run the cleanup
+          # steps all the time. The clean up steps don't take long to run and, if we're
+          # lucky, this could even make things faster in cases where loading/updating
+          # the cache takes a significant amount of time (assuming cleaning the cache
+          # actually makes it noticeably smaller in normal cases).
+          key: ${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo-
 
       # We don't bother using actions-rs/install for this because:
       #  - we want to be able to install cargo-cache with specific features
@@ -69,7 +88,6 @@ jobs:
       #  - the cache should pick up the installation of these tools
       #  - this happens infrequently so it doesn't even really matter
       - name: Install cargo-cache and cargo-sweep
-        if: github.event_name == 'schedule'
         # The versions here are intentionally pinned.
         # When changing versions, remember to change them below, too.
         run: |
@@ -81,7 +99,6 @@ jobs:
             --vers =0.5.0
 
       - name: Mark all files for cargo-sweep
-        if: github.event_name == 'schedule'
         run: cargo-sweep -s
 
       - uses: actions-rs/toolchain@v1
@@ -170,7 +187,6 @@ jobs:
           --no-fail-fast
 
       - name: Clean up the target folder and cargo's caches
-        if: github.event_name == 'schedule'
         # Since we're using the CI version of cargo-cache there aren't any
         # options, which is fine.
         run: |
@@ -186,7 +202,7 @@ jobs:
       # It might make sense to only run nightly jobs on scheduled runs and to
       # not use the cache for them at all, but for now this is fine.
       - name: Clean up old nightly build artifacts
-        if: github.event_name == 'schedule' && matrix.rust == 'nightly'
+        if: matrix.rust == 'nightly'
         run: cargo sweep -i
 
   lint:
@@ -212,10 +228,10 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ matrix.rust }}-cargo-clippy
+          key: ${{ matrix.rust }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ matrix.rust }}-cargo-clippy-
 
       - name: Install cargo-cache and cargo-sweep
-        if: github.event_name == 'schedule'
         # The versions here are intentionally pinned.
         run: |
           cargo install cargo-cache \
@@ -226,7 +242,6 @@ jobs:
             --vers =0.5.0
 
       - name: Mark all files for cargo-sweep
-        if: github.event_name == 'schedule'
         run: cargo-sweep -s
 
       - uses: actions-rs/toolchain@v1
@@ -259,11 +274,10 @@ jobs:
           args: --all --all-features -- -D warnings
 
       - name: Clean up the target folder and cargo's caches
-        if: github.event_name == 'schedule'
         run: |
           cargo-cache
           cargo-sweep -f
 
       - name: Clean up old nightly build artifacts
-        if: github.event_name == 'schedule' && matrix.rust == 'nightly'
+        if: matrix.rust == 'nightly'
         run: cargo sweep -i
