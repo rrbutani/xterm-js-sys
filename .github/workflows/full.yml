@@ -111,7 +111,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.rustup
+            /usr/share/rust/.rustup # ~/.rustup; this action doesn't resolve the symlink
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
