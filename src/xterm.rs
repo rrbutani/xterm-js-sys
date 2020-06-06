@@ -1,4 +1,4 @@
-//! Bindings for the xterm.js public API.
+//! Bindings for the xterm.js public API. CamelCaseFriendThatClippyDoesNotLike
 //!
 //! Unfortunately we can't (yet) generate the below from the TypeScript type
 //! definitions for xterm.js, so we do it by hand.
