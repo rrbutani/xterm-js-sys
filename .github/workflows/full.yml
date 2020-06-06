@@ -4,7 +4,7 @@ on:
   schedule:
     # New nightlies are usually out ~25 mins after midnight, UTC
     # i.e.: https://static.rust-lang.org/dist/2020-06-06/
-    # (we'll do 40 mins to be safe)
+    # (we'll wait 40 mins to be safe)
     - cron:  '40 0 * * *'
 
 name: full
@@ -131,6 +131,9 @@ jobs:
         with:
           path: target
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-cargo-
+          # ^ means we don't have to start from scratch when the deps change
 
       - name: Mark all files for cargo-sweep
         run: cargo-sweep sweep -s
@@ -307,6 +310,8 @@ jobs:
         with:
           path: target
           key: ${{ steps.keys.outputs.toolchain }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ steps.keys.outputs.toolchain }}-cargo-clippy-
 
       - name: Mark all files for cargo-sweep
         run: cargo-sweep sweep -s
@@ -317,15 +322,8 @@ jobs:
           command: fmt
           args: --all -- --check
 
-      # Update: since we don't run any builds in this task, we shouldn't need to
-      # run clean.
-      # # Until this gets fixed: https://github.com/rust-lang/rust-clippy/issues/4612
-      # # we'll run cargo clean first...
-      # - name: Run cargo clean
-      #   uses: actions-rs/cargo@v1
-      #   with:
-      #     command: clean
-
+      # Since we don't run any builds in this task, we shouldn't need to run clean
+      # before (← is the workaround for rust-lang/rust-clippy#4612).
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
