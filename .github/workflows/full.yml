@@ -37,6 +37,10 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - name: Get feature key
+        id: features
+        run: echo "::set-output name=key::$(echo '${{ matrix.features }}' | sed -i 's/,/+/g' )"
+
       - uses: actions/cache@v2
         with:
           path: |
@@ -44,7 +48,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ matrix.os }}-${{ matrix.rust }}-${{ matrix.target }}-${{ matrix.features }}-cargo
+          key: ${{ matrix.os }}-${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo
           # Note that we're omitting a hash of Cargo.lock as part of the key because
           # we don't actually commit lockfiles and Cargo can figure out when already
           # built deps in `target` are no longer applicable.
