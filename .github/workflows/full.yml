@@ -30,6 +30,8 @@ jobs:
           - "ext"
           - "tui-backend"
           - "ext,tui-backend"
+        cargo-cache-ver: 0.4.3
+        cargo-sweep-ver: 0.5.0
 
     continue-on-error: ${{ matrix.rust == 'nightly' }}
 
@@ -45,6 +47,7 @@ jobs:
         run: |
           env
           which rustc
+          rustup which rustc
 
       - name: Cache the toolchain
         uses: actions/cache@v2
@@ -55,6 +58,15 @@ jobs:
           # not just the alias.
           restore-keys: |
             ${{ matrix.rust }}-${{ matrix.target }}
+
+      - name: Cache the binaries
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/.crates2.json
+            ~/.cargo/.crates.toml
+          key: ${{ matrix.cargo-cache-ver }}-${{ matrix.cargo-sweep-ver }}-cargo-bins
 
       - name: Cache the build artifacts
         uses: actions/cache@v2
@@ -99,11 +111,11 @@ jobs:
         # When changing versions, remember to change them below, too.
         run: |
           cargo install cargo-cache \
-            --vers =0.4.3 \
+            --vers =${{ matrix.cargo-cache-ver }} \
             --no-default-features \
             --features ci-autoclean
           cargo install cargo-sweep \
-            --vers =0.5.0
+            --vers =${{ matrix.cargo-sweep-ver }}
 
       - name: Mark all files for cargo-sweep
         run: cargo-sweep sweep -s
