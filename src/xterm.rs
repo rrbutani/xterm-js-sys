@@ -1,4 +1,4 @@
-//! Bindings for the xterm.js public API.
+//! Bindings for the xterm.js public API. CamelCaseFriendThatClippyDoesNotLike
 //!
 //! Unfortunately we can't (yet) generate the below from the TypeScript type
 //! definitions for xterm.js, so we do it by hand.
@@ -1525,7 +1525,7 @@ extern "C" {
     #[wasm_bindgen(method, js_name = hasSelection)]
     pub fn has_selection(this: &Terminal) -> bool;
 
-    /// Loads an addon into this instance of the xterm.js [`Terminal`]. CamelCaseFriend
+    /// Loads an addon into this instance of the xterm.js [`Terminal`].
     ///
     /// Takes:
     ///   - addon: The addon to load.
