@@ -30,6 +30,10 @@ jobs:
             **/target
             **/node_modules
             **/.cache
+            ~/.cache/.wasm-pack
+            ~/.cargo/bin
+            ~/.cargo/.crates2.json
+            ~/.cargo/.crates.toml
           key: deploy-${{ hashFiles('examples/') }}
 
       - name: Run cargo doc
