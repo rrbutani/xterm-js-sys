@@ -504,7 +504,6 @@ impl<T: JsCast> ReadOnlyArray<T> {
         &self,
         predicate: impl FnMut(T, u32, Self) -> R,
     ) -> ReadOnlyArray<R> {
-
         self.inner
             .map(&mut typify(JsValue::UNDEFINED, predicate, Into::into))
             .into()
