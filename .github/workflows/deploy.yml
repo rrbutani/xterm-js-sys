@@ -21,6 +21,17 @@ jobs:
           target: wasm32-wasi
           override: true
 
+      # A very lazy form of caching.
+      # Since the examples shouldn't change too much I think ths is fine.
+      - name: Cache!
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/target
+            **/node_modules
+            **/.cache
+          key: deploy-${{ hashFiles('examples/') }}
+
       - name: Run cargo doc
         uses: actions-rs/cargo@v1
         with:
