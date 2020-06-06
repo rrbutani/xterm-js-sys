@@ -452,9 +452,9 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::includes`].
     ///
     /// Note that this takes the element to search for by value (we have no way
-    /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
-    /// better off using [`ReadOnlyArray::includes`]; it will be cheaper (but
-    /// possibly less ergonomic).
+    /// to convert from `&T` to `&JsValue`); if `T` impls `AsRef<JsValue>`,
+    /// you're better off using [`ReadOnlyArray::includes`]; it will be cheaper
+    /// (but possibly less ergonomic).
     pub fn typed_includes(&self, value: T, from_index: i32) -> bool {
         self.inner.includes(&value.into(), from_index)
     }
@@ -462,9 +462,9 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::index_of`].
     ///
     /// Note that this takes the element to search for by value (we have no way
-    /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
-    /// better off using [`ReadOnlyArray::index_of`]; it will be cheaper (but
-    /// possibly less ergonomic).
+    /// to convert from `&T` to `&JsValue`); if `T` impls `AsRef<JsValue>`,
+    /// you're better off using [`ReadOnlyArray::index_of`]; it will be cheaper
+    /// (but possibly less ergonomic).
     ///
     /// Returns `None` when the element can't be found.
     pub fn typed_index_of(&self, value: T, from_index: i32) -> Option<u32> {
@@ -478,9 +478,9 @@ impl<T: JsCast> ReadOnlyArray<T> {
     /// Typed version of [`Array::last_index_of`].
     ///
     /// Note that this takes the element to search for by value (we have no way
-    /// to convert from &T to &JsValue); if `T` impls `AsRef<JsValue>`, you're
-    /// better off using [`ReadOnlyArray::last_index_of`]; it will be cheaper
-    /// (but possibly less ergonomic).
+    /// to convert from `&T` to `&JsValue`); if `T` impls `AsRef<JsValue>`,
+    /// you're better off using [`ReadOnlyArray::last_index_of`]; it will be
+    /// cheaper (but possibly less ergonomic).
     ///
     /// Returns `None` when the element can't be found.
     pub fn typed_last_index_of(
@@ -504,9 +504,6 @@ impl<T: JsCast> ReadOnlyArray<T> {
         &self,
         predicate: impl FnMut(T, u32, Self) -> R,
     ) -> ReadOnlyArray<R> {
-        // self.inner.map(&mut move |val: JsValue, idx, arr: Array| {
-
-        // })
 
         self.inner
             .map(&mut typify(JsValue::UNDEFINED, predicate, Into::into))
