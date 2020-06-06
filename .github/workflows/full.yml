@@ -2,7 +2,10 @@ on:
   push:
   pull_request:
   schedule:
-    - cron:  '0 0 * * *'
+    # New nightlies are usually out ~25 mins after midnight, UTC
+    # i.e.: https://static.rust-lang.org/dist/2020-06-06/
+    # (we'll do 40 mins to be safe)
+    - cron:  '40 0 * * *'
 
 name: full
 
@@ -37,6 +40,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: |
+            ~/.rustup
             ~/.cargo/registry
             ~/.cargo/git
             target
@@ -50,8 +54,31 @@ jobs:
           # miss and rebuild everything). The downside is that the cache will grow to
           # include more and more cruft until it's manually cleared.
           #
-          # If the above becomes a problem we can add steps that run `cargo-cache` and
-          # `cargo-sweep`.
+          # To remedy the above, we run `cargo-cache` and `cargo-sweep` during the
+          # scheduled daily build.
+
+      # We don't bother using actions-rs/install for this because:
+      #  - we want to be able to install cargo-cache with specific features
+      #    which actions-rs/install doesn't support
+      #  - cache-cache with `--features ci-autoclean` is designed to install
+      #    fast anyways
+      #  - the cache should pick up the installation of these tools
+      #  - this happens infrequently so it doesn't even really matter
+      - name: Install cargo-cache and cargo-sweep
+        if: github.event_name == 'schedule'
+        # The versions here are intentionally pinned.
+        # When changing versions, remember to change them below, too.
+        run: |
+          cargo install cargo-cache \
+            --vers =0.4.3 \
+            --no-default-features \
+            --features ci-autoclean
+          cargo install cargo-sweep \
+            --vers =0.5.0
+
+      - name: Mark all files for cargo-sweep
+        if: github.event_name == 'schedule'
+        run: cargo-sweep -s
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -138,8 +165,27 @@ jobs:
           --features ${{ matrix.features }}
           --no-fail-fast
 
+      - name: Clean up the target folder and cargo's caches
+        if: github.event_name == 'schedule'
+        # Since we're using the CI version of cargo-cache there aren't any
+        # options, which is fine.
+        run: |
+          cargo-cache
+          cargo-sweep -f
+
+      # Note: because we don't install _specific_ nightly versions we don't
+      # need to go uninstall older nightly versions; they are replaced when
+      # running `rustup install nightly`.
+      #
+      # Also note that doing any caching for the nightly jobs is probably silly
+      # and might actually make those jobs slower.
+      # It might make sense to only run nightly jobs on scheduled runs and to
+      # not use the cache for them at all, but for now this is fine.
+      - name: Clean up old nightly build artifacts
+        if: github.event_name == 'schedule' && matrix.rust == 'nightly'
+        run: cargo sweep -i
+
   lint:
-    needs: check
     name: Format + run clippy
 
     strategy:
@@ -152,6 +198,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+
+      # Caching is still beneficial for this task since `cargo clippy` basically
+      # runs `cargo check` which grabs deps and builds them.
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.rustup
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ matrix.rust }}-cargo-clippy
+
+      - name: Install cargo-cache and cargo-sweep
+        if: github.event_name == 'schedule'
+        # The versions here are intentionally pinned.
+        run: |
+          cargo install cargo-cache \
+            --vers =0.4.3 \
+            --no-default-features \
+            --features ci-autoclean
+          cargo install cargo-sweep \
+            --vers =0.5.0
+
+      - name: Mark all files for cargo-sweep
+        if: github.event_name == 'schedule'
+        run: cargo-sweep -s
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -167,15 +239,27 @@ jobs:
           command: fmt
           args: --all -- --check
 
-      # Until this gets fixed: https://github.com/rust-lang/rust-clippy/issues/4612
-      # we'll run cargo clean first...
-      - name: Run cargo clean
-        uses: actions-rs/cargo@v1
-        with:
-          command: clean
+      # Update: since we don't run any builds in this task, we shouldn't need to
+      # run clean.
+      # # Until this gets fixed: https://github.com/rust-lang/rust-clippy/issues/4612
+      # # we'll run cargo clean first...
+      # - name: Run cargo clean
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: clean
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --all --all-features -- -D warnings
+
+      - name: Clean up the target folder and cargo's caches
+        if: github.event_name == 'schedule'
+        run: |
+          cargo-cache
+          cargo-sweep -f
+
+      - name: Clean up old nightly build artifacts
+        if: github.event_name == 'schedule' && matrix.rust == 'nightly'
+        run: cargo sweep -i
