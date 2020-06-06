@@ -34,6 +34,7 @@ jobs:
         cargo-sweep-ver: ["0.5.0"]
         rust-latest-ver: ["1.4.0"]
         # TODO: move ^ these three to an env block on the install step?
+        # Note: remember to update these below as well when making changes!
 
     continue-on-error: ${{ matrix.rust == 'nightly' }}
 
@@ -83,18 +84,6 @@ jobs:
         run: |
           echo "::set-output name=features::$(echo '${{ matrix.features }}' | sed 's/,/+/g')"
           echo "::set-output name=toolchain::$(rust-latest -c '${{ matrix.rust }}')"
-
-      # TODO: remove
-      - name: test
-        run: |
-          env
-          which rustc
-          rustup which rustc
-          echo $(cd ~; pwd)
-          realpath ~
-          ls -l ~/.cargo
-          echo ___
-          ls -la ~/
 
       # The split between the 'toolchain' and 'build artifact' caches has gotten
       # pretty weird; it's really should be called "all the things we can cache
@@ -230,6 +219,10 @@ jobs:
       fail-fast: false
       matrix:
         rust: [ stable, nightly ]
+        cargo-cache-ver: ["0.4.3"]
+        cargo-sweep-ver: ["0.5.0"]
+        rust-latest-ver: ["1.4.0"]
+        # Note: change these above as well.
 
     continue-on-error: ${{ matrix.rust == 'nightly' }}
 
@@ -249,6 +242,38 @@ jobs:
           key: ${{ matrix.rust }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ matrix.rust }}-cargo-clippy-
 
+      - name: Cache the binaries
+        id: bin-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/.crates2.json
+            ~/.cargo/.crates.toml
+          key: ${{ matrix.cargo-cache-ver }}-${{ matrix.cargo-sweep-ver }}-${{ matrix.rust-latest-ver }}-cargo-bins
+
+      - name: Install cargo-cache and cargo-sweep and rust-latest
+        if: steps.bin-cache.outputs.cache-hit != 'true'
+        run: |
+          cargo install cargo-cache --vers =${{ matrix.cargo-cache-ver }} \
+            --no-default-features --features ci-autoclean
+          cargo install cargo-sweep --vers =${{ matrix.cargo-sweep-ver }}
+          cargo install rust-latest --vers =${{ matrix.rust-latest-ver }}
+
+      - name: Get toolchain key
+        id: keys
+        run: |
+          echo "::set-output name=toolchain::$(rust-latest -c '${{ matrix.rust }}')"
+
+      - name: Cache the toolchain
+        uses: actions/cache@v2
+        with:
+          path: |
+            /usr/share/rust/.rustup
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ steps.keys.outputs.toolchain }}-toolchain-clippy
+
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -257,15 +282,16 @@ jobs:
           components: rustfmt, clippy
           target: wasm32-wasi
 
-      - name: Install cargo-cache and cargo-sweep
-        # The versions here are intentionally pinned.
-        run: |
-          cargo install cargo-cache \
-            --vers =0.4.3 \
-            --no-default-features \
-            --features ci-autoclean
-          cargo install cargo-sweep \
-            --vers =0.5.0
+      - name: Generate Cargo.lock
+        uses: actions-rs/cargo@v1
+        with:
+          command: update
+
+      - name: Cache the build artifacts
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ steps.keys.outputs.toolchain }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Mark all files for cargo-sweep
         run: cargo-sweep sweep -s
@@ -295,7 +321,3 @@ jobs:
         run: |
           cargo-cache
           cargo-sweep sweep -f
-
-      - name: Clean up old nightly build artifacts
-        if: matrix.rust == 'nightly'
-        run: cargo sweep -i
