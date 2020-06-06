@@ -49,7 +49,7 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/.crates2.json
             ~/.cargo/.crates.toml
-          key: ${{ matrix.cargo-cache-ver }}-${{ matrix.cargo-sweep-ver }}-cargo-bins
+          key: ${{ matrix.cargo-cache-ver }}-${{ matrix.cargo-sweep-ver }}-${{ matrix.rust-latest-ver }}-cargo-bins
 
       # We don't bother using actions-rs/install for this because:
       #  - we want to be able to install cargo-cache with specific features
@@ -76,7 +76,7 @@ jobs:
           cargo install cargo-sweep \
             --vers =${{ matrix.cargo-sweep-ver }}
           cargo install rust-latest \
-            --vers =${{ matrix.rust-latest }}
+            --vers =${{ matrix.rust-latest-ver }}
 
       - name: Get feature and toolchain key
         id: keys
@@ -92,6 +92,9 @@ jobs:
           rustup which rustc
           echo $(cd ~; pwd)
           realpath ~
+          ls -l ~/.cargo
+          echo ___
+          ls -la ~/
 
       # The split between the 'toolchain' and 'build artifact' caches has gotten
       # pretty weird; it's really should be called "all the things we can cache
