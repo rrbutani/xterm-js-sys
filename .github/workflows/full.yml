@@ -18,17 +18,17 @@ jobs:
       matrix:
         rust:
           - stable
-          - beta
+          # - beta
           - nightly
           - 1.43.0
         target:
           - x86_64-unknown-linux-gnu
           - wasm32-unknown-unknown
-          - wasm32-wasi
+          # - wasm32-wasi
         features:
           - "''"
-          - "ext"
-          - "tui-backend"
+          # - "ext"
+          # - "tui-backend"
           - "ext,tui-backend"
         cargo-cache-ver: ["0.4.3"]
         cargo-sweep-ver: ["0.5.0"]
