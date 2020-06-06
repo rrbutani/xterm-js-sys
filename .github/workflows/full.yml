@@ -34,6 +34,25 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ matrix.os }}-${{ matrix.rust }}-${{ matrix.target }}-${{ matrix.features }}-cargo
+          # Note that we're omitting a hash of Cargo.lock as part of the key because
+          # we don't actually commit lockfiles and Cargo can figure out when already
+          # built deps in `target` are no longer applicable.
+          #
+          # The benefit of this is less work when dependencies change (we'll only
+          # rebuild the dependencies that changed rather than having to suffer a cache
+          # miss and rebuild everything). The downside is that the cache will grow to
+          # include more and more cruft until it's manually cleared.
+          #
+          # If the above becomes a problem we can add steps that run `cargo-cache` and
+          # `cargo-sweep`.
+
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
