@@ -97,16 +97,24 @@ jobs:
       # caches will get pushed out frequently enough (caches are LIFOed on date
       # created, iiuc) that this isn't a problem.
       - name: Cache the toolchain
+        id: toolchain-cache
         uses: actions/cache@v2
         with:
           path: |
-            /usr/share/rust/.rustup # ~/.rustup; this action doesn't resolve the symlink
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cache/.wasm-pack
+            /usr/share/rust/.rustup
+          # ^ == ~/.rustup; this action doesn't resolve the symlink
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
 
-      # If the toolchain cache worked, this should do nothing.
+      - name: Set default toolchain
+        if: steps.bin-cache.outputs.cache-hit == 'true'
+        run: |
+          rustup default ${{ matrix.rust }}
+
       - uses: actions-rs/toolchain@v1
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
@@ -266,15 +274,22 @@ jobs:
           echo "::set-output name=toolchain::$(rust-latest -c '${{ matrix.rust }}')"
 
       - name: Cache the toolchain
+        id: toolchain-cache
         uses: actions/cache@v2
         with:
           path: |
             /usr/share/rust/.rustup
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ steps.keys.outputs.toolchain }}-toolchain-clippy
+          key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
+
+      - name: Set default toolchain
+        if: steps.bin-cache.outputs.cache-hit == 'true'
+        run: |
+          rustup default ${{ matrix.rust }}
 
       - uses: actions-rs/toolchain@v1
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
