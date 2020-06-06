@@ -99,7 +99,7 @@ jobs:
             --vers =0.5.0
 
       - name: Mark all files for cargo-sweep
-        run: cargo-sweep -s
+        run: cargo-sweep sweep -s
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -191,7 +191,7 @@ jobs:
         # options, which is fine.
         run: |
           cargo-cache
-          cargo-sweep -f
+          cargo-sweep sweep -f
 
       # Note: because we don't install _specific_ nightly versions we don't
       # need to go uninstall older nightly versions; they are replaced when
