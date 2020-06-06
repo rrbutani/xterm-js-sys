@@ -109,7 +109,7 @@ jobs:
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
 
       - name: Set default toolchain
-        if: steps.bin-cache.outputs.cache-hit == 'true'
+        if: steps.toolchain-cache.outputs.cache-hit == 'true'
         run: |
           rustup default ${{ matrix.rust }}
 
@@ -284,7 +284,7 @@ jobs:
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
 
       - name: Set default toolchain
-        if: steps.bin-cache.outputs.cache-hit == 'true'
+        if: steps.toolchain-cache.outputs.cache-hit == 'true'
         run: |
           rustup default ${{ matrix.rust }}
 
