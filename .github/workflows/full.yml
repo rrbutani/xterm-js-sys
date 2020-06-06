@@ -80,6 +80,13 @@ jobs:
           key: ${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ matrix.rust }}-${{ matrix.target }}-${{ steps.features.outputs.key }}-cargo-
 
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          override: true
+
       # We don't bother using actions-rs/install for this because:
       #  - we want to be able to install cargo-cache with specific features
       #    which actions-rs/install doesn't support
@@ -100,13 +107,6 @@ jobs:
 
       - name: Mark all files for cargo-sweep
         run: cargo-sweep sweep -s
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -231,6 +231,14 @@ jobs:
           key: ${{ matrix.rust }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ matrix.rust }}-cargo-clippy-
 
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: rustfmt, clippy
+          target: wasm32-wasi
+
       - name: Install cargo-cache and cargo-sweep
         # The versions here are intentionally pinned.
         run: |
@@ -242,15 +250,7 @@ jobs:
             --vers =0.5.0
 
       - name: Mark all files for cargo-sweep
-        run: cargo-sweep -s
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-          components: rustfmt, clippy
-          target: wasm32-wasi
+        run: cargo-sweep sweep -s
 
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
@@ -276,7 +276,7 @@ jobs:
       - name: Clean up the target folder and cargo's caches
         run: |
           cargo-cache
-          cargo-sweep -f
+          cargo-sweep sweep -f
 
       - name: Clean up old nightly build artifacts
         if: matrix.rust == 'nightly'
