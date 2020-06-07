@@ -13,7 +13,7 @@
 //! construct the concrete type for anything satisfying the trait.
 //!
 //! Generic interfaces are also problematic; these have been "manually
-//! monomorphized" (i.e. `IEvent<Object, Void>` → `KeyEventListener` on the
+//! monomorphized" (i.e. `IEvent<Object, Void>` → `FnMut(KeyEventData)` on the
 //! Rust side).
 //!
 //! In general, the rule used for interfaces has been:
@@ -1103,7 +1103,7 @@ extern "C" {
 
     /// Gets the amount of lines in the buffer.
     #[wasm_bindgen(structural, method, getter = length)]
-    pub fn length(this: &Buffer) -> u16;
+    pub fn length(this: &Buffer) -> u32;
 
     /// Get the line within the buffer where the top of the viewport is.
     #[wasm_bindgen(structural, method, getter = viewportY)]
@@ -1118,7 +1118,7 @@ extern "C" {
     ///
     /// Takes `y`: the line index to get.
     #[wasm_bindgen(structural, method, js_name = getLine)]
-    pub fn get_line(this: &Buffer, y: u16) -> Option<BufferLine>;
+    pub fn get_line(this: &Buffer, y: u32) -> Option<BufferLine>;
 
     /// Creates an empty cell object suitable as a cell reference in
     /// [`BufferLine::get_cell`]. Use this to avoid costly recreation of cell
@@ -1179,9 +1179,11 @@ extern "C" {
 extern "C" {
     /// An object that can be disposed via a dispose function.
     ///
-    /// (This is a [duck-typed interface]).
+    /// (This is a [duck-typed interface]; it's Rust dual is available [here]
+    /// when the `ext` feature is enabled).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    /// [here]: crate::ext::disposable::XtermDisposable
     #[derive(Debug, Clone)]
     pub type Disposable;
 
@@ -1214,16 +1216,16 @@ extern "C" {
 extern "C" {
     /// Corresponds to `{ key: string, domEvent: KeyboardEvent }`.
     ///
+    /// Produced by [`Terminal::on_data`].
+    ///
     /// (This is a [duck-typed interface]).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
     #[derive(Debug, Clone)]
     pub type KeyEventData;
 
-    /// Gets the `String` representing this key event that will be sent to
-    /// [`Terminal::onData`].
-    ///
-    /// [`Terminal::onData`]: Terminal::onData
+    /// Gets the `String` representing the key event that was sent to
+    /// [`Terminal::on_data`].
     #[wasm_bindgen(structural, method, getter = key)]
     pub fn key(this: &KeyEventData) -> Str;
 
@@ -1387,7 +1389,7 @@ extern "C" {
 
     /// The number of rows in the terminal’s viewport. Use
     /// [`TerminalOptions.rows`] to set this in the [constructor] and
-    /// [`Terminal.resize`] for when the terminal exists.
+    /// [`Terminal::resize`] for when the terminal exists.
     ///
     /// [`TerminalOptions.rows`]: TerminalOptions.rows
     /// [constructor]: Terminal::new

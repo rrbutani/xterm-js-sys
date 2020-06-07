@@ -9,6 +9,8 @@
 //! [ROA]: ReadOnlyArray
 //! [TS]: https://www.typescriptlang.org/docs/handbook/interfaces.html#readonly-properties
 
+use super::idx_to_opt;
+
 use js_sys::{Array, JsString, Object};
 use wasm_bindgen::{
     convert::{
@@ -332,17 +334,6 @@ fn typify<T: JsCast, R, R2: Clone>(
         } else {
             on_type_mismatch.clone()
         }
-    }
-}
-
-/// Converts an `i32` into an `Option<u32>` (following the JS convention where
-/// -1 indicates an error/lack of an element).
-#[allow(clippy::cast_sign_loss)]
-fn idx_to_opt(idx: i32) -> Option<u32> {
-    match idx {
-        -1 => None,
-        0..=i32::MAX => Some(idx as u32),
-        _ => unreachable!(),
     }
 }
 

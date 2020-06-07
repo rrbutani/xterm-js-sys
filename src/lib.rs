@@ -50,8 +50,18 @@
 )]
 
 // TODO:
-//  - colours for badges in the README
 //  - add in an example/crate level docs here
+
+/// Converts an `i32` into an `Option<u32>` (following the JS convention where
+/// -1 indicates an error/lack of an element).
+#[allow(clippy::cast_sign_loss)]
+fn idx_to_opt(idx: i32) -> Option<u32> {
+    match idx {
+        -1 => None,
+        0..=i32::MAX => Some(idx as u32),
+        _ => unreachable!(),
+    }
+}
 
 mod readonly_array;
 pub use readonly_array::ReadOnlyArray;
