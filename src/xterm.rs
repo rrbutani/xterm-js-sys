@@ -300,12 +300,12 @@ pub enum BufferType {
 
 macro_rules! wasm_struct {
     (
-        #[wasm_bindgen]
+        #[wasm_bindgen $(( $($wb_opts:tt)* ))? ]
         $(#[$metas:meta])*
         pub struct $nom:ident {
             $(
                 $(#[doc = $docs_field:literal])*
-                $(#[wasm_bindgen($($wasm_opt:ident = $wasm_val:tt),+)])?
+                $(#[wasm_bindgen($($wasm_opt:ident$( = $wasm_val:tt)?),+)])?
                 // $(#[$metas_field:meta])*
                 $(#[deprecated($($depr:tt)+)])?
                 $(pub $field:ident: $field_ty:ty)?
@@ -321,12 +321,12 @@ macro_rules! wasm_struct {
             )+
         }
     ) => {
-        #[wasm_bindgen]
+        #[wasm_bindgen $(( $($wb_opts)* ))? ]
         $(#[$metas])*
         pub struct $nom {
             $(
                 $(#[doc = $docs_field])*
-                $(#[wasm_bindgen($($wasm_opt = $wasm_val),+)])?
+                $(#[wasm_bindgen($($wasm_opt$( = $wasm_val)?),+)])?
                 // $(#[$metas_field])*
                 $(#[deprecated($($depr)+)])?
                 $(pub $field: $field_ty)?
@@ -385,7 +385,7 @@ macro_rules! wasm_struct {
 }
 
 wasm_struct! {
-#[wasm_bindgen]
+#[wasm_bindgen(inspectable)]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 /// Contains colors to theme the terminal with.
 ///
@@ -660,7 +660,7 @@ pub struct WindowOptions {
 }}
 
 wasm_struct! {
-#[wasm_bindgen]
+#[wasm_bindgen(inspectable)]
 #[derive(Debug, Clone, PartialEq, Default)]
 /// An object containing start up options for the terminal.
 ///
@@ -1179,7 +1179,7 @@ extern "C" {
 extern "C" {
     /// An object that can be disposed via a dispose function.
     ///
-    /// (This is a [duck-typed interface]; it's Rust dual is available [here]
+    /// (This is a [duck-typed interface]; its Rust dual is available [here]
     /// when the `ext` feature is enabled).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
