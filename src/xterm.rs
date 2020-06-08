@@ -400,6 +400,128 @@ macro_rules! wasm_struct {
 
 wasm_struct! {
 #[wasm_bindgen(inspectable)]
+#[derive(Debug, Clone)]
+/// An object containing options for a link matcher.
+///
+/// Note: we had to make some significant compromises to mirroring this
+/// interface on the Rust side. Because the interface contains optional
+/// functions we choose to model this as a struct rather than as an extern-ed
+/// type: we can have fields that have a [`Closure`] or a function trait object
+/// in an `Option` but we have no way to have an optional function in a Rust
+/// trait.
+///
+/// Unfortunately `Option<Closure<_>>` and `Option<dyn Fn{,Mut}(...)>` don't
+/// implement `OptionIntoWasmAbi`, so we had to make the fields required.
+/// Additionally, the validation callback actually takes another callback which
+/// we couldn't model as the appropriate Rust type (`dyn FnMut(bool)`) because
+/// `dyn FnMut` and the `Closure` type don't implement `FromWasmAbi` (i.e. you
+/// can't produce something of those types on the JS side). So, we had to fall
+/// back to using [`js_sys::Function`].
+///
+/// Fortunately since this interface is only ever produced by the user of the
+/// API, the first point (not having optional functions) isn't too big a deal.
+/// The second point makes actually making a [`LinkMatcherOptions`] instance in
+/// Rust kind of a pain, but it's still workable.
+///
+/// Since we can't actually do the `Option<Closure<_>>` thing, it might actually
+/// have been better to model this as an extern-ed type + a Rust trait, but
+/// let's leave that for another time. If there's interest in actually using
+/// this part of the API in Rust we can make the change (but I doubt there will
+/// be).
+pub struct LinkMatcherOptions {
+    /// The index of the link from the `regex.match(text)` call.
+    ///
+    /// This defaults to 0 (for regular expressions without capture groups).
+    #[wasm_bindgen(js_name = matchIndex)]
+    pub match_index: Option<u64>,
+
+    /// A function that validates whether to create an individual link.
+    ///
+    /// The callback that this function is given is passed a `bool` indicating
+    /// whether the link given (`uri`) is valid.
+    ///
+    /// Since the signature, post-translation, is rather cryptic, here's the
+    /// original TypeScript binding:
+    /// ```ts
+    /// validationCallback?: (
+    ///     uri: string,
+    ///     callback: (isValid: boolean) => void,
+    /// ) => void;
+    /// ```
+    #[wasm_bindgen(readonly, js_name = validationCallback)]
+    pub validation_callback: /*Option<*/
+        &'static Closure<
+            dyn FnMut(
+                Str,
+                // &'static dyn FnMut(bool),
+                js_sys::Function,
+            )
+        >
+    /*>*/,
+
+    /// A function that is called when the mouse hovers over a link for a period
+    /// of time (defined by [`TerminalOptions::link_tooltip_hover_duration`]).
+    ///
+    /// Since the signature, post-translation, is rather cryptic, here's the
+    /// original TypeScript binding:
+    /// ```ts
+    /// tooltipCallback?: (
+    ///     event: MouseEvent,
+    ///     uri: string,
+    ///     location: IViewportRange,
+    /// ) => boolean | void;
+    /// ```
+    #[wasm_bindgen(readonly, js_name = tooltipCallback)]
+    pub tooltip_callback: /*Option<*/
+        &'static Closure<
+            dyn FnMut(web_sys::MouseEvent, Str, ViewportRange) -> Option<bool>
+        >
+    /*>*/,
+
+    /// A function that is called when the mouse leaves a link.
+    ///
+    /// Note that this can happen even when [`tooltip_callback`] hasn't fired
+    /// for the link yet.
+    ///
+    /// Just to be thorough, here's the original TypeScript binding:
+    /// ```ts
+    /// leaveCallback?: () => void;
+    /// ```
+    ///
+    /// [`tooltip_callback`]: LinkMatcherOptions::tooltip_callback
+    #[wasm_bindgen(readonly, js_name = leaveCallback)]
+    pub leave_callback: /*Option<*/
+        &'static Closure<dyn FnMut()>
+    /*>*/,
+
+    /// The priority of the link matcher.
+    ///
+    /// This defined the order in which the link matcher is evaluated relative
+    /// to others, from highest to lowest. The default value is 0.
+    #[wasm_bindgen(js_name = priority)]
+    pub priority: Option<i16>,
+
+    /// A function that is called when the mousedown and click events occur.
+    ///
+    /// This function is responsible for determining whether a link will be
+    /// activated upon click. This enables only activating a link when a certain
+    /// modifier is held down. If this function determines that an event does
+    /// not activate the link (i.e. by returning `false`) then the event will
+    /// continue propagation (e.g. double click to select word).
+    ///
+    /// Since the signature, post-translation, is rather cryptic, here's the
+    /// original TypeScript binding:
+    /// ```ts
+    /// willLinkActivate?: (event: MouseEvent, uri: string) => boolean;
+    /// ```
+    #[wasm_bindgen(readonly, js_name = willLinkActivate)]
+    pub will_link_activate: /*Option<*/
+        &'static Closure<dyn FnMut(web_sys::MouseEvent, Str) -> bool>
+    /*>*/,
+}}
+
+wasm_struct! {
+#[wasm_bindgen(inspectable)]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 /// Contains colors to theme the terminal with.
 ///
@@ -920,28 +1042,6 @@ pub struct TerminalOptions {
     |clone(set = set_word_separator, js_name = wordSeparator)
     word_separator: Option<Str>,
 }}
-
-// wasm_struct!{
-// #[wasm_bindgen(inspectable)]
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// /// **[EXPERIMENTAL]** Unicode version provider.
-// ///
-// /// Used to register custom Unicode versions with [`UnicodeHandling::register`]
-// /// (obtained from [`Terminal::unicode`]).
-// ///
-// /// (This is really an interface, but we just go and define our own type that
-// /// satisfies the interface.)
-// pub struct UnicodeVersionProvider {
-//     /// String indicating the Unicode version provided.
-//     #[wasm_bindgen(readonly, js_name = version)]
-//     pub version: Str,
-// }}
-
-// #[wasm_bindgen]
-// impl UnicodeVersionProvider {
-//     #[wasm_bindgen(js_name = toJSON)]
-//     pub fn wcwidth
-// }
 
 /// A Color for use with xterm.js.
 ///
@@ -1864,8 +1964,8 @@ extern "C" {
         Returns: any
     */
 
-    /// Gets the terminal’s current selection; this is useful for implementing copy
-    /// behavior outside of xterm.js.
+    /// Gets the terminal’s current selection; this is useful for implementing
+    /// copy behavior outside of xterm.js.
     #[wasm_bindgen(method, js_name = getSelection)]
     pub fn get_selection(this: &Terminal) -> Str;
 
