@@ -72,112 +72,44 @@ macro_rules! event_method {
 }
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
-impl Terminal {
-    /// Attaches a binary event listener and returns a [`DisposableWrapper`]
-    /// that can be dropped to make xterm.js stop sending the event listener
-    /// events.
-    ///
-    /// This is sugar for [`Terminal::on_binary`].
-    ///
-    /// We assume event listener closures are going to be long-lived, so we leak
-    /// the closure that is produced here!
-    ///
-    /// [`Terminal::on_binary`]: Terminal::on_binary
-    pub fn attach_binary_event_listener<F>(
-        &self,
-        listener: F,
-    ) -> DisposableWrapper<Disposable>
-    where
-        F: FnMut(String),
-        F: 'static,
-    {
-        let listener: Box<dyn FnMut(String)> = Box::new(listener);
-        let listener = Closure::wrap(listener);
+impl Terminal { event_methods!{
+    @doc: "binary"
+    pub attach_binary_event_listener: (Str) => Terminal::on_binary
 
-        let ret = self.on_binary(&listener).into();
+    @doc: "cursor move"
+    pub attach_cursor_move_event_listener: () => Terminal::on_cursor_move
 
-        Closure::forget(listener);
-        ret
-    }
+    @doc: "data"
+    pub attach_data_event_listener: (Str) => Terminal::on_data
 
-    /// Attaches a cursor move event listener and returns a
-    /// [`DisposableWrapper`] that can be dropped to make xterm.js stop sending
-    /// the event listener events.
-    ///
-    /// This is sugar for [`Terminal::on_cursor_move`].
-    ///
-    /// [`Terminal::on_cursor_move`]: Terminal::on_cursor_move
-    pub fn attach_cursor_move_event_listener<F>(
-        &self,
-        listener: F,
-    ) -> DisposableWrapper<Disposable>
-    where
-        F: FnMut(),
-        F: 'static,
-    {
-        let listener: Box<dyn FnMut()> = Box::new(listener);
-        let listener = Closure::wrap(listener);
+    @doc: "key event"
+    pub attach_key_event_listener: (KeyEventData) => Terminal::on_key
 
-        let ret = self.on_cursor_move(&listener).into();
+    @doc: "line feed"
+    pub attach_line_feed_event_listener: () => Terminal::on_line_feed
 
-        Closure::forget(listener);
-        ret
-    }
+    @doc: "render"
+    pub attach_render_event_listener: (RenderEventData) => Terminal::on_render
 
-    /// Attaches a key event listener and returns a [`DisposableWrapper`]
-    /// that can be dropped to make xterm.js stop sending the event listener
-    /// events.
-    ///
-    /// This is sugar for [`Terminal::on_key`].
-    ///
-    /// We assume event listener closures are going to be long-lived, so we leak
-    /// the closure that is produced here!
-    ///
-    /// [`Terminal::on_key`]: Terminal::on_key
-    pub fn attach_key_event_listener<F>(
-        &self,
-        listener: F,
-    ) -> DisposableWrapper<Disposable>
-    where
-        F: FnMut(KeyEventData),
-        F: 'static,
-    {
-        let listener: Box<dyn FnMut(KeyEventData)> = Box::new(listener);
-        let listener = Closure::wrap(listener);
+    @doc: "resize"
+    pub attach_resize_event_listener: (ResizeEventData) => Terminal::on_resize
 
-        let ret = self.on_key(&listener).into();
+    @doc: "scroll"
+    pub attach_scroll_event_listener: (u32) => Terminal::on_scroll
 
-        Closure::forget(listener);
-        ret
-    }
-}
+    @doc: "selection change"
+    pub attach_selection_change_event_listener: ()
+        => Terminal::on_selection_change
+
+    @doc: "title change"
+    pub attach_title_change_event_listener: (Str) => Terminal::on_title_change
+}}
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
-impl BufferNamespace {
+impl BufferNamespace { event_methods! {
     /// Attaches an event listener for when the active buffer changes and
     /// returns a [`DisposableWrapper`] that can be dropped to make xterm.js
     /// stop sending the event listener events.
-    ///
-    /// This is sugar for [`BufferNamespace::on_buffer_change`].
-    ///
-    /// We assume event listener closures are going to be long-lived, so we leak
-    /// the closure that is produced here!
-    ///
-    /// [`BufferNamespace::on_buffer_change`]: BufferNamespace::on_buffer_change
-    pub fn attach_buffer_change_event_listener<F>(
-        &self,
-        listener: F,
-    ) -> DisposableWrapper<Disposable>
-    where
-        F: FnMut(Buffer),
-        F: 'static,
-    {
-        let listener: Box<dyn FnMut(Buffer)> = Box::new(listener);
-        let listener = Closure::wrap(listener);
-
-        let ret = self.on_buffer_change(&listener).into();
-
-        Closure::forget(listener);
-        ret
-    }
-}
+    pub attach_buffer_change_event_listener: (Buffer)
+        => BufferNamespace::on_buffer_change
+}}
