@@ -655,5 +655,9 @@ pub mod event;
 pub use event::*;
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
-pub mod addon;
-pub use addon::*;
+pub mod marker;
+pub use marker::*;
+
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+pub mod unicode;
+pub use unicode::*;
