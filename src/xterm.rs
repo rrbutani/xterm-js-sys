@@ -1303,6 +1303,33 @@ extern "C" {
     /// (This is a [duck-typed interface]).
     ///
     /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type LocalizableStrings;
+
+    // The following two 'fields' aren't marked `readonly` in the TypeScript
+    // bindings but since items following this interface are only ever produced
+    // by the API and never _accepted_ (i.e. never the argument of a function),
+    // we only make getter bindings here.
+
+    /// The aria label for the underlying input textarea for the terminal.
+    #[wasm_bindgen(structural, method, getter = promptLabel)]
+    pub fn prompt_label(this: &LocalizableStrings) -> Str;
+
+    /// Announcement for when line reading is suppressed due to too many lines
+    /// being printed to the terminal when `screen_reader_mode` is enabled.
+    #[wasm_bindgen(structural, method, getter = tooMuchOutput)]
+    pub fn too_much_outut(this: &LocalizableStrings) -> Str;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// An addon that can provide additional functionality to the terminal.
+    ///
+    /// (This is a [duck-typed interface]; its Rust dual is available [here]
+    /// when the `ext` feature is enabled).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    /// [here]: crate::ext::addon::XtermAddon
     #[wasm_bindgen(extends = Disposable)]
     #[derive(Debug, Clone)]
     pub type TerminalAddon;
@@ -1698,12 +1725,9 @@ extern "C" {
     #[wasm_bindgen(method, getter = unicode)]
     pub fn unicode(this: &Terminal) -> UnicodeHandling;
 
-    /*  [TODO]
-        Static strings
-        ▪ strings: ILocalizableStrings
-        Defined in xterm.d.ts:600
-        Natural language strings that can be localized.
-    */
+    /// Natural language strings that can be localized.
+    #[wasm_bindgen(method, getter = strings)]
+    pub fn strings(this: &Terminal) -> LocalizableStrings;
 
     ///////////////////////////////  Methods  ///////////////////////////////
 
