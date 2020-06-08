@@ -647,6 +647,10 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
 pub use super::{calculated_doc, interface, object};
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+pub mod addon;
+pub use addon::*;
+
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod disposable;
 pub use disposable::*;
 
