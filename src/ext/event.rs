@@ -1,27 +1,75 @@
 //! Sugar for methods that take `IEvent`s.
 
-use super::{Disposable, DisposableWrapper};
-use crate::xterm::{Buffer, BufferNamespace, KeyEventData, Terminal};
+use super::{calculated_doc, Disposable, DisposableWrapper};
+use crate::xterm::{
+    Buffer, BufferNamespace, KeyEventData, RenderEventData, ResizeEventData,
+    Str, Terminal,
+};
 
 use wasm_bindgen::prelude::*;
 
-// pub struct EventListener<T, U = (), R = NoOpDispose>
-// where
-//     R: AsRef<Disposable>,
-// {
-//     listener: Box<dyn FnMut(T, U) -> R + 'static>,
-// }
+macro_rules! event_methods {
+    ($(
+        $(#[$metas:meta])*
+        $(@doc: $kind:literal)? $vis:vis $nom:ident: ($($args:ty),*) => $js_func:path
+    )*) => {$(
+        event_method! {
+            $(#[$metas])*
+            $(@doc: $kind)? $vis $nom: ($($args),*) => $js_func
+        }
+    )*};
+}
 
-// impl<T, U, R> EventListener<T, U, R>
-// where
-//     R: AsRef<Disposable>,
-// {
-//     fn new<F: FnMut(T, U) -> R + 'static>(func: F) -> Self {
-//         let listener: Box<dyn FnMut(T, U) -> R + 'static> = Box::new(func);
+macro_rules! event_method {
+    (
+        $(#[$metas:meta])*
+        $(@doc: $kind:literal)? $vis:vis $nom:ident: ($($args:ty),*) => $js_func:path
+    ) => {
+        calculated_doc! {
+            $(#[doc = $crate::ext::_m_sprt::concat!(
+                " Attaches a ",
+                    $kind,
+                " event listener and returns a [`DisposableWrapper`]\n",
+                " that can be dropped to make xterm.js stop sending the event",
+                " listener\n events.\n",
+            )])?
+            #[doc = $crate::ext::_m_sprt::concat!(
+                "\n",
+                " This is sugar for ",
+                "[`",
+                    $crate::ext::_m_sprt::stringify!($js_func),
+                "`].",
+                "\n\n",
+                " We assume event listener closures are going to be long-lived,",
+                " so we leak\n",
+                " the closure that is produced here!\n",
+                " \n",
+                "  [`",
+                    $crate::ext::_m_sprt::stringify!($js_func),
+                "`]: ",
+                    $crate::ext::_m_sprt::stringify!($js_func),
+            )]
+            >>>
+            $vis fn $nom<F>(
+                &self,
+                listener: F,
+            ) -> DisposableWrapper<Disposable>
+            where
+                F: FnMut($($args),*),
+                F: 'static,
+            {
+                let listener: Box<dyn FnMut($($args),*)> = Box::new(listener);
+                let listener = Closure::wrap(listener);
 
-//         Self { listener }
-//     }
-// }
+                let ret = $js_func(self, &listener).into();
+
+                Closure::forget(listener);
+                ret
+            }
+            $(#[$metas])*
+        }
+    };
+}
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Terminal {
