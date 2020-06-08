@@ -1342,6 +1342,52 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
+    /// Corresponds to `{ start: number, end: number }`.
+    ///
+    /// Produced by [`Terminal::on_render`].
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type RenderEventData;
+
+    /// Gets the index of the row at the start of the rendered area.
+    ///
+    /// This will be ∈ `[` `0`, [`Terminal::rows`] `)`.
+    #[wasm_bindgen(structural, method, getter = start)]
+    pub fn start(this: &RenderEventData) -> u16;
+
+    /// Gets the index of the row at the end of the rendered area.
+    ///
+    /// This will be ∈ `[` `0`, [`Terminal::rows`] `)`.
+    #[wasm_bindgen(structural, method, getter = end)]
+    pub fn end(this: &RenderEventData) -> u16;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// Corresponds to `{ cols: number, rows: number }`.
+    ///
+    /// Produced by [`Terminal::on_resize`].
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type ResizeEventData;
+
+    /// Gets the new number of columns.
+    #[wasm_bindgen(structural, method, getter = cols)]
+    pub fn cols(this: &RenderEventData) -> u16;
+
+    /// Gets the new number of rows.
+    #[wasm_bindgen(structural, method, getter = rows)]
+    pub fn rows(this: &RenderEventData) -> u16;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
     /// The class that represents an xterm.js terminal.
     #[wasm_bindgen(extends = Disposable)]
     #[derive(Debug, Clone)]
@@ -1382,11 +1428,12 @@ extern "C" {
         (EXPERIMENTAL) Get all markers registered against the buffer. If the alt buffer is active this will always return [].
     */
 
-    /// Adds an event listener for when a binary event fires. This is used to
-    /// enable non UTF-8 conformant binary messages to be sent to the backend.
-    /// Currently this is only used for a certain type of mouse reports that
-    /// happen to be not UTF-8 compatible. The event value is a `String`, pass
-    /// it to the underlying pty as binary data, e.g.
+    /// Adds an event listener for when a binary event fires.
+    ///
+    /// This is used to enable non UTF-8 conformant binary messages to be sent
+    /// to the backend. Currently this is only used for a certain type of mouse
+    /// reports that happen to be not UTF-8 compatible. The event value is a
+    /// `String`, pass it to the underlying pty as binary data, e.g.
     /// `pty.write(Buffer.from(data, 'binary'))`.
     ///
     /// Returns a [`Disposable`] to stop listening.
@@ -1417,21 +1464,34 @@ extern "C" {
         listener: &Closure<dyn FnMut()>,
     ) -> Disposable;
 
-    // [TODO]
-    //    onData
-    //    • onData: IEvent‹string›
-    //    Defined in xterm.d.ts:633
-    //    Adds an event listener for when a data event fires. This happens for example when the user types or pastes into the terminal. The event value is whatever string results, in a typical setup, this should be passed on to the backing pty.
-    //    returns an IDisposable to stop listening.
-
-    /// Adds an event listener for when a key is pressed. The event value
-    /// ([`KeyEventData`]) contains the string that will be sent in the data
-    /// event as well as the DOM event that triggered it.
+    /// Adds an event listener for when a data event fires.
+    ///
+    /// This happens, for example, when the user types or pastes into the
+    /// terminal. The event value is whatever `String` results; in a typical
+    /// setup, this should be passed on to the backing pty.
     ///
     /// Returns a [`Disposable`] to stop listening.
     ///
-    /// See [`attach_key_event_listener`] (if the `ext` feature is enabled)
-    /// for a friendlier version of this function.
+    /// See [`attach_data_event_listener`] (if the `ext` feature is enabled) for
+    /// a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_data_event_listener`]: Terminal::attach_data_event_listener
+    #[wasm_bindgen(method, js_name = onData)]
+    pub fn on_data(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(Str)>,
+    ) -> Disposable;
+
+    /// Adds an event listener for when a key is pressed.
+    ///
+    /// The event value ([`KeyEventData`]) contains the string that will be sent
+    /// in the data event as well as the DOM event that triggered it.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_key_event_listener`] (if the `ext` feature is enabled) for
+    /// a friendlier version of this function.
     ///
     /// [`Disposable`]: Disposable
     /// [`KeyEventData`]: KeyEventData
@@ -1442,47 +1502,105 @@ extern "C" {
         listener: &Closure<dyn FnMut(KeyEventData)>,
     ) -> Disposable;
 
-    // [TODO]
-    //    onLineFeed
-    //    • onLineFeed: IEvent‹void›
-    //    Defined in xterm.d.ts:647
-    //    Adds an event listener for when a line feed is added.
-    //    returns an IDisposable to stop listening.
+    /// Adds an event listener for when a line feed is added.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_line_feed_event_listener`] (if the `ext` feature is
+    /// enabled) for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_line_feed_event_listener`]: Terminal::attach_line_feed_event_listener
+    #[wasm_bindgen(method, js_name = onLineFeed)]
+    pub fn on_line_feed(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut()>,
+    ) -> Disposable;
 
-    // [TODO]
-    //    onRender
-    //    • onRender: IEvent‹object›
-    //    Defined in xterm.d.ts:668
-    //    Adds an event listener for when rows are rendered. The event value contains the start row and end rows of the rendered area (ranges from 0 to Terminal.rows - 1).
-    //    returns an IDisposable to stop listening.
+    /// Adds an event listener for when rows are rendered.
+    ///
+    /// The event value ([`RenderEventData`]) contains the start row and end row
+    /// of the rendered area (ranges from `0` to `[Terminal::rows] - 1`).
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_render_event_listener`] (if the `ext` feature is enabled)
+    /// for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_render_event_listener`]: Terminal::attach_render_event_listener
+    #[wasm_bindgen(method, js_name = onRender)]
+    pub fn on_render(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(RenderEventData)>,
+    ) -> Disposable;
 
-    // [TODO]
-    //    onResize
-    //    • onResize: IEvent‹object›
-    //    Defined in xterm.d.ts:675
-    //    Adds an event listener for when the terminal is resized. The event value contains the new size.
-    //    returns an IDisposable to stop listening.
+    /// Adds an event listener for when the terminal is resized.
+    ///
+    /// The event value ([`ResizeEventData`]) contains the new size.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_resize_event_listener`] (if the `ext` feature is enabled)
+    /// for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_resize_event_listener`]: Terminal::attach_resize_event_listener
+    #[wasm_bindgen(method, js_name = onResize)]
+    pub fn on_resize(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(ResizeEventData)>,
+    ) -> Disposable;
 
-    // [TODO]
-    //    onScroll
-    //    • onScroll: IEvent‹number›
-    //    Defined in xterm.d.ts:654
-    //    Adds an event listener for when a scroll occurs. The event value is the new position of the viewport.
-    //    returns an IDisposable to stop listening.
+    /// Adds an event listener for when a event listener for when a scroll
+    /// occurs.
+    ///
+    /// The event value is the new position of the viewport.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_scroll_event_listener`] (if the `ext` feature is enabled)
+    /// for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_scroll_event_listener`]: Terminal::attach_scroll_event_listener
+    #[wasm_bindgen(method, js_name = onScroll)]
+    pub fn on_scroll(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(u32)>,
+    ) -> Disposable;
 
-    // [TODO]
-    //   onSelectionChange
-    //   • onSelectionChange: IEvent‹void›
-    //   Defined in xterm.d.ts:660
-    //   Adds an event listener for when a selection change occurs.
-    //   returns an IDisposable to stop listening.
+    /// Adds an event listener for when a selection change occurs.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_selection_change_event_listener`] (if the `ext` feature is
+    /// enabled) for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_selection_change_event_listener`]: Terminal::attach_selection_change_event_listener
+    #[wasm_bindgen(method, js_name = onSelectionChange)]
+    pub fn on_selection_change(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut()>,
+    ) -> Disposable;
 
-    // [TODO]
-    //   onTitleChange
-    //   • onTitleChange: IEvent‹string›
-    //   Defined in xterm.d.ts:682
-    //   Adds an event listener for when an OSC 0 or OSC 2 title change occurs. The event value is the new title.
-    //   returns an IDisposable to stop listening.
+    /// Adds an event listener for when an OSC 0 or OSC 2 title change occurs.
+    ///
+    /// The event value is the new title.
+    ///
+    /// Returns a [`Disposable`] to stop listening.
+    ///
+    /// See [`attach_title_change_event_listener`] (if the `ext` feature is
+    /// enabled) for a friendlier version of this function.
+    ///
+    /// [`Disposable`]: Disposable
+    /// [`attach_title_change_event_listener`]: Terminal::attach_title_change_event_listener
+    #[wasm_bindgen(method, js_name = onTitleChange)]
+    pub fn on_title_change(
+        this: &Terminal,
+        listener: &Closure<dyn FnMut(Str)>,
+    ) -> Disposable;
 
     /*  [TODO]
         parser
