@@ -181,6 +181,8 @@
 //! [`Deref`]: core::ops::Deref
 //! [`AsRef`]: core::convert::AsRef
 
+use super::ReadOnlyArray;
+
 use wasm_bindgen::prelude::*;
 
 /// An alias for [`String`].
@@ -1232,7 +1234,71 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
-    /// An addon that can provide additional functionality to the terminal.
+    /// Represents a specific line in the terminal that is tracked when
+    /// scrollback is trimmed and lines are added or removed. This is a single
+    /// line that may be part of a larger wrapped line.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[wasm_bindgen(extends = Disposable)]
+    #[derive(Debug, Clone)]
+    pub type Marker;
+
+    /// A unique identifier for this marker.
+    #[wasm_bindgen(structural, method, getter = id)]
+    pub fn id(this: &Marker) -> u32;
+
+    /// Whether this marker is disposed.
+    #[wasm_bindgen(structural, method, getter = isDisposed)]
+    pub fn is_disposed(this: &Marker) -> bool;
+
+    /// The actual line index in the buffer at this point in time. This is set
+    /// to `-1` if the marker has been disposed.
+    ///
+    /// See [`get_line`] (if the `ext` feature is enabled) for a friendlier
+    /// version of this function (returns an `Option` of an unsigned number).
+    ///
+    /// [`get_line`]: Marker::get_line
+    #[wasm_bindgen(structural, method, getter = line)]
+    pub fn line(this: &Marker) -> i32;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// An object representing a selection within the terminal.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type SelectionPosition;
+
+    // The following 'fields' aren't marked `readonly` in the TypeScript
+    // bindings but since items following this interface are only ever produced
+    // by the API and never _accepted_ (i.e. never the argument of a function),
+    // we only make getter bindings here.
+
+    /// The start column of the selection.
+    #[wasm_bindgen(structural, method, getter = startColumn)]
+    pub fn start_column(this: &SelectionPosition) -> u16;
+
+    /// The start row of the selection.
+    #[wasm_bindgen(structural, method, getter = startRow)]
+    pub fn start_row(this: &SelectionPosition) -> u32;
+
+    /// The end column of the selection.
+    #[wasm_bindgen(structural, method, getter = endColumn)]
+    pub fn end_column(this: &SelectionPosition) -> u16;
+
+    /// The end row of the selection.
+    #[wasm_bindgen(structural, method, getter = endRow)]
+    pub fn end_row(this: &SelectionPosition) -> u32;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// The set of localizable strings.
     ///
     /// (This is a [duck-typed interface]).
     ///
@@ -1421,12 +1487,12 @@ extern "C" {
     #[wasm_bindgen(method, getter = element)]
     pub fn element(this: &Terminal) -> Option<web_sys::Element>;
 
-    /*  [TODO]
-        markers
-        • markers: ReadonlyArray‹IMarker›
-        Defined in xterm.d.ts:583
-        (EXPERIMENTAL) Get all markers registered against the buffer. If the alt buffer is active this will always return [].
-    */
+    /// **[EXPERIMENTAL]** Get all markers registered against the buffer.
+    ///
+    /// If the alt buffer is active this will always return `[]` (an empty
+    /// array).
+    #[wasm_bindgen(method, getter = markers)]
+    pub fn markers(this: &Terminal) -> ReadOnlyArray<Marker>;
 
     /// Adds an event listener for when a binary event fires.
     ///
