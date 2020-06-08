@@ -492,7 +492,48 @@ pub struct Theme {
 }}
 
 wasm_struct! {
-#[wasm_bindgen]
+#[wasm_bindgen(inspectable)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+/// An object representing a range within the viewport of the terminal.
+///
+/// (This is really an interface but because it's only ever produced by the user
+/// we just go and define our own type that satisfies the interface).
+pub struct ViewportRange {
+    /// The start of the range.
+    #[wasm_bindgen(js_name = start)]
+    pub start: ViewportRangePosition,
+
+    /// The end of the range.
+    #[wasm_bindgen(js_name = end)]
+    pub end: ViewportRangePosition,
+}}
+
+wasm_struct! {
+#[wasm_bindgen(inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// An object representing a cell position within the viewport of the terminal.
+///
+/// (This is really an interface but because it's only ever produced by the user
+/// we just go and define our own type that satisfies the interface).
+pub struct ViewportRangePosition {
+    /// The x position of the cell.
+    ///
+    /// This is a 0-based index that refers to the space in between columns, not
+    /// the column itself. Index 0 refers to the left side of the viewport,
+    /// index [`Terminal::cols`] refers to the right side of the viewport. This
+    /// can be thought of as how a cursor is positioned in a text editor.
+    #[wasm_bindgen(js_name = x)]
+    pub x: u16,
+
+    /// The y position of the cell.
+    ///
+    /// This is a 0-based index that refers to a specific row.
+    #[wasm_bindgen(js_name = y)]
+    pub y: u16,
+}}
+
+wasm_struct! {
+#[wasm_bindgen(inspectable)]
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 /// Enable various window manipulation and report features (`CSI Ps ; Ps ; Ps
 /// t`).
