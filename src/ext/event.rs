@@ -72,6 +72,7 @@ macro_rules! event_method {
 }
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+#[rustfmt::skip]
 impl Terminal { event_methods!{
     @doc: "binary"
     pub attach_binary_event_listener: (Str) => Terminal::on_binary
@@ -106,6 +107,7 @@ impl Terminal { event_methods!{
 }}
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+#[rustfmt::skip]
 impl BufferNamespace { event_methods! {
     /// Attaches an event listener for when the active buffer changes and
     /// returns a [`DisposableWrapper`] that can be dropped to make xterm.js

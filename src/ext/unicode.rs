@@ -3,10 +3,10 @@
 //! [`UnicodeHandling`]: crate::xterm::UnicodeHandling
 //! [`UnicodeVersionProvider`]: crate::xterm::UnicodeVersionProvider
 
-use crate::xterm::{
-    Str, UnicodeHandling, UnicodeVersionProvider, WideCharacterWidth
-};
 use super::{interface, IntoJsInterface};
+use crate::xterm::{
+    Str, UnicodeHandling, UnicodeVersionProvider, WideCharacterWidth,
+};
 
 interface! {
     #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
@@ -28,10 +28,8 @@ impl UnicodeHandling {
     /// identical to [`UnicodeHandling::register`].
     ///
     /// [custom Unicode version provider]: XtermUnicodeVersionProvider
-    pub fn register_version_provider<P>(
-        &self,
-        provider: &P,
-    ) where
+    pub fn register_version_provider<P>(&self, provider: &P)
+    where
         P: IntoJsInterface<UnicodeVersionProvider>,
     {
         self.register(provider.by_ref())
