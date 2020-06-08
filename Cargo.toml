@@ -41,10 +41,10 @@ tui = { version = "0.9.1", default-features = false, optional = true }
 [dependencies.web-sys]
 version = "0.3.37"
 features = [
-    # "HtmlElement",
     "Element",
-    "KeyboardEvent",
     "HtmlTextAreaElement",
+    "KeyboardEvent",
+    "MouseEvent",
 ]
 
 [dev-dependencies]

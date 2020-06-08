@@ -1969,12 +1969,10 @@ extern "C" {
     #[wasm_bindgen(method, js_name = getSelection)]
     pub fn get_selection(this: &Terminal) -> Str;
 
-    /*  [TODO]
-        getSelectionPosition
-        ▸ getSelectionPosition(): *ISelectionPosition   undefined*
-        Gets the selection position or undefined if there is no selection.
-        Returns: *ISelectionPosition    undefined*
-    */
+    /// Gets the selection position or `None` if there is no selection.
+    #[wasm_bindgen(method, js_name = getSelectionPosition)]
+    pub fn get_selection_position(this: &Terminal)
+        -> Option<SelectionPosition>;
 
     /// Gets whether the terminal has an active selection.
     #[wasm_bindgen(method, js_name = hasSelection)]
@@ -2006,26 +2004,24 @@ extern "C" {
     #[wasm_bindgen(method, js_name = open)]
     pub fn open(this: &Terminal, parent: web_sys::Element);
 
-    /*  [TODO]
-        paste
-        ▸ paste(data: string): void
-        Writes text to the terminal, performing the necessary transformations for pasted text.
-        Parameters:
-        Name    Type    Description
-        data    string  The text to write to the terminal.
-        Returns: void
-    */
+    /// Writes text to the terminal, performing the necessary transformations
+    /// for pasted text.
+    ///
+    /// Takes:
+    ///   - `data`: The text to write to the terminal.
+    #[wasm_bindgen(method, js_name = paste)]
+    pub fn paste(this: &Terminal, data: Str);
 
-    /*  [TODO]
-        refresh
-        ▸ refresh(start: number, end: number): void
-        Tells the renderer to refresh terminal content between two rows (inclusive) at the next opportunity.
-        Parameters:
-        Name    Type    Description
-        start   number  The row to start from (between 0 and this.rows - 1).
-        end     number  The row to end at (between start and this.rows - 1).
-        Returns: void
-    */
+    /// Tells the renderer to refresh terminal content between two rows
+    /// (inclusive) at the next opportunity.
+    ///
+    /// Takes:
+    ///   - `start`: The row to start from (between `0` and `[Terminal::rows] -
+    ///              1`).
+    ///   - `end`:   The row to end at (between `start` and `[Terminal::rows] -
+    ///              1`).
+    #[wasm_bindgen(method, js_name = refresh)]
+    pub fn refresh(this: &Terminal, start: u16, end: u16);
 
     /*  [TODO]
         registerCharacterJoiner
@@ -2080,80 +2076,64 @@ extern "C" {
     #[wasm_bindgen(method, js_name = reset)]
     pub fn reset(this: &Terminal);
 
-    // [TODO]
-    //   resize
-    //   ▸ resize(columns: number, rows: number): void
-    //   Resizes the terminal. It’s best practice to debounce calls to resize, this will help ensure that the pty can respond to the resize event before another one occurs.
-    //   Parameters:
-    //   Name    Type
-    //   columns     number
-    //   rows    number
-    //   Returns: void
+    /// Resizes the terminal.
+    ///
+    /// It’s best practice to debounce calls to resize, this will help ensure
+    /// that the pty can respond to the resize event before another one occurs.
+    #[wasm_bindgen(method, js_name = resize)]
+    pub fn resize(this: &Terminal, columns: u16, rows: u16);
 
-    /*  [TODO]
-        scrollLines
-        ▸ scrollLines(amount: number): void
-        Scroll the display of the terminal
-        Parameters:
-        Name    Type    Description
-        amount  number  The number of lines to scroll down (negative scroll up).
-        Returns: void
-    */
+    /// Scroll the display of the terminal.
+    ///
+    /// Takes:
+    ///   - `amount`: The number of lines to scroll down (negative scrolls up).
+    #[wasm_bindgen(method, js_name = scrollLines)]
+    pub fn scroll_lines(this: &Terminal, amount: i32);
 
-    /*  [TODO]
-        scrollPages
-        ▸ scrollPages(pageCount: number): void
-        Scroll the display of the terminal by a number of pages.
-        Parameters:
-        Name    Type    Description
-        pageCount   number  The number of pages to scroll (negative scrolls up).
-        Returns: void
-    */
+    /// Scroll the display of the terminal by a number of pages.
+    ///
+    /// Takes:
+    ///   - `page_count`: The number of pages to scroll (negative scrolls up).
+    #[wasm_bindgen(method, js_name = scrollPages)]
+    pub fn scroll_pages(this: &Terminal, page_count: i32);
 
     /// Scrolls the display of the terminal to the bottom.
     #[wasm_bindgen(method, js_name = scrollToBottom)]
     pub fn scroll_to_bottom(this: &Terminal);
 
-    /*  [TODO]
-        scrollToLine
-        ▸ scrollToLine(line: number): void
-        Scrolls to a line within the buffer.
-        Parameters:
-        Name    Type    Description
-        line    number  The 0-based line index to scroll to.
-        Returns: void
-    */
+    /// Scrolls to a line within the buffer.
+    ///
+    /// Takes:
+    ///   - `line`: The 0-based line index to scroll to.
+    #[wasm_bindgen(method, js_name = scrollToLine)]
+    pub fn scroll_to_line(this: &Terminal, line: u32);
 
     /// Scrolls the display of the terminal to the top.
     #[wasm_bindgen(method, js_name = scrollToTop)]
     pub fn scroll_to_top(this: &Terminal);
 
-    /*  [TODO]
-        select
-        ▸ select(column: number, row: number, length: number): void
-        Selects text within the terminal.
-        Parameters:
-        Name    Type    Description
-        column  number  The column the selection starts at.
-        row     number  The row the selection starts at.
-        length  number  The length of the selection.
-        Returns: void
-    */
+    /// Selects text within the terminal.
+    ///
+    /// Takes:
+    ///   - `column`: The column the selection starts at.
+    ///   - `row`:    The row the selection starts at.
+    ///   - `length`: The length of the selection.
+    // Note: assuming row is absolute and not in the viewport; if it is in the
+    // viewport its type in the signature should change to `u16`.
+    #[wasm_bindgen(method, js_name = select)]
+    pub fn select(this: &Terminal, column: u16, row: u32, length: u32);
 
     /// Selects all text within the terminal.
     #[wasm_bindgen(method, js_name = selectAll)]
     pub fn select_all(this: &Terminal);
 
-    /*  [TODO]
-        selectLines
-        ▸ selectLines(start: number, end: number): void
-        Selects text in the buffer between 2 lines.
-        Parameters:
-        Name    Type    Description
-        start   number  The 0-based line index to select from (inclusive).
-        end     number  The 0-based line index to select to (inclusive).
-        Returns: void
-    */
+    /// Selects text in the buffer between 2 lines.
+    ///
+    /// Takes:
+    ///   - `start`: The 0-based line index to select from (inclusive).
+    ///   - `end`:   The 0-based line index to select to (inclusive).
+    #[wasm_bindgen(method, js_name = selectLines)]
+    pub fn select_lines(this: &Terminal, start: u32, end: u32);
 
     /*  [TODO]
         setOption
