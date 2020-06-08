@@ -298,6 +298,18 @@ pub enum BufferType {
     Alternate = "alternate",
 }
 
+/// Width of a Wide Character.
+#[wasm_bindgen]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum WideCharacterWidth {
+    /// Width of 0.
+    _0 = 0,
+    /// Width of 1.
+    _1 = 1,
+    /// Width of 2.
+    _2 = 2,
+}
+
 macro_rules! wasm_struct {
     (
         #[wasm_bindgen $(( $($wb_opts:tt)* ))? ]
@@ -866,6 +878,28 @@ pub struct TerminalOptions {
     word_separator: Option<Str>,
 }}
 
+// wasm_struct!{
+// #[wasm_bindgen(inspectable)]
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// /// **[EXPERIMENTAL]** Unicode version provider.
+// ///
+// /// Used to register custom Unicode versions with [`UnicodeHandling::register`]
+// /// (obtained from [`Terminal::unicode`]).
+// ///
+// /// (This is really an interface, but we just go and define our own type that
+// /// satisfies the interface.)
+// pub struct UnicodeVersionProvider {
+//     /// String indicating the Unicode version provided.
+//     #[wasm_bindgen(readonly, js_name = version)]
+//     pub version: Str,
+// }}
+
+// #[wasm_bindgen]
+// impl UnicodeVersionProvider {
+//     #[wasm_bindgen(js_name = toJSON)]
+//     pub fn wcwidth
+// }
+
 /// A Color for use with xterm.js.
 ///
 /// Can represent:
@@ -1214,6 +1248,76 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
+    /// **[EXPERIMENTAL]** Unicode handling interface.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type UnicodeHandling;
+
+    /// Registers a [custom Unicode version provider].
+    ///
+    /// [custom Unicode version provider]: UnicodeVersionProvider
+    #[wasm_bindgen(structural, method, js_name = register)]
+    pub fn register(this: &UnicodeHandling, provider: UnicodeVersionProvider);
+
+    /// Registered Unicode versions.
+    ///
+    /// Unfortunately, this cannot be an array of [`String`]s since [`String`]
+    /// does not impl `JsCast` (it doesn't because going from a [`JsString`] to
+    /// a [`String`] isn't just a cast). So, if you really need [`String`]s
+    /// you'll have to call `.into()` on the [`JsString`]s that come out of the
+    /// array.
+    ///
+    /// [`String`]: std::string::String
+    /// [`JsString`]: js_sys::JsString
+    /// [`JsCast`]: wasm_bindgen::JsCast
+    #[wasm_bindgen(structural, method, getter = versions)]
+    pub fn versions(this: &UnicodeHandling) -> ReadOnlyArray<js_sys::JsString>;
+
+    // Separate getter/setter methods since this is an extern-ed type rather
+    // than a concrete Rust type with JS bindings (we made this choice since
+    // instances of this type are never _constructed_ on the Rust side):
+
+    /// Getter for the active Unicode version.
+    #[wasm_bindgen(structural, getter = activeVersion)]
+    pub fn active_version(this: &UnicodeHandling) -> Str;
+
+    /// Setter for the active Unicode version.
+    #[wasm_bindgen(structural, setter = activeVersion)]
+    pub fn set_active_version(this: &UnicodeHandling, version: Str);
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
+    /// **[EXPERIMENTAL]** Unicode version provider.
+    ///
+    /// Used to register custom Unicode versions with
+    /// [`UnicodeHandling::register`] (obtained from [`Terminal::unicode`]).
+    ///
+    /// (This is a [duck-typed interface]; its Rust dual is available [here]
+    /// when the `ext` feature is enabled).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    /// [here]: crate::ext::XtermUnicodeVersionProvider
+    #[derive(Debug, Clone)]
+    pub type UnicodeVersionProvider;
+
+    /// Gets a string indicating the Unicode version provided.
+    #[wasm_bindgen(structural, method, getter = version)]
+    pub fn version(this: &UnicodeVersionProvider) -> Str;
+
+    /// Unicode version dependent `wcwidth` implementation.
+    #[wasm_bindgen(structural, method)]
+    pub fn wcwidth(
+        this: &UnicodeVersionProvider,
+        codepoint: u32,
+    ) -> WideCharacterWidth;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
     /// Corresponds to `{ key: string, domEvent: KeyboardEvent }`.
     ///
     /// Produced by [`Terminal::on_data`].
@@ -1403,12 +1507,12 @@ extern "C" {
     #[wasm_bindgen(method, getter = textarea)]
     pub fn textarea(this: &Terminal) -> Option<web_sys::HtmlTextAreaElement>;
 
-    /*  [TODO]
-        unicode
-        • unicode: IUnicodeHandling
-        Defined in xterm.d.ts:595
-        (EXPERIMENTAL) Get the Unicode handling interface to register and switch Unicode version.
-    */
+    /// **[EXPERIMENTAL]** Get the Unicode handling interface.
+    ///
+    /// This can be used to register Unicode versions and switch the active
+    /// Unicode version.
+    #[wasm_bindgen(method, getter = unicode)]
+    pub fn unicode(this: &Terminal) -> UnicodeHandling;
 
     /*  [TODO]
         Static strings
