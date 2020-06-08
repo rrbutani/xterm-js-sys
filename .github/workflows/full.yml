@@ -104,17 +104,19 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cache/.wasm-pack
-            /usr/share/rust/.rustup
+          # Update: we're going to skip caching the toolchain for now; the cache is
+          # frequently slower than just grabbing the toolchain from rlo/dist
+          # /usr/share/rust/.rustup
           # ^ == ~/.rustup; this action doesn't resolve the symlink
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
 
-      - name: Set default toolchain
-        if: steps.toolchain-cache.outputs.cache-hit == 'true'
-        run: |
-          rustup default ${{ matrix.rust }}
+      # - name: Set default toolchain
+      #   if: steps.toolchain-cache.outputs.cache-hit == 'true'
+      #   run: |
+      #     rustup default ${{ matrix.rust }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        # if: steps.toolchain-cache.outputs.cache-hit != 'true'
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
@@ -246,7 +248,6 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: |
-            ~/.rustup
             ~/.cargo/registry
             ~/.cargo/git
             target
@@ -281,18 +282,20 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            /usr/share/rust/.rustup
             ~/.cargo/registry
             ~/.cargo/git
+          # /usr/share/rust/.rustup
+          # Update: we're going to skip caching the toolchain for now; the cache is
+          # frequently slower than just grabbing the toolchain from rlo/dist
           key: ${{ steps.keys.outputs.toolchain }}-${{ matrix.target }}-${{ steps.keys.outputs.features }}-toolchain
 
-      - name: Set default toolchain
-        if: steps.toolchain-cache.outputs.cache-hit == 'true'
-        run: |
-          rustup default ${{ matrix.rust }}
+      # - name: Set default toolchain
+      #   if: steps.toolchain-cache.outputs.cache-hit == 'true'
+      #   run: |
+      #     rustup default ${{ matrix.rust }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        # if: steps.toolchain-cache.outputs.cache-hit != 'true'
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
