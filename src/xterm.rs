@@ -349,7 +349,7 @@ macro_rules! wasm_struct {
                        #[doc = $public]
                        #[wasm_bindgen(skip)] pub
                     )?
-                    $priv_field: $priv_field_ty
+                    pub(in super) $priv_field: $priv_field_ty
                 )?
                 ,
             )+

@@ -4,11 +4,11 @@
 //! [`Theme`]: crate::xterm::Theme
 //! [`WindowOptions`]: crate::xterm::WindowOptions
 
+use super::calculated_doc;
 use crate::xterm::{
     BellStyle, CursorStyle, FastScrollModifier, FontWeight, LogLevel,
     RendererType, Str, TerminalOptions, Theme, WindowOptions,
 };
-use super::calculated_doc;
 
 // TODO: if we give in and use paste this can become a lot cleaner (we can just
 // fold this into the `wasm_struct!` invocation).
@@ -74,12 +74,14 @@ macro_rules! opt_struct {
                         "`].",
                     )]
                     >>>
-                    // Unforunately this can't be const because of wasm_bindgen;
-                    // this can be fixed by making wasm_struct use `paste` to
-                    // make crate private const setters that this macro can then
-                    // use.
+                    // This can't be const because some of these non-Copy fields
+                    // that have setters and getters implement `Drop` (i.e.
+                    // `String`) which means they can't be used in const setter
+                    // functions since we can't drop things with destructors in
+                    // const functions.
+                    //
                     pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
-                        self.$pub_setter(Some($field));
+                        self.$field = Some($field);
                         self
                     }
                     #[allow(deprecated)]
@@ -90,7 +92,7 @@ macro_rules! opt_struct {
 }
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
-opt_struct!{
+opt_struct! {
     TerminalOptions {
         as with_allow_proposed_api
             => allow_proposed_api: bool,
@@ -199,5 +201,141 @@ opt_struct!{
     }
 }
 
-// #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+opt_struct! {
+    Theme {
+        use (background, set_background) as with_background
+            => background: Str,
 
+        use (black, set_black) as with_black
+            => black: Str,
+
+        use (blue, set_blue) as with_blue
+            => blue: Str,
+
+        use (bright_black, set_bright_black) as with_bright_black
+            => bright_black: Str,
+
+        use (bright_blue, set_bright_blue) as with_bright_blue
+            => bright_blue: Str,
+
+        use (bright_cyan, set_bright_cyan) as with_bright_cyan
+            => bright_cyan: Str,
+
+        use (bright_green, set_bright_green) as with_bright_green
+            => bright_green: Str,
+
+        use (bright_magenta, set_bright_magenta) as with_bright_magenta
+            => bright_magenta: Str,
+
+        use (bright_red, set_bright_red) as with_bright_red
+            => bright_red: Str,
+
+        use (bright_white, set_bright_white) as with_bright_white
+            => bright_white: Str,
+
+        use (bright_yellow, set_bright_yellow) as with_bright_yellow
+            => bright_yellow: Str,
+
+        use (cursor, set_cursor) as with_cursor
+            => cursor: Str,
+
+        use (cursor_accent, set_cursor_accent) as with_cursor_accent
+            => cursor_accent: Str,
+
+        use (cyan, set_cyan) as with_cyan
+            => cyan: Str,
+
+        use (foreground, set_foreground) as with_foreground
+            => foreground: Str,
+
+        use (green, set_green) as with_green
+            => green: Str,
+
+        use (magenta, set_magenta) as with_magenta
+            => magenta: Str,
+
+        use (red, set_red) as with_red
+            => red: Str,
+
+        use (selection, set_selection) as with_selection
+            => selection: Str,
+
+        use (white, set_white) as with_white
+            => white: Str,
+
+        use (yellow, set_yellow) as with_yellow
+            => yellow: Str,
+    }
+}
+
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+opt_struct! {
+    WindowOptions {
+        as with_fullscreen_win
+            => fullscreen_win: bool,
+
+        as with_get_cell_size_pixels
+            => get_cell_size_pixels: bool,
+
+        as with_get_icon_title
+            => get_icon_title: bool,
+
+        as with_get_screen_size_chars
+            => get_screen_size_chars: bool,
+
+        as with_get_screen_size_pixels
+            => get_screen_size_pixels: bool,
+
+        as with_get_win_position
+            => get_win_position: bool,
+
+        as with_get_win_size_chars
+            => get_win_size_chars: bool,
+
+        as with_get_win_size_pixels
+            => get_win_size_pixels: bool,
+
+        as with_get_win_state
+            => get_win_state: bool,
+
+        as with_get_win_title
+            => get_win_title: bool,
+
+        as with_lower_win
+            => lower_win: bool,
+
+        as with_maximize_win
+            => maximize_win: bool,
+
+        as with_minimize_win
+            => minimize_win: bool,
+
+        as with_pop_title
+            => pop_title: bool,
+
+        as with_push_title
+            => push_title: bool,
+
+        as with_raise_win
+            => raise_win: bool,
+
+        as with_refresh_win
+            => refresh_win: bool,
+
+        as with_restore_win
+            => restore_win: bool,
+
+        as with_set_win_lines
+            => set_win_lines: bool,
+
+        as with_set_win_position
+            => set_win_position: bool,
+
+        as with_set_win_size_chars
+            => set_win_size_chars: bool,
+
+        as with_set_win_size_pixels
+            => set_win_size_pixels: bool,
+    }
+}
