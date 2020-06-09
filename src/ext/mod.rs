@@ -663,5 +663,9 @@ pub mod marker;
 pub use marker::*;
 
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
+pub mod options;
+pub use options::*;
+
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod unicode;
 pub use unicode::*;
