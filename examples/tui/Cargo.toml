@@ -1,5 +1,5 @@
 [package]
-name = "tui"
+name = "tui-demo"
 version = "0.1.0"
 authors = ["Rahul Butani <rr.but.a.n.i+crates-io@gmail.com>"]
 edition = "2018"
@@ -12,12 +12,17 @@ workspace = ".."
 xterm-js-sys = { path = "../../", version = "4.6.0-alpha0", features = ["crossterm-support"] }
 wasm-bindgen = "0.2.63"
 console_error_panic_hook = "0.1.5"
-tui = { version = "0.9.1", default-features = false }
+js-sys = "0.3.37"
+crossterm = "0.17.5"
+tui = { version = "0.9.1", default-features = false, features = ["crossterm"] }
+rand = "0.7"
+
 
 [dependencies.web-sys]
 version = "0.3.37"
 features = [
   'console',
+  'Crypto',
   'Document',
   'Element',
   'Node',

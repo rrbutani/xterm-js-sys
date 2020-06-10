@@ -14,11 +14,26 @@ use xterm_js_sys::{
     xterm::{LogLevel, Terminal, TerminalOptions},
 };
 use js_sys::Function;
-use web_sys::Window;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
+use rand::{
+    distributions::{Distribution, Uniform},
+    rngs::StdRng,
+    SeedableRng,
+};
+use tui::{
+    backend::CrosstermBackend,
+    layout::{Constraint, Direction, Layout},
+    style::{Color, Style},
+    widgets::{Block, Borders, Sparkline},
+    Terminal as TuiTerminal,
+};
+use wasm_bindgen::{
+    prelude::*,
+    JsCast,
+};
+use web_sys::{Crypto, Window};
 
 use std::cell::Cell;
+use std::io::Write;
 
 macro_rules! log { ($($t:tt)*) => {web_sys::console::log_1(&format!($($t)*).into())}; }
 
@@ -55,10 +70,15 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
         Box::leak(Box::new(self))
     }
 
+    /// To use this, you'll probably have to leak the wrapper.
+    ///
+    /// `Self::leak` can help you with this.
     pub fn safe_start(&'static mut self, func: impl FnMut() -> bool + 'static) {
         unsafe { self.inner(func) }
     }
 
+    /// This is extremely prone to crashing and is probably unsound; use at your
+    /// own peril.
     #[inline(never)]
     pub unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
         log!(""); // load bearing, somehow...
@@ -124,8 +144,7 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
 }
 
 #[wasm_bindgen]
-pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
-// pub fn run() -> Result<(), JsValue> {
+pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     set_panic_hook();
 
     let window = web_sys::window().expect("no global `window` exists");
@@ -135,37 +154,20 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(None);
-
     term.open(terminal_div.clone());
 
-    let mut a = AnimationFrameCallbackWrapper::new();
+    let mut a = AnimationFrameCallbackWrapper::new().leak();
 
     let mut b = 0;
-    let f = move || {
+    a.safe_start(move || {
         log!("heyo! {}", b);
         b += 1;
 
-        if b % 1 == 0 {
-            term.write(format!("ayo: {}\r\n", b));
-        }
-
-        if b % 600 == 0 {
-            term.reset()
-        }
+        if b % 10 == 0 { term.write(format!("ayo: {}\r\n", b)); }
+        if b % 600 == 0 { term.reset() }
 
         b != 3600
-    };
-
-    // unsafe { a.start(f) }
-    let mut a = a.leak();
-    a.safe_start(f);
-
-    // log!("runnin!!: {:?} @ {:?}", a.handle, &a.handle as *const _);
-
-    // drop(a);
-
-    // Ok(())
-
+    });
 
     let mut b = AnimationFrameCallbackWrapper::new().leak();
     b.safe_start(move || {
@@ -174,47 +176,143 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         true
     });
 
-    // Ok(Some(a))
     Ok(None)
-    // Ok(())
-    // let term = term_orig.clone();
-    // let l = term_orig.attach_key_event_listener(move |e| {
-    //     // A port of the xterm.js echo demo:
-    //     let key = e.key();
-    //     let ev = e.dom_event();
-
-    //     let printable = matches!(
-    //         (ev.alt_key(), ev.ctrl_key(), ev.meta_key()),
-    //         (false, false, false)
-    //     );
-
-    //     const ENTER_ASCII_KEY_CODE: u32 = 13;
-    //     const BACKSPACE_ASCII_KEY_CODE: u32 = 8;
-
-    //     match ev.key_code() {
-    //         ENTER_ASCII_KEY_CODE => {
-    //             term.write("\n\r\x1B[1;3;31m$ \x1B[0m".to_string())
-    //         }
-    //         BACKSPACE_ASCII_KEY_CODE => {
-    //             term.write("\u{0008} \u{0008}".to_string())
-    //         }
-    //         _ if printable => term.write(key),
-    //         _ => { },
-    //     }
-
-    //     log!("[key event] got {:?}", e);
-    // });
-
-    // // Don't drop!
-    // Box::leak(Box::new(l));
-
-    // let term = term_orig;
-
-    // term.focus();
-
-    // term.write(String::from("\x1B[35;31m hello!\n"));
-    // term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m with 🦀\n$ "));
-    // // window.request_animation_frame()
-
-    // Ok(())
 }
+
+
+
+#[derive(Clone)]
+pub struct RandomSignal {
+    distribution: Uniform<u64>,
+    rng: StdRng,
+}
+
+impl RandomSignal {
+    pub fn new(crypto: Crypto, lower: u64, upper: u64) -> RandomSignal {
+        let mut seed = [0u8; 32];
+
+        crypto.get_random_values_with_u8_array(&mut seed).unwrap();
+
+        RandomSignal {
+            distribution: Uniform::new(lower, upper),
+            rng: StdRng::from_seed(seed),
+        }
+    }
+}
+
+impl Iterator for RandomSignal {
+    type Item = u64;
+    fn next(&mut self) -> Option<u64> {
+        Some(self.distribution.sample(&mut self.rng))
+    }
+}
+
+struct App {
+    signal: RandomSignal,
+    data1: Vec<u64>,
+    data2: Vec<u64>,
+    data3: Vec<u64>,
+}
+
+impl App {
+    fn new(crypto: Crypto) -> App {
+        let mut signal = RandomSignal::new(crypto, 0, 100);
+        let data1 = signal.by_ref().take(200).collect::<Vec<u64>>();
+        let data2 = signal.by_ref().take(200).collect::<Vec<u64>>();
+        let data3 = signal.by_ref().take(200).collect::<Vec<u64>>();
+        App {
+            signal,
+            data1,
+            data2,
+            data3,
+        }
+    }
+
+    fn update(&mut self) {
+        let value = self.signal.next().unwrap();
+        self.data1.pop();
+        self.data1.insert(0, value);
+        let value = self.signal.next().unwrap();
+        self.data2.pop();
+        self.data2.insert(0, value);
+        let value = self.signal.next().unwrap();
+        self.data3.pop();
+        self.data3.insert(0, value);
+    }
+}
+
+#[wasm_bindgen]
+pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
+    set_panic_hook();
+
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let terminal_div = document
+        .get_element_by_id("terminal")
+        .expect("should have a terminal div");
+
+    let term = Terminal::new(None);
+    term.open(terminal_div.clone());
+
+    let mut term_temp: XtermJsCrosstermBackend = (&term).into();
+    execute!((&mut term_temp), EnterAlternateScreen);
+    drop(term_temp);
+
+    let term: &'static _ = Box::leak(Box::new(term));
+    let backend = CrosstermBackend::new(&term);
+
+    let mut tui = TuiTerminal::new(backend).unwrap();
+    tui.hide_cursor().unwrap();
+
+    // Create default app state
+    let mut app = App::new(window.crypto().unwrap());
+
+    let mut main_loop = AnimationFrameCallbackWrapper::new().leak();
+    main_loop.safe_start(move || {
+        tui.draw(|mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(2)
+                .constraints([
+                    Constraint::Length(3),
+                    Constraint::Length(3),
+                    Constraint::Length(7),
+                    Constraint::Min(0),
+                ].as_ref())
+                .split(f.size());
+            let sparkline = Sparkline::default()
+                .block(Block::default()
+                    .title("Data1")
+                    .borders(Borders::LEFT | Borders::RIGHT),
+                )
+                .data(&app.data1)
+                .style(Style::default().fg(Color::Yellow));
+            f.render_widget(sparkline, chunks[0]);
+            let sparkline = Sparkline::default()
+                .block(Block::default()
+                    .title("Data2")
+                    .borders(Borders::LEFT | Borders::RIGHT),
+                )
+                .data(&app.data2)
+                .style(Style::default().bg(Color::Green));
+            f.render_widget(sparkline, chunks[1]);
+            // Multiline
+            let sparkline = Sparkline::default()
+                .block(Block::default()
+                    .title("Data3")
+                    .borders(Borders::LEFT | Borders::RIGHT),
+                )
+                .data(&app.data3)
+                .style(Style::default().fg(Color::Red));
+            f.render_widget(sparkline, chunks[2]);
+        }).unwrap();
+
+        app.update();
+        log!("hiya!");
+
+        true
+    });
+
+    Ok(None)
+}
+
