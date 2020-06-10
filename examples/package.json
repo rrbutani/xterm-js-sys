@@ -10,7 +10,7 @@
     "//": "drop WASM_PACK_PROFILE=release when (if) things get merged"
   },
   "dependencies": {
-    "xterm": "^4.5.0",
+    "xterm": "^4.6.0",
     "xterm-addon-fit": "^0.3.0",
     "xterm-addon-web-links": "^0.3.0"
   },

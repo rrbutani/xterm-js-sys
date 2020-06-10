@@ -1,7 +1,7 @@
 [package]
 name = "basic"
 version = "0.1.0"
-authors = ["Rahul Butani <rr.butani@gmail.com>"]
+authors = ["Rahul Butani <rr.but.a.n.i+crates-io@gmail.com>"]
 edition = "2018"
 publish = false
 
@@ -9,7 +9,7 @@ workspace = ".."
 
 
 [dependencies]
-xterm-js-sys = { path = "../../", version = "4.5.0-alpha0" }
+xterm-js-sys = { path = "../../", version = "4.6.0-alpha0" }
 wasm-bindgen = "0.2.63"
 console_error_panic_hook = "0.1.5"
 
