@@ -68,6 +68,10 @@ pub use readonly_array::ReadOnlyArray;
 
 pub mod xterm;
 
+#[cfg(feature = "crossterm-support")]
+#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "crossterm-support")))]
+pub mod crossterm_support;
+
 #[cfg(feature = "ext")]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod ext;
