@@ -1,7 +1,10 @@
+//! This is a pretty direct port of the [sparkline demo in the tui crate][demo].
+//!
+//! [demo]: https://github.com/fdehau/tui-rs/blob/3f62ce9c199bb0048996bbdeb236d6e5522ec9e0/examples/sparkline.rs
+
 extern crate console_error_panic_hook;
 extern crate wasm_bindgen;
 extern crate web_sys;
-
 extern crate xterm_js_sys;
 
 use console_error_panic_hook::set_once as set_panic_hook;
@@ -178,8 +181,6 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
 
     Ok(None)
 }
-
-
 
 #[derive(Clone)]
 pub struct RandomSignal {

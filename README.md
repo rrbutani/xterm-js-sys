@@ -38,13 +38,13 @@ First party addon packages:
 Add this to your `Cargo.toml`:
 ```TOML
 [dependencies]
-xterm-js-sys = "4.5.0-alpha0"
+xterm-js-sys = "4.6.0-alpha0"
 ```
 
 And make sure that your bundler/JS package manager is set to grab the corresponding verison of the [xterm.js][xterm] package. The examples in this repo use [parcel][parcel] for which all that's needed is adding `xterm` to your [`package.json`](examples/package.json):
 ```JSON
   "dependencies": {
-    "xterm": "^4.5.0"
+    "xterm": "^4.6.0"
   }
 ```
 
