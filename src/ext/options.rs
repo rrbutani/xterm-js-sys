@@ -37,6 +37,7 @@ macro_rules! opt_struct {
                     )*}
                 }
                 #[allow(deprecated)]
+                #[must_use]
             }
 
             $(
@@ -54,6 +55,7 @@ macro_rules! opt_struct {
                         self
                     }
                     #[allow(deprecated)]
+                    #[must_use]
                 })?
 
                 $(calculated_doc! {
@@ -85,6 +87,7 @@ macro_rules! opt_struct {
                         self
                     }
                     #[allow(deprecated)]
+                    #[must_use]
                 })?
             )*
         }
