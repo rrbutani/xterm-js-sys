@@ -433,7 +433,7 @@ pub struct LinkMatcherOptions {
     ///
     /// This defaults to 0 (for regular expressions without capture groups).
     #[wasm_bindgen(js_name = matchIndex)]
-    pub match_index: Option<u64>,
+    pub match_index: Option<u32>,
 
     /// A function that validates whether to create an individual link.
     ///
@@ -1011,7 +1011,7 @@ pub struct TerminalOptions {
     /// rows that are retained when lines are scrolled beyond the initial
     /// viewport.
     #[wasm_bindgen(js_name = scrollback)]
-    pub scrollback: Option<u64>,
+    pub scrollback: Option<u32>,
 
     /// The size of tab stops in the terminal.
     #[wasm_bindgen(js_name = tabStopWidth)]

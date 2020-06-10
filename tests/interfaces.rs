@@ -18,38 +18,38 @@ extern "C" {
     pub type Frobber;
 
     #[wasm_bindgen(structural, method)]
-    pub fn frob(this: &Frobber, a: u64) -> u64;
+    pub fn frob(this: &Frobber, a: u32) -> u32;
 
     #[wasm_bindgen(structural, method)]
-    pub fn quaz(this: &Frobber, a: u64, b: u16) -> u64;
+    pub fn quaz(this: &Frobber, a: u32, b: u16) -> u32;
 }
 
 interface! {
     pub trait RustFrobber mirrors Frobber {
-        fn frob(&self, a: u64) -> u64;
-        fn quaz(&self, a: u64, b: u16) -> u64;
+        fn frob(&self, a: u32) -> u32;
+        fn quaz(&self, a: u32, b: u16) -> u32;
     }
 }
 
 #[derive(Debug, Clone, Default)]
-struct FooFrob(u64);
+struct FooFrob(u32);
 
 impl RustFrobber for FooFrob {
-    fn frob(&self, a: u64) -> u64 {
+    fn frob(&self, a: u32) -> u32 {
         self.0 + a * 2
     }
 
-    fn quaz(&self, a: u64, b: u16) -> u64 {
-        self.frob(a) + (b as u64)
+    fn quaz(&self, a: u32, b: u16) -> u32 {
+        self.frob(a) + (b as u32)
     }
 }
 
 fn use_a_frob<F: IntoJsInterface<Frobber>>(
     f: F,
-    a: u64,
+    a: u32,
     b: u16,
-    frob_val: u64,
-    quaz_val: u64,
+    frob_val: u32,
+    quaz_val: u32,
 ) {
     let f: Frobber = f.to();
 
@@ -106,11 +106,11 @@ interface! {
 struct Blub;
 
 impl RustFrobber for Blub {
-    fn frob(&self, _a: u64) -> u64 {
+    fn frob(&self, _a: u32) -> u32 {
         12
     }
-    fn quaz(&self, a: u64, b: u16) -> u64 {
-        self.frob(a) + (b as u64)
+    fn quaz(&self, a: u32, b: u16) -> u32 {
+        self.frob(a) + (b as u32)
     }
 }
 

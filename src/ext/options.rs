@@ -185,7 +185,7 @@ opt_struct! {
             => scroll_sensitivity: f32,
 
         as with_scrollback
-            => scrollback: u64,
+            => scrollback: u32,
 
         as with_tab_stop_width
             => tab_stop_width: u16,
