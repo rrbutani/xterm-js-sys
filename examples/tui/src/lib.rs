@@ -18,19 +18,16 @@ use web_sys::Window;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-// use std::cell::RefCell;
 use std::cell::Cell;
 
 macro_rules! log { ($($t:tt)*) => {web_sys::console::log_1(&format!($($t)*).into())}; }
 
 #[wasm_bindgen]
-pub struct AnimationFrameCallbackWrapper/*<'a>*/ {
+pub struct AnimationFrameCallbackWrapper {
     handle: Cell<Option<i32>>,
-    // func: Option<RefCell<Box<dyn FnMut() -> bool>>>,
-    func: Option<Box<dyn FnMut() -> bool/* + 'a*/ + 'static>>,
+    func: Option<Box<dyn FnMut() -> bool + 'static>>,
 }
 
-// impl !Unpin for AnimationFrameCallbackWrapper { }
 
 impl Drop for AnimationFrameCallbackWrapper {
     fn drop(&mut self) {
@@ -54,82 +51,79 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
         }
     }
 
-    // fn start(&mut self, func: impl FnMut() -> bool/* + 'a*/ + 'static) {
-    fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
+    fn safe_start(&'static mut self, func: impl FnMut() -> bool + 'static) {
+        unsafe { self.start(func) }
+    }
+
+    unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
         if let Some(handle) = self.handle.get() {
             cancel_animation_frame(handle)
         }
 
-        // self.func = Some(RefCell::new(Box::new(func)));
         let func: Box<dyn FnMut() -> bool + 'f> = Box::new(func);
         // Crime!
         let func: Box<dyn FnMut() -> bool + 'static> = unsafe { core::mem::transmute(func) };
         self.func = Some(func);
 
-        // This is also a crime...
-        let self_copy: &'s mut Self = unsafe { core::mem::transmute_copy(self) };
-
-        // let func = self.func.borrow_mut();
         // This is the dangerous part; we're saying this is okay because we
         // cancel the RAF on Drop of this structure so, in theory, when the
         // function goes out of scope, the RAF will also be cancelled and the
         // invalid reference won't be used.
-        // let func: &'static mut _ = unsafe { func }; // TODO: we can ditch this variable; by having it we're doing mutable aliasing which is A Crime
-        let wrapper: &'static mut _ = unsafe { core::mem::transmute(self) };
+        let wrapper: &'static mut Self = unsafe { core::mem::transmute(self) };
 
         let window = web_sys::window().unwrap();
 
-        fn recurse(w: &'static mut AnimationFrameCallbackWrapper, window: Window) -> Function {
+        fn recurse(
+            f: &'static mut Box<dyn FnMut() -> bool + 'static>,
+            h: &'static Cell<Option<i32>>,
+            // h: *const Cell<Option<i32>>,
+            window: Window,
+        ) -> Function {
             let val = Closure::once_into_js(move || {
                 // See: https://github.com/rust-lang/rust/issues/42574
-                let w = w;
+                let f = f;
+                // let h: &'static Cell<_> = unsafe { &*h };
 
-                log!("handle: {:?}", w.handle);
+                let val = unsafe { core::ptr::read_volatile(h as *const _) };
+                log!("raw read: {:?}", val);
 
-                if w.handle.get().is_none() {
+                if h.get().is_none() {
                     log!("you should never see this...");
                     return
                 }
 
-                if (w.func.as_mut().unwrap())() {
-                    // Same crime as before:
-                    let w_copy: &mut AnimationFrameCallbackWrapper = unsafe { core::mem::transmute_copy(w) };
-
-                    let next = recurse(w, window.clone());
+                if (f)() {
+                    log!("handle2: {:?} @ {:?}", h, h as *const _);
+                    let next = recurse(f, h, window.clone());
                     let id = window.request_animation_frame(&next).unwrap();
-                    w_copy.handle.set(Some(id));
+                    h.set(Some(id));
+                    log!("handle2: {:?} @ {:?}", h, h as *const _);
                 } else {
-                    // cancel_animation_frame(
-                        // w.handle.take().unwrap()
-                    // );
-                    drop(w.func.take());
+                    // No need to drop the function here, really.
+                    // It'll get dropped whenever the wrapper gets dropped.
+                    // drop(w.func.take());
+
+                    // We should remove the handle though, so that when the
+                    // wrapper gets dropped it doesn't try to cancel something
+                    // that already ran.
+                    drop(h.take())
                 }
             });
 
-            // unreachable!()
             val.dyn_into().unwrap()
         }
 
-        // let cl: Closure<dyn FnMut()> = Closure::once(move || {
-        //     if wrapper.func() {
-
-        //         let id = window().request_animation_frame().unwrap();
-        //         wrapper.handle = Some(id);
-        //     } else {
-        //         cancel_animation_frame(wrapper.handle.take().unwrap());
-        //         drop(wrapper.func.take())
-        //     }
-        // });
-
-        let starting = recurse(wrapper, window.clone());
-        // self_copy.handle = Some(window.request_animation_frame(&starting).unwrap());
-        self_copy.handle.set(Some(window.request_animation_frame(&starting).unwrap()));
-        log!("set up: {:?}", self_copy.handle);
+        let func: &'static mut Box<dyn FnMut() -> bool + 'static> = wrapper.func.as_mut().unwrap();
+        let starting = recurse(func, &wrapper.handle, window.clone());
+        log!("set up: {:?} @ {:?}", wrapper.handle, &wrapper.handle as *const _);
+        wrapper.handle.set(Some(window.request_animation_frame(&starting).unwrap()));
+        log!("set up: {:?} @ {:?}", wrapper.handle, &wrapper.handle as *const _);
     }
 }
 
 #[wasm_bindgen]
-pub fn run() -> Result<AnimationFrameCallbackWrapper, JsValue> {
+// pub fn run() -> Result<AnimationFrameCallbackWrapper, JsValue> {
+pub fn run() -> Result<(), JsValue> {
     set_panic_hook();
 
     let window = web_sys::window().expect("no global `window` exists");
@@ -142,22 +136,27 @@ pub fn run() -> Result<AnimationFrameCallbackWrapper, JsValue> {
 
     term.open(terminal_div);
 
-    let mut a = AnimationFrameCallbackWrapper::new();
+    let mut a = Box::new(AnimationFrameCallbackWrapper::new());
+    let mut a = Box::leak(a);
 
     let mut b = 0;
     log!("ay");
-    a.start(|| {
+    a.safe_start(move || {
         log!("heyo! {}", b);
         b += 1;
 
         b != 60
     });
 
+    // log!("runnin!!: {:?} @ {:?}", a.handle, &a.handle as *const _);
+
     // drop(a);
 
     // Ok(())
 
-    Ok(a)
+
+    // Ok(a)
+    Ok(())
     // let term = term_orig.clone();
     // let l = term_orig.attach_key_event_listener(move |e| {
     //     // A port of the xterm.js echo demo:
