@@ -9,7 +9,7 @@ workspace = ".."
 
 
 [dependencies]
-xterm-js-sys = { path = "../../", version = "4.6.0-alpha0" }
+xterm-js-sys = { version = "4.6.0-alpha0" }
 wasm-bindgen = "0.2.63"
 console_error_panic_hook = "0.1.5"
 

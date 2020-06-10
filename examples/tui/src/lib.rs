@@ -259,7 +259,7 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     drop(term_temp);
 
     let term: &'static _ = Box::leak(Box::new(term));
-    let backend = CrosstermBackend::new(&term);
+    let backend = CrosstermBackend::new(term);
 
     let mut tui = TuiTerminal::new(backend).unwrap();
     tui.hide_cursor().unwrap();
