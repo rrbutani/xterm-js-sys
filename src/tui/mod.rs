@@ -1,6 +1,6 @@
 //! A xterm.js-backed backend for the [tui] crate.
 //!
-//! [tui]: ::tui
+//! [tui]: docs.rs/tui
 
 // TODO: rename the feature to crossterm-support or something??
 

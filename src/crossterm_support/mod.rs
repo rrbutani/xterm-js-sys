@@ -1,6 +1,6 @@
 //! A xterm.js-backed backend for [crossterm].
 //!
-//! [crossterm]: ::crossterm
+//! [crossterm]: docs.rs/crossterm
 
 use super::xterm::Terminal;
 
