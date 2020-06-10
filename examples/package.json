@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
-    "parcel-plugin-wasm.rs": "rrbutani/parcel-plugin-wasm.rs",
+    "parcel-plugin-wasm.rs": "github:rrbutani/parcel-plugin-wasm.rs",
     "//": "^ should be switched back if/when the PR gets merged..",
     "typescript": "^3.9.3"
   }
