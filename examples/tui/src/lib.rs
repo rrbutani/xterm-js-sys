@@ -24,14 +24,14 @@ macro_rules! log { ($($t:tt)*) => {web_sys::console::log_1(&format!($($t)*).into
 
 #[wasm_bindgen]
 pub struct AnimationFrameCallbackWrapper {
-    handle: Cell<Option<i32>>,
+    // These are both boxed because we want stable addresses!
+    handle: Box<Cell<Option<i32>>>,
     func: Option<Box<dyn FnMut() -> bool + 'static>>,
 }
 
 
 impl Drop for AnimationFrameCallbackWrapper {
     fn drop(&mut self) {
-        log!("Cancelling {:?}..", self.handle);
         self.handle.get().map(cancel_animation_frame);
     }
 }
@@ -46,16 +46,27 @@ pub(crate) fn cancel_animation_frame(handle: i32) {
 impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
     fn new() -> Self {
         Self {
-            handle: Cell::new(None),
+            handle: Box::new(Cell::new(None)),
             func: None,
         }
     }
 
-    fn safe_start(&'static mut self, func: impl FnMut() -> bool + 'static) {
-        unsafe { self.start(func) }
+    pub fn leak(self) -> &'static mut Self {
+        Box::leak(Box::new(self))
     }
 
-    unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
+    pub fn safe_start(&'static mut self, func: impl FnMut() -> bool + 'static) {
+        unsafe { self.inner(func) }
+    }
+
+    #[inline(never)]
+    pub unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
+        log!(""); // load bearing, somehow...
+        self.inner(func)
+    }
+
+    // Not marked as unsafe so unsafe operations aren't implicitly allowed..
+    /*unsafe */fn inner<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
         if let Some(handle) = self.handle.get() {
             cancel_animation_frame(handle)
         }
@@ -76,16 +87,11 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
         fn recurse(
             f: &'static mut Box<dyn FnMut() -> bool + 'static>,
             h: &'static Cell<Option<i32>>,
-            // h: *const Cell<Option<i32>>,
             window: Window,
         ) -> Function {
             let val = Closure::once_into_js(move || {
                 // See: https://github.com/rust-lang/rust/issues/42574
                 let f = f;
-                // let h: &'static Cell<_> = unsafe { &*h };
-
-                let val = unsafe { core::ptr::read_volatile(h as *const _) };
-                log!("raw read: {:?}", val);
 
                 if h.get().is_none() {
                     log!("you should never see this...");
@@ -93,11 +99,9 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
                 }
 
                 if (f)() {
-                    log!("handle2: {:?} @ {:?}", h, h as *const _);
                     let next = recurse(f, h, window.clone());
                     let id = window.request_animation_frame(&next).unwrap();
                     h.set(Some(id));
-                    log!("handle2: {:?} @ {:?}", h, h as *const _);
                 } else {
                     // No need to drop the function here, really.
                     // It'll get dropped whenever the wrapper gets dropped.
@@ -115,15 +119,13 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
 
         let func: &'static mut Box<dyn FnMut() -> bool + 'static> = wrapper.func.as_mut().unwrap();
         let starting = recurse(func, &wrapper.handle, window.clone());
-        log!("set up: {:?} @ {:?}", wrapper.handle, &wrapper.handle as *const _);
         wrapper.handle.set(Some(window.request_animation_frame(&starting).unwrap()));
-        log!("set up: {:?} @ {:?}", wrapper.handle, &wrapper.handle as *const _);
     }
 }
 
 #[wasm_bindgen]
-// pub fn run() -> Result<AnimationFrameCallbackWrapper, JsValue> {
-pub fn run() -> Result<(), JsValue> {
+pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
+// pub fn run() -> Result<(), JsValue> {
     set_panic_hook();
 
     let window = web_sys::window().expect("no global `window` exists");
@@ -134,19 +136,29 @@ pub fn run() -> Result<(), JsValue> {
 
     let term = Terminal::new(None);
 
-    term.open(terminal_div);
+    term.open(terminal_div.clone());
 
-    let mut a = Box::new(AnimationFrameCallbackWrapper::new());
-    let mut a = Box::leak(a);
+    let mut a = AnimationFrameCallbackWrapper::new();
 
     let mut b = 0;
-    log!("ay");
-    a.safe_start(move || {
+    let f = move || {
         log!("heyo! {}", b);
         b += 1;
 
-        b != 60
-    });
+        if b % 1 == 0 {
+            term.write(format!("ayo: {}\r\n", b));
+        }
+
+        if b % 600 == 0 {
+            term.reset()
+        }
+
+        b != 3600
+    };
+
+    // unsafe { a.start(f) }
+    let mut a = a.leak();
+    a.safe_start(f);
 
     // log!("runnin!!: {:?} @ {:?}", a.handle, &a.handle as *const _);
 
@@ -155,8 +167,16 @@ pub fn run() -> Result<(), JsValue> {
     // Ok(())
 
 
-    // Ok(a)
-    Ok(())
+    let mut b = AnimationFrameCallbackWrapper::new().leak();
+    b.safe_start(move || {
+        log!("yak!");
+
+        true
+    });
+
+    // Ok(Some(a))
+    Ok(None)
+    // Ok(())
     // let term = term_orig.clone();
     // let l = term_orig.attach_key_event_listener(move |e| {
     //     // A port of the xterm.js echo demo:
