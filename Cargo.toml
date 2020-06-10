@@ -34,9 +34,7 @@ maintenance = { status = "actively-developed" }
 js-sys = "0.3.37"
 wasm-bindgen = { version = "0.2.63", features = ["strict-macro"] }
 
-crossterm = { git = "https://github.com/ut-utp/crossterm", version = "0.17.3", optional = true }
-tui = { version = "0.9.1", default-features = false, optional = true }
-# TODO: switch crossterm to mainline if stuff gets merged
+# crossterm = { version = "0.17.5", optional = true }
 
 [dependencies.web-sys]
 version = "0.3.37"
@@ -51,12 +49,14 @@ features = [
 wasm-bindgen-test = "0.3.13"
 
 [profile.release]
+opt-level = 3
 lto = true
 
 
 [features]
 default = ["ext"]
-tui-backend = ["crossterm", "tui"]
+crossterm-support = [] # TODO: do the things for this new feature..
+tui-backend = ["crossterm-support"]
 ext = []
 
 
@@ -69,3 +69,4 @@ default-target = "wasm32-unknown-unknown"
 
 [patch.crates-io]
 wasm-bindgen = { git = "https://github.com/rrbutani/wasm-bindgen.git", branch = "patches" } # TODO: switch back once things get merged!
+# crossterm = { git = "https://github.com/rrbutani/crossterm.git", branch = "xtermjs" }  # TODO: switch crossterm to mainline if stuff gets merged
