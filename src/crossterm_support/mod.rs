@@ -47,6 +47,27 @@ impl<'a> XtermJsCrosstermBackend<'a> {
             buffer: Vec::with_capacity(capacity),
         }
     }
+
+    /// Writes a `String` directly to the underlying terminal, bypassing the
+    /// buffer.
+    ///
+    /// This is useful for situations in which the commands being sent are
+    /// already buffered and the extra copy is undesired. Note that this will
+    /// flush the buffer first to preserve the order of commands.
+    ///
+    /// # Errors
+    ///
+    /// This should never actually error. For consistency with the [`Write`]
+    /// calls it results an [`io::Result`]
+    ///
+    /// [`Write`]: std::io::Write
+    /// [`io::Result`]: std::io::Result
+    pub fn write_immediately(&mut self, commands: String) -> IoResult<()> {
+        self.flush()?;
+        self.terminal.write(commands);
+
+        Ok(())
+    }
 }
 
 impl<'a> Write for XtermJsCrosstermBackend<'a> {
