@@ -1642,12 +1642,10 @@ extern "C" {
     pub fn buffer(this: &Terminal) -> BufferNamespace;
 
     /// The number of columns in the terminal’s viewport. Use
-    /// [`TerminalOptions.cols`] to set this in the [constructor] and
+    /// [`TerminalOptions::cols`] to set this in the [constructor] and
     /// [`Terminal::resize`] for when the terminal exists.
     ///
-    /// [`TerminalOptions.cols`]: TerminalOptions.cols
     /// [constructor]: Terminal::new
-    /// [`Terminal::resize`]: Terminal::resize
     #[wasm_bindgen(method, getter = cols)]
     pub fn cols(this: &Terminal) -> u16;
 
@@ -1675,7 +1673,6 @@ extern "C" {
     /// See [`attach_binary_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_binary_event_listener`]: Terminal::attach_binary_event_listener
     #[wasm_bindgen(method, js_name = onBinary)]
     pub fn on_binary(
@@ -1690,7 +1687,6 @@ extern "C" {
     /// See [`attach_cursor_move_event_listener`] (if the `ext` feature is
     /// enabled) for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_cursor_move_event_listener`]: Terminal::attach_cursor_move_event_listener
     #[wasm_bindgen(method, js_name = onCursorMove)]
     pub fn on_cursor_move(
@@ -1709,7 +1705,6 @@ extern "C" {
     /// See [`attach_data_event_listener`] (if the `ext` feature is enabled) for
     /// a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_data_event_listener`]: Terminal::attach_data_event_listener
     #[wasm_bindgen(method, js_name = onData)]
     pub fn on_data(
@@ -1727,7 +1722,6 @@ extern "C" {
     /// See [`attach_key_event_listener`] (if the `ext` feature is enabled) for
     /// a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`KeyEventData`]: KeyEventData
     /// [`attach_key_event_listener`]: Terminal::attach_key_event_listener
     #[wasm_bindgen(method, js_name = onKey)]
@@ -1743,7 +1737,6 @@ extern "C" {
     /// See [`attach_line_feed_event_listener`] (if the `ext` feature is
     /// enabled) for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_line_feed_event_listener`]: Terminal::attach_line_feed_event_listener
     #[wasm_bindgen(method, js_name = onLineFeed)]
     pub fn on_line_feed(
@@ -1761,7 +1754,6 @@ extern "C" {
     /// See [`attach_render_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_render_event_listener`]: Terminal::attach_render_event_listener
     #[wasm_bindgen(method, js_name = onRender)]
     pub fn on_render(
@@ -1778,7 +1770,6 @@ extern "C" {
     /// See [`attach_resize_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_resize_event_listener`]: Terminal::attach_resize_event_listener
     #[wasm_bindgen(method, js_name = onResize)]
     pub fn on_resize(
@@ -1796,7 +1787,6 @@ extern "C" {
     /// See [`attach_scroll_event_listener`] (if the `ext` feature is enabled)
     /// for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_scroll_event_listener`]: Terminal::attach_scroll_event_listener
     #[wasm_bindgen(method, js_name = onScroll)]
     pub fn on_scroll(
@@ -1811,7 +1801,6 @@ extern "C" {
     /// See [`attach_selection_change_event_listener`] (if the `ext` feature is
     /// enabled) for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_selection_change_event_listener`]: Terminal::attach_selection_change_event_listener
     #[wasm_bindgen(method, js_name = onSelectionChange)]
     pub fn on_selection_change(
@@ -1828,7 +1817,6 @@ extern "C" {
     /// See [`attach_title_change_event_listener`] (if the `ext` feature is
     /// enabled) for a friendlier version of this function.
     ///
-    /// [`Disposable`]: Disposable
     /// [`attach_title_change_event_listener`]: Terminal::attach_title_change_event_listener
     #[wasm_bindgen(method, js_name = onTitleChange)]
     pub fn on_title_change(
