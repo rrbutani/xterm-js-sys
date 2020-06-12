@@ -1613,11 +1613,11 @@ extern "C" {
 
     /// Gets the new number of columns.
     #[wasm_bindgen(structural, method, getter = cols)]
-    pub fn cols(this: &RenderEventData) -> u16;
+    pub fn cols(this: &ResizeEventData) -> u16;
 
     /// Gets the new number of rows.
     #[wasm_bindgen(structural, method, getter = rows)]
-    pub fn rows(this: &RenderEventData) -> u16;
+    pub fn rows(this: &ResizeEventData) -> u16;
 }
 
 #[wasm_bindgen(module = "xterm")]
