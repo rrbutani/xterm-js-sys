@@ -12,7 +12,7 @@ If all goes well, it'll just work! 🤞
 
 Right now we've got:
   - **[basic](basic/src/lib.rs)**: A simple demo that's almost identical to the ['fake terminal' part](https://github.com/xtermjs/xterm.js/blob/d8bc7ceaffe3e4b2fea076a342f807f0ae210de8/demo/client.ts#L228-L261) of the [xterm.js demo](https://github.com/xtermjs/xterm.js/tree/master/demo).
-  - **[tui](tui/src/lib.rs)**: A copy of the [sparkline demo][sparkline] in the [`tui` crate][tui].
+  - **[sparkline](tui/src/lib.rs)**: A copy of the [sparkline demo][sparkline] in the [`tui` crate][tui].
 
 These examples are also deployed [here][examples].
 

@@ -2,21 +2,15 @@
 //!
 //! [demo]: https://github.com/fdehau/tui-rs/blob/3f62ce9c199bb0048996bbdeb236d6e5522ec9e0/examples/sparkline.rs
 
-extern crate console_error_panic_hook;
-extern crate wasm_bindgen;
-extern crate web_sys;
-extern crate xterm_js_sys;
-
 use console_error_panic_hook::set_once as set_panic_hook;
 use crossterm::{
     execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::EnterAlternateScreen,
 };
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
     xterm::{LogLevel, Terminal, TerminalOptions},
 };
-use js_sys::Function;
 use rand::{
     distributions::{Distribution, Uniform},
     rngs::StdRng,
@@ -29,122 +23,14 @@ use tui::{
     widgets::{Block, Borders, Sparkline},
     Terminal as TuiTerminal,
 };
-use wasm_bindgen::{
-    prelude::*,
-    JsCast,
-};
-use web_sys::{Crypto, Window};
+use wasm_bindgen::prelude::*;
+use web_sys::Crypto;
 
-use std::cell::Cell;
 use std::io::Write;
 
-macro_rules! log { ($($t:tt)*) => {web_sys::console::log_1(&format!($($t)*).into())}; }
-
-#[wasm_bindgen]
-pub struct AnimationFrameCallbackWrapper {
-    // These are both boxed because we want stable addresses!
-    handle: Box<Cell<Option<i32>>>,
-    func: Option<Box<dyn FnMut() -> bool + 'static>>,
-}
-
-
-impl Drop for AnimationFrameCallbackWrapper {
-    fn drop(&mut self) {
-        self.handle.get().map(cancel_animation_frame);
-    }
-}
-
-pub(crate) fn cancel_animation_frame(handle: i32) {
-    log!("Cancelling {}..", handle);
-
-    web_sys::window().unwrap()
-        .cancel_animation_frame(handle).unwrap()
-}
-
-impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
-    fn new() -> Self {
-        Self {
-            handle: Box::new(Cell::new(None)),
-            func: None,
-        }
-    }
-
-    pub fn leak(self) -> &'static mut Self {
-        Box::leak(Box::new(self))
-    }
-
-    /// To use this, you'll probably have to leak the wrapper.
-    ///
-    /// `Self::leak` can help you with this.
-    pub fn safe_start(&'static mut self, func: impl FnMut() -> bool + 'static) {
-        unsafe { self.inner(func) }
-    }
-
-    /// This is extremely prone to crashing and is probably unsound; use at your
-    /// own peril.
-    #[inline(never)]
-    pub unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
-        log!(""); // load bearing, somehow...
-        self.inner(func)
-    }
-
-    // Not marked as unsafe so unsafe operations aren't implicitly allowed..
-    /*unsafe */fn inner<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
-        if let Some(handle) = self.handle.get() {
-            cancel_animation_frame(handle)
-        }
-
-        let func: Box<dyn FnMut() -> bool + 'f> = Box::new(func);
-        // Crime!
-        let func: Box<dyn FnMut() -> bool + 'static> = unsafe { core::mem::transmute(func) };
-        self.func = Some(func);
-
-        // This is the dangerous part; we're saying this is okay because we
-        // cancel the RAF on Drop of this structure so, in theory, when the
-        // function goes out of scope, the RAF will also be cancelled and the
-        // invalid reference won't be used.
-        let wrapper: &'static mut Self = unsafe { core::mem::transmute(self) };
-
-        let window = web_sys::window().unwrap();
-
-        fn recurse(
-            f: &'static mut Box<dyn FnMut() -> bool + 'static>,
-            h: &'static Cell<Option<i32>>,
-            window: Window,
-        ) -> Function {
-            let val = Closure::once_into_js(move || {
-                // See: https://github.com/rust-lang/rust/issues/42574
-                let f = f;
-
-                if h.get().is_none() {
-                    log!("you should never see this...");
-                    return
-                }
-
-                if (f)() {
-                    let next = recurse(f, h, window.clone());
-                    let id = window.request_animation_frame(&next).unwrap();
-                    h.set(Some(id));
-                } else {
-                    // No need to drop the function here, really.
-                    // It'll get dropped whenever the wrapper gets dropped.
-                    // drop(w.func.take());
-
-                    // We should remove the handle though, so that when the
-                    // wrapper gets dropped it doesn't try to cancel something
-                    // that already ran.
-                    drop(h.take())
-                }
-            });
-
-            val.dyn_into().unwrap()
-        }
-
-        let func: &'static mut Box<dyn FnMut() -> bool + 'static> = wrapper.func.as_mut().unwrap();
-        let starting = recurse(func, &wrapper.handle, window.clone());
-        wrapper.handle.set(Some(window.request_animation_frame(&starting).unwrap()));
-    }
-}
+#[path = "../../common.rs"]
+mod common;
+use common::{log, AnimationFrameCallbackWrapper};
 
 #[wasm_bindgen]
 pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
@@ -159,7 +45,7 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     let term = Terminal::new(None);
     term.open(terminal_div.clone());
 
-    let mut a = AnimationFrameCallbackWrapper::new().leak();
+    let a = AnimationFrameCallbackWrapper::new().leak();
 
     let mut b = 0;
     a.safe_start(move || {
@@ -172,7 +58,7 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         b != 3600
     });
 
-    let mut b = AnimationFrameCallbackWrapper::new().leak();
+    let b = AnimationFrameCallbackWrapper::new().leak();
     b.safe_start(move || {
         log!("yak!");
 
@@ -252,11 +138,14 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .get_element_by_id("terminal")
         .expect("should have a terminal div");
 
-    let term = Terminal::new(None);
+    let term = Terminal::new(Some(
+        TerminalOptions::new()
+            .with_log_level(LogLevel::Info)
+    ));
     term.open(terminal_div.clone());
 
     let mut term_temp: XtermJsCrosstermBackend = (&term).into();
-    execute!((&mut term_temp), EnterAlternateScreen);
+    execute!((&mut term_temp), EnterAlternateScreen).unwrap();
     drop(term_temp);
 
     let term: &'static _ = Box::leak(Box::new(term));
@@ -268,7 +157,7 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     // Create default app state
     let mut app = App::new(window.crypto().unwrap());
 
-    let mut main_loop = AnimationFrameCallbackWrapper::new().leak();
+    let main_loop = AnimationFrameCallbackWrapper::new().leak();
     main_loop.safe_start(move || {
         tui.draw(|mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
             let chunks = Layout::default()

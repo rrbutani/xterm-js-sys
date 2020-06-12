@@ -1,5 +1,5 @@
 [package]
-name = "tui-demo"
+name = "sparkline"
 version = "0.1.0"
 authors = ["Rahul Butani <rr.but.a.n.i+crates-io@gmail.com>"]
 edition = "2018"
