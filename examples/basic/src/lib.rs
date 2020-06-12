@@ -1,14 +1,11 @@
-extern crate console_error_panic_hook;
-extern crate wasm_bindgen;
-extern crate web_sys;
-
-extern crate xterm_js_sys;
-
 use console_error_panic_hook::set_once as set_panic_hook;
 use wasm_bindgen::prelude::*;
 use xterm_js_sys::xterm::{LogLevel, Terminal, TerminalOptions};
 
-macro_rules! log { ($($t:tt)*) => {web_sys::console::log_1(&format!($($t)*).into())}; }
+#[path = "../../common.rs"]
+mod common;
+use common::log;
+
 
 #[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
