@@ -6,6 +6,18 @@ use xterm_js_sys::xterm::{LogLevel, Terminal, TerminalOptions};
 mod common;
 use common::log;
 
+#[macro_export]
+#[doc(hidden)]
+macro_rules! csi {
+    ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
+}
+
+pub(crate) const ENABLE_MOUSE_MODE_CSI_SEQUENCE: &str = concat!(
+    csi!("?1000h"),
+    csi!("?1002h"),
+    csi!("?1015h"),
+    csi!("?1006h")
+);
 
 #[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
@@ -19,9 +31,13 @@ pub fn run() -> Result<(), JsValue> {
         .get_element_by_id("terminal")
         .expect("should have a terminal div");
 
-    let term_orig = Terminal::new(None);
+    let opts = TerminalOptions::new()
+        .with_log_level(LogLevel::Debug);
+
+    let term_orig = Terminal::new(Some(opts));
 
     term_orig.open(terminal_div);
+    term_orig.write(ENABLE_MOUSE_MODE_CSI_SEQUENCE.to_string());
 
     let term = term_orig.clone();
     let l = term_orig.attach_key_event_listener(move |e| {
@@ -51,8 +67,23 @@ pub fn run() -> Result<(), JsValue> {
         log!("[key event] got {:?}", e);
     });
 
+    let b = term_orig.attach_binary_event_listener(move |s| {
+        log!("[binary event] bin: {:?}", s);
+    });
+
+    let d = term_orig.attach_data_event_listener(move |s| {
+        log!("[data event] data: {:?}", s);
+    });
+
+    let r = term_orig.attach_resize_event_listener(move |r| {
+        log!("[resize event] resize: {:?}", r);
+    });
+
     // Don't drop!
     Box::leak(Box::new(l));
+    Box::leak(Box::new(b));
+    Box::leak(Box::new(d));
+    Box::leak(Box::new(r));
 
     let term = term_orig;
 
@@ -60,7 +91,6 @@ pub fn run() -> Result<(), JsValue> {
 
     term.write(String::from("\x1B[35;31m hello!\n"));
     term.write(String::from("\x1B[1;3;31mxterm.js\x1B[0m with 🦀\n$ "));
-    // window.request_animation_frame()
 
     Ok(())
 }
