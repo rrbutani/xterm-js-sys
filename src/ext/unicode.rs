@@ -9,7 +9,6 @@ use crate::xterm::{
 };
 
 interface! {
-    #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
     pub trait XtermUnicodeVersionProvider mirrors UnicodeVersionProvider {
         /// Gets a string indicating the Unicode version provided.
         fn version(&self) -> Str;
@@ -19,7 +18,6 @@ interface! {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl UnicodeHandling {
     /// Registers a [custom Unicode version provider].
     ///

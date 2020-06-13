@@ -12,7 +12,6 @@ use wasm_bindgen::JsCast;
 /// Macro support: supporting items for the macros in this module; re-exported
 /// here so we don't have to make any assumptions about the call-site.
 #[doc(hidden)]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod _m_sprt {
     pub use core::clone::Clone;
     pub use core::convert::AsRef;
@@ -29,7 +28,6 @@ pub mod _m_sprt {
 /// [here]: https://github.com/rust-lang/rust/issues/52607
 #[doc(hidden)]
 #[macro_export]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! calculated_doc {
     ( $(#[doc = $doc:expr])* >>> $thing:item $(#[$metas:meta])* ) => {
         $(
@@ -78,7 +76,6 @@ macro_rules! calculated_doc {
 /// [`IntoJsInterface`]: crate::ext::IntoJsInterface
 /// [`JsCast::dyn_into`]: wasm_bindgen::JsCast::dyn_into
 #[macro_export]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! interface {
     (
         $(#[$metas:meta])*
@@ -534,7 +531,6 @@ macro_rules! interface {
 
 /// Defines a JS object with some properties.
 #[macro_export]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 macro_rules! object {
     (
         $($f:ident: $v:expr),* $(,)?
@@ -627,7 +623,6 @@ macro_rules! object {
 /// ```
 ///
 /// But it's still unclear if/how this is useful.
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
     /// Convert to an instance of the JS interface type.
     fn to(self) -> Interface;
@@ -642,30 +637,23 @@ pub trait IntoJsInterface<Interface: FromWasmAbi + IntoWasmAbi + JsCast> {
     fn by_ref(&self) -> Interface;
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[doc(inline)]
 pub use super::{calculated_doc, interface, object};
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod addon;
 pub use addon::*;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod disposable;
 pub use disposable::*;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod event;
 pub use event::*;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod marker;
 pub use marker::*;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod options;
 pub use options::*;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod unicode;
 pub use unicode::*;

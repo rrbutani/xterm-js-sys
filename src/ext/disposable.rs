@@ -12,7 +12,6 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsCast};
 use core::ops::{Deref, DerefMut};
 
 interface! {
-    #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
     #[allow(clippy::module_name_repetitions)]
     pub trait XtermDisposable mirrors Disposable {
         /// Disposes of the instance.
@@ -28,7 +27,6 @@ interface! {
 ///
 /// [`dispose`]: XtermDisposable::dispose
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[allow(clippy::module_name_repetitions)]
 pub struct DisposableWrapper<D: XtermDisposable> {
     /// The actual [`Disposable`] instance that's being wrapped.
@@ -41,7 +39,6 @@ impl<D: XtermDisposable + Default> Default for DisposableWrapper<D> {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl<D: XtermDisposable> DisposableWrapper<D> {
     /// Pulls the inner [`XtermDisposable`] implementation (`D`) out of the
     /// wrapper, making it so that [`dispose`] is not called on [`Drop`].
@@ -96,7 +93,6 @@ impl<D: XtermDisposable> Drop for DisposableWrapper<D> {
 /// [`Disposable`]: crate::xterm::Disposable
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub struct NoOpDispose {
     /// JavaScript object that just has a no-op `dispose` function.
     obj: Object,
@@ -108,7 +104,6 @@ impl Default for NoOpDispose {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl NoOpDispose {
     /// Constructs a new [`NoOpDispose`].
     #[must_use]
@@ -134,7 +129,6 @@ impl Deref for NoOpDispose {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Terminal {
     /// [`Terminal`] constructor that encloses the resulting [`Terminal`] in a
     /// [`DisposableWrapper`].

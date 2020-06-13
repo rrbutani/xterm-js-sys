@@ -6,7 +6,6 @@ use super::disposable::XtermDisposable;
 use super::{interface, Disposable, IntoJsInterface, Terminal, TerminalAddon};
 
 interface! {
-    #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
     #[allow(clippy::module_name_repetitions)]
     pub trait XtermAddon mirrors TerminalAddon
     where
@@ -17,7 +16,6 @@ interface! {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Terminal {
     /// Loads an [addon] into this instance of the xterm.js [`Terminal`].
     ///

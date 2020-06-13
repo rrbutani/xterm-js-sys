@@ -12,7 +12,6 @@ use std::ops::Deref;
 /// Wrapper for the [xterm.js terminal](Terminal) for use with [crossterm].
 ///
 /// [crossterm]: docs.rs/crossterm
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "crossterm-support")))]
 pub struct XtermJsCrosstermBackend<'a> {
     /// The xterm.js terminal that this struct instance wraps.
     pub terminal: &'a Terminal,

@@ -94,7 +94,6 @@ macro_rules! opt_struct {
     };
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 opt_struct! {
     TerminalOptions {
         as with_allow_proposed_api
@@ -204,7 +203,6 @@ opt_struct! {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 opt_struct! {
     Theme {
         use (background, set_background) as with_background
@@ -272,7 +270,6 @@ opt_struct! {
     }
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 opt_struct! {
     WindowOptions {
         as with_fullscreen_win

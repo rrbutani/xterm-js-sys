@@ -5,7 +5,6 @@
 use crate::idx_to_opt;
 use crate::xterm::Marker;
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 impl Marker {
     /// The actual line index in the buffer at this point in time.
     ///

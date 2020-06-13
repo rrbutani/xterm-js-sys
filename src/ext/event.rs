@@ -71,7 +71,6 @@ macro_rules! event_method {
     };
 }
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[rustfmt::skip]
 impl Terminal { event_methods!{
     @doc: "binary"
@@ -106,7 +105,6 @@ impl Terminal { event_methods!{
     pub attach_title_change_event_listener: (Str) => Terminal::on_title_change
 }}
 
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 #[rustfmt::skip]
 impl BufferNamespace { event_methods! {
     /// Attaches an event listener for when the active buffer changes and
