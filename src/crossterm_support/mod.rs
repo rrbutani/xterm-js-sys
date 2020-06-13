@@ -4,14 +4,15 @@
 
 use super::xterm::Terminal;
 
+use std::cell::Cell;
+use std::fmt::{self, Debug};
 use std::io::{Error as IoError, ErrorKind, Result as IoResult, Write};
-use std::mem::replace;
+use std::ops::Deref;
 
 /// Wrapper for the [xterm.js terminal](Terminal) for use with [crossterm].
 ///
 /// [crossterm]: docs.rs/crossterm
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "crossterm-support")))]
-#[derive(Debug, Clone)]
 pub struct XtermJsCrosstermBackend<'a> {
     /// The xterm.js terminal that this struct instance wraps.
     pub terminal: &'a Terminal,
@@ -19,7 +20,26 @@ pub struct XtermJsCrosstermBackend<'a> {
     ///
     /// This lets us make one big call to [`Terminal::write`] with a batch of
     /// commands rather than many small calls.
-    buffer: Vec<u8>,
+    buffer: Cell<Vec<u8>>,
+}
+
+impl<'a> Debug for XtermJsCrosstermBackend<'a> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.debug_struct(core::any::type_name::<Self>())
+            .field("terminal", &self.terminal)
+            .finish()
+    }
+}
+
+impl<'a> Deref for XtermJsCrosstermBackend<'a> {
+    type Target = Terminal;
+
+    fn deref(&self) -> &Terminal {
+        //! This will flush the internal buffer before providing the reference
+        //! to make sure that the order of operations is preserved.
+        self.flush_immutable().unwrap();
+        self.terminal
+    }
 }
 
 impl<'a> Drop for XtermJsCrosstermBackend<'a> {
@@ -44,7 +64,7 @@ impl<'a> XtermJsCrosstermBackend<'a> {
     pub fn new_with_capacity(terminal: &'a Terminal, capacity: usize) -> Self {
         Self {
             terminal,
-            buffer: Vec::with_capacity(capacity),
+            buffer: Cell::new(Vec::with_capacity(capacity)),
         }
     }
 
@@ -68,21 +88,33 @@ impl<'a> XtermJsCrosstermBackend<'a> {
 
         Ok(())
     }
-}
 
-impl<'a> Write for XtermJsCrosstermBackend<'a> {
-    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
-        self.buffer.write(buf)
-    }
+    /// A version of [`flush`](Write::flush) that takes an immutable reference
+    /// instead of a mutable one.
+    ///
+    /// This exists because we want to flush the buffer in the [`Deref`] impl.
+    #[inline]
+    fn flush_immutable(&self) -> IoResult<()> {
+        // Can't call `self.buffer.flush()` here but since that's just a Vec,
+        // it's probably fine.
 
-    fn flush(&mut self) -> IoResult<()> {
-        self.buffer.flush()?;
-
-        let s = String::from_utf8(replace(&mut self.buffer, Vec::new()))
+        let s = String::from_utf8(self.buffer.replace(Vec::new()))
             .map_err(|e| IoError::new(ErrorKind::Other, e))?;
         self.terminal.write(s);
 
         Ok(())
+    }
+}
+
+impl<'a> Write for XtermJsCrosstermBackend<'a> {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        self.buffer.get_mut().write(buf)
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        self.buffer.get_mut().flush()?;
+
+        self.flush_immutable()
     }
 }
 
