@@ -1515,11 +1515,11 @@ extern "C" {
     // instances of this type are never _constructed_ on the Rust side):
 
     /// Getter for the active Unicode version.
-    #[wasm_bindgen(structural, getter = activeVersion)]
+    #[wasm_bindgen(structural, method, getter = activeVersion)]
     pub fn active_version(this: &UnicodeHandling) -> Str;
 
     /// Setter for the active Unicode version.
-    #[wasm_bindgen(structural, setter = activeVersion)]
+    #[wasm_bindgen(structural, method, setter = activeVersion)]
     pub fn set_active_version(this: &UnicodeHandling, version: Str);
 }
 
