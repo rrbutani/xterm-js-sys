@@ -31,8 +31,7 @@ pub fn run() -> Result<(), JsValue> {
         .get_element_by_id("terminal")
         .expect("should have a terminal div");
 
-    let opts = TerminalOptions::new()
-        .with_log_level(LogLevel::Debug);
+    let opts = TerminalOptions::new().with_log_level(LogLevel::Debug);
 
     let term_orig = Terminal::new(Some(opts));
 
@@ -61,7 +60,7 @@ pub fn run() -> Result<(), JsValue> {
                 term.write("\u{0008} \u{0008}".to_string())
             }
             _ if printable => term.write(key),
-            _ => { },
+            _ => {}
         }
 
         log!("[key event] got {:?}", e);

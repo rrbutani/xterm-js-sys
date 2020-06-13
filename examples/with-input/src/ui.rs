@@ -7,8 +7,8 @@ use tui::{
     symbols,
     widgets::canvas::{Canvas, Line, Map, MapResolution, Rectangle},
     widgets::{
-        Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, Paragraph, Row, Sparkline,
-        Table, Tabs, Text,
+        Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, Paragraph,
+        Row, Sparkline, Table, Tabs, Text,
     },
     Frame,
 };
@@ -103,11 +103,17 @@ where
         .split(area);
     {
         let chunks = Layout::default()
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+            .constraints(
+                [Constraint::Percentage(50), Constraint::Percentage(50)]
+                    .as_ref(),
+            )
             .split(chunks[0]);
         {
             let chunks = Layout::default()
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .constraints(
+                    [Constraint::Percentage(50), Constraint::Percentage(50)]
+                        .as_ref(),
+                )
                 .direction(Direction::Horizontal)
                 .split(chunks[0]);
 
@@ -115,7 +121,9 @@ where
             let tasks = app.tasks.items.iter().map(|i| Text::raw(*i));
             let tasks = List::new(tasks)
                 .block(Block::default().borders(Borders::ALL).title("List"))
-                .highlight_style(Style::default().fg(Color::Yellow).modifier(Modifier::BOLD))
+                .highlight_style(
+                    Style::default().fg(Color::Yellow).modifier(Modifier::BOLD),
+                )
                 .highlight_symbol("> ");
             f.render_stateful_widget(tasks, chunks[0], &mut app.tasks.state);
 
@@ -135,7 +143,8 @@ where
                     },
                 )
             });
-            let logs = List::new(logs).block(Block::default().borders(Borders::ALL).title("List"));
+            let logs = List::new(logs)
+                .block(Block::default().borders(Borders::ALL).title("List"));
             f.render_stateful_widget(logs, chunks[1], &mut app.logs.state);
         }
 
@@ -162,7 +171,10 @@ where
     if app.show_chart {
         let x_labels = [
             format!("{}", app.signals.window[0]),
-            format!("{}", (app.signals.window[0] + app.signals.window[1]) / 2.0),
+            format!(
+                "{}",
+                (app.signals.window[0] + app.signals.window[1]) / 2.0
+            ),
             format!("{}", app.signals.window[1]),
         ];
         let datasets = [
@@ -185,7 +197,11 @@ where
             .block(
                 Block::default()
                     .title("Chart")
-                    .title_style(Style::default().fg(Color::Cyan).modifier(Modifier::BOLD))
+                    .title_style(
+                        Style::default()
+                            .fg(Color::Cyan)
+                            .modifier(Modifier::BOLD),
+                    )
                     .borders(Borders::ALL),
             )
             .x_axis(
@@ -233,7 +249,9 @@ where
     let block = Block::default()
         .borders(Borders::ALL)
         .title("Footer")
-        .title_style(Style::default().fg(Color::Magenta).modifier(Modifier::BOLD));
+        .title_style(
+            Style::default().fg(Color::Magenta).modifier(Modifier::BOLD),
+        );
     let paragraph = Paragraph::new(text.iter()).block(block).wrap(true);
     f.render_widget(paragraph, area);
 }
@@ -243,7 +261,9 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
+        .constraints(
+            [Constraint::Percentage(30), Constraint::Percentage(70)].as_ref(),
+        )
         .direction(Direction::Horizontal)
         .split(area);
     let up_style = Style::default().fg(Color::Green);

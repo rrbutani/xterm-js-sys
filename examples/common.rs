@@ -1,10 +1,7 @@
 //! Shared things for the examples.
 
 use js_sys::Function;
-use wasm_bindgen::{
-    prelude::*,
-    JsCast,
-};
+use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::Window;
 
 use std::cell::Cell;
@@ -29,11 +26,13 @@ impl Drop for AnimationFrameCallbackWrapper {
 pub(crate) fn cancel_animation_frame(handle: i32) {
     log!("Cancelling {}..", handle);
 
-    web_sys::window().unwrap()
-        .cancel_animation_frame(handle).unwrap()
+    web_sys::window()
+        .unwrap()
+        .cancel_animation_frame(handle)
+        .unwrap()
 }
 
-impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
+impl AnimationFrameCallbackWrapper /*<'a>*/ {
     pub fn new() -> Self {
         Self {
             handle: Box::new(Cell::new(None)),
@@ -55,7 +54,10 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
     /// This is extremely prone to crashing and is probably unsound; use at your
     /// own peril.
     #[inline(never)]
-    pub unsafe fn start<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
+    pub unsafe fn start<'s, 'f: 's>(
+        &'s mut self,
+        func: impl FnMut() -> bool + 'f,
+    ) {
         log!(""); // load bearing, somehow...
         self.inner(func)
     }
@@ -68,7 +70,8 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
 
         let func: Box<dyn FnMut() -> bool + 'f> = Box::new(func);
         // Crime!
-        let func: Box<dyn FnMut() -> bool + 'static> = unsafe { core::mem::transmute(func) };
+        let func: Box<dyn FnMut() -> bool + 'static> =
+            unsafe { core::mem::transmute(func) };
         self.func = Some(func);
 
         // This is the dangerous part; we're saying this is okay because we
@@ -90,7 +93,7 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
 
                 if h.get().is_none() {
                     log!("you should never see this...");
-                    return
+                    return;
                 }
 
                 if (f)() {
@@ -112,8 +115,11 @@ impl/*<'a>*/ AnimationFrameCallbackWrapper/*<'a>*/ {
             val.dyn_into().unwrap()
         }
 
-        let func: &'static mut Box<dyn FnMut() -> bool + 'static> = wrapper.func.as_mut().unwrap();
+        let func: &'static mut Box<dyn FnMut() -> bool + 'static> =
+            wrapper.func.as_mut().unwrap();
         let starting = recurse(func, &wrapper.handle, window.clone());
-        wrapper.handle.set(Some(window.request_animation_frame(&starting).unwrap()));
+        wrapper
+            .handle
+            .set(Some(window.request_animation_frame(&starting).unwrap()));
     }
 }

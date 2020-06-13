@@ -5,9 +5,10 @@ use crate::util::{RandomSignal, SinSignal, StatefulList, TabsState};
 use web_sys::Crypto;
 
 const TASKS: [&str; 24] = [
-    "Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8", "Item9", "Item10",
-    "Item11", "Item12", "Item13", "Item14", "Item15", "Item16", "Item17", "Item18", "Item19",
-    "Item20", "Item21", "Item22", "Item23", "Item24",
+    "Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8",
+    "Item9", "Item10", "Item11", "Item12", "Item13", "Item14", "Item15",
+    "Item16", "Item17", "Item18", "Item19", "Item20", "Item21", "Item22",
+    "Item23", "Item24",
 ];
 
 const LOGS: [(&str, &str); 26] = [
@@ -123,7 +124,11 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
-    pub fn new(crypto: Crypto, title: &'a str, enhanced_graphics: bool) -> App<'a> {
+    pub fn new(
+        crypto: Crypto,
+        title: &'a str,
+        enhanced_graphics: bool,
+    ) -> App<'a> {
         let mut rand_signal = RandomSignal::new(crypto, 0, 100);
         let sparkline_points = rand_signal.by_ref().take(300).collect();
         let mut sin_signal = SinSignal::new(0.2, 3.0, 18.0);

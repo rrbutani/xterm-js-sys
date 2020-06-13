@@ -3,14 +3,7 @@
 //! [demo]: https://github.com/fdehau/tui-rs/blob/3f62ce9c199bb0048996bbdeb236d6e5522ec9e0/examples/sparkline.rs
 
 use console_error_panic_hook::set_once as set_panic_hook;
-use crossterm::{
-    execute,
-    terminal::EnterAlternateScreen,
-};
-use xterm_js_sys::{
-    crossterm_support::XtermJsCrosstermBackend,
-    xterm::{LogLevel, Terminal, TerminalOptions},
-};
+use crossterm::{execute, terminal::EnterAlternateScreen};
 use rand::{
     distributions::{Distribution, Uniform},
     rngs::StdRng,
@@ -25,6 +18,10 @@ use tui::{
 };
 use wasm_bindgen::prelude::*;
 use web_sys::Crypto;
+use xterm_js_sys::{
+    crossterm_support::XtermJsCrosstermBackend,
+    xterm::{LogLevel, Terminal, TerminalOptions},
+};
 
 use std::io::Write;
 
@@ -52,8 +49,12 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         log!("heyo! {}", b);
         b += 1;
 
-        if b % 10 == 0 { term.write(format!("ayo: {}\r\n", b)); }
-        if b % 600 == 0 { term.reset() }
+        if b % 10 == 0 {
+            term.write(format!("ayo: {}\r\n", b));
+        }
+        if b % 600 == 0 {
+            term.reset()
+        }
 
         b != 3600
     });
@@ -138,8 +139,7 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(Some(
-        TerminalOptions::new()
-            .with_log_level(LogLevel::Info)
+        TerminalOptions::new().with_log_level(LogLevel::Info),
     ));
     term.open(terminal_div.clone());
 
@@ -158,43 +158,52 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
 
     let main_loop = AnimationFrameCallbackWrapper::new().leak();
     main_loop.safe_start(move || {
-        tui.draw(|mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(2)
-                .constraints([
-                    Constraint::Length(3),
-                    Constraint::Length(3),
-                    Constraint::Length(7),
-                    Constraint::Min(0),
-                ].as_ref())
-                .split(f.size());
-            let sparkline = Sparkline::default()
-                .block(Block::default()
-                    .title("Data1")
-                    .borders(Borders::LEFT | Borders::RIGHT),
-                )
-                .data(&app.data1)
-                .style(Style::default().fg(Color::Yellow));
-            f.render_widget(sparkline, chunks[0]);
-            let sparkline = Sparkline::default()
-                .block(Block::default()
-                    .title("Data2")
-                    .borders(Borders::LEFT | Borders::RIGHT),
-                )
-                .data(&app.data2)
-                .style(Style::default().bg(Color::Green));
-            f.render_widget(sparkline, chunks[1]);
-            // Multiline
-            let sparkline = Sparkline::default()
-                .block(Block::default()
-                    .title("Data3")
-                    .borders(Borders::LEFT | Borders::RIGHT),
-                )
-                .data(&app.data3)
-                .style(Style::default().fg(Color::Red));
-            f.render_widget(sparkline, chunks[2]);
-        }).unwrap();
+        tui.draw(
+            |mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(2)
+                    .constraints(
+                        [
+                            Constraint::Length(3),
+                            Constraint::Length(3),
+                            Constraint::Length(7),
+                            Constraint::Min(0),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.size());
+                let sparkline = Sparkline::default()
+                    .block(
+                        Block::default()
+                            .title("Data1")
+                            .borders(Borders::LEFT | Borders::RIGHT),
+                    )
+                    .data(&app.data1)
+                    .style(Style::default().fg(Color::Yellow));
+                f.render_widget(sparkline, chunks[0]);
+                let sparkline = Sparkline::default()
+                    .block(
+                        Block::default()
+                            .title("Data2")
+                            .borders(Borders::LEFT | Borders::RIGHT),
+                    )
+                    .data(&app.data2)
+                    .style(Style::default().bg(Color::Green));
+                f.render_widget(sparkline, chunks[1]);
+                // Multiline
+                let sparkline = Sparkline::default()
+                    .block(
+                        Block::default()
+                            .title("Data3")
+                            .borders(Borders::LEFT | Borders::RIGHT),
+                    )
+                    .data(&app.data3)
+                    .style(Style::default().fg(Color::Red));
+                f.render_widget(sparkline, chunks[2]);
+            },
+        )
+        .unwrap();
 
         app.update();
         log!("hiya!");
@@ -204,4 +213,3 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
 
     Ok(None)
 }
-

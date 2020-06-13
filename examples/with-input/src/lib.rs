@@ -4,16 +4,12 @@
 
 use console_error_panic_hook::set_once as set_panic_hook;
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     event::EventStream,
+    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
 };
 use futures_util::stream::StreamExt;
-use xterm_js_sys::{
-    crossterm_support::XtermJsCrosstermBackend,
-    xterm::{LogLevel, Terminal, TerminalOptions},
-};
 use tui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
@@ -23,6 +19,10 @@ use tui::{
 };
 use wasm_bindgen::prelude::*;
 use web_sys::Crypto;
+use xterm_js_sys::{
+    crossterm_support::XtermJsCrosstermBackend,
+    xterm::{LogLevel, Terminal, TerminalOptions},
+};
 
 use std::{
     io::Write,
@@ -48,14 +48,14 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(Some(
-        TerminalOptions::new()
-            .with_log_level(LogLevel::Info)
+        TerminalOptions::new().with_log_level(LogLevel::Info),
     ));
     term.open(terminal_div.clone());
 
     let mut term_temp: XtermJsCrosstermBackend = (&term).into();
 
-    execute!((&mut term_temp), EnterAlternateScreen, EnableMouseCapture).unwrap();
+    execute!((&mut term_temp), EnterAlternateScreen, EnableMouseCapture)
+        .unwrap();
     drop(term_temp);
 
     let term: &'static _ = Box::leak(Box::new(term));
@@ -74,9 +74,12 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     let app_draw = app.clone();
     main_loop.safe_start(move || {
         let mut app = app_draw.write().unwrap();
-        tui.draw(|mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
-            ui::draw(&mut f, &mut app)
-        }).unwrap();
+        tui.draw(
+            |mut f: tui::terminal::Frame<'_, CrosstermBackend<'_, Vec<u8>>>| {
+                ui::draw(&mut f, &mut app)
+            },
+        )
+        .unwrap();
 
         app.on_tick();
         !app.should_quit
@@ -96,7 +99,8 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
                             (&mut term),
                             LeaveAlternateScreen,
                             DisableMouseCapture
-                        ).unwrap();
+                        )
+                        .unwrap();
                         app.should_quit = true;
                     }
                     KeyCode::Char(c) => app.on_key(c),
@@ -106,7 +110,7 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
                     KeyCode::Down => app.on_down(),
                     _ => {}
                 }
-            },
+            }
             ev => log!("Unhandled event: {:?}", ev),
             Err(err) => panic!("Err: {:?}"),
         }
@@ -114,4 +118,3 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
 
     Ok(None)
 }
-
