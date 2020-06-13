@@ -337,7 +337,7 @@ jobs:
         run: |
           cd examples
           cargo fmt --all -- --check
-          cargo clippy --all -- -D warnings
+          cargo clippy --all --target wasm32-wasi -- -D warnings
 
       - name: Clean up the target folder and cargo's caches
         run: |
