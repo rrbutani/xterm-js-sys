@@ -2,6 +2,7 @@
 members = [
     "basic",
     "sparkline",
+    "with-input",
 ]
 
 

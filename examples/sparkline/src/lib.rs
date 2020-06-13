@@ -77,7 +77,6 @@ pub struct RandomSignal {
 impl RandomSignal {
     pub fn new(crypto: Crypto, lower: u64, upper: u64) -> RandomSignal {
         let mut seed = [0u8; 32];
-
         crypto.get_random_values_with_u8_array(&mut seed).unwrap();
 
         RandomSignal {

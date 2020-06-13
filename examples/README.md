@@ -13,10 +13,12 @@ If all goes well, it'll just work! 🤞
 Right now we've got:
   - **[basic](basic/src/lib.rs)**: A simple demo that's almost identical to the ['fake terminal' part](https://github.com/xtermjs/xterm.js/blob/d8bc7ceaffe3e4b2fea076a342f807f0ae210de8/demo/client.ts#L228-L261) of the [xterm.js demo](https://github.com/xtermjs/xterm.js/tree/master/demo).
   - **[sparkline](tui/src/lib.rs)**: A copy of the [sparkline demo][sparkline] in the [`tui` crate][tui].
+  - **[with-input](with-input/src/lib.rs)**: A port of the [crossterm demo][with-input] in the [`tui` crate][tui].
 
 These examples are also deployed [here][examples].
 
 [examples]: https://rrbutani.github.io/xterm-js-sys/examples
 
 [sparkline]: https://github.com/fdehau/tui-rs/blob/3f62ce9c199bb0048996bbdeb236d6e5522ec9e0/examples/sparkline.rs
+[with-input]: https://github.com/fdehau/tui-rs/blob/3f62ce9c199bb0048996bbdeb236d6e5522ec9e0/examples/crossterm_demo.rs
 [tui]: https://github.com/fdehau/tui-rs/
