@@ -88,6 +88,7 @@ pub struct StatefulList<T> {
     pub items: Vec<T>,
 }
 
+#[allow(unused)]
 impl<T> StatefulList<T> {
     pub fn new() -> StatefulList<T> {
         StatefulList {

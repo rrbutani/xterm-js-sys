@@ -12,13 +12,9 @@ use crossterm::{
 use futures_util::stream::StreamExt;
 use tui::{
     backend::CrosstermBackend,
-    layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
-    widgets::{Block, Borders, Sparkline},
     Terminal as TuiTerminal,
 };
 use wasm_bindgen::prelude::*;
-use web_sys::Crypto;
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
     xterm::{LogLevel, Terminal, TerminalOptions},
@@ -38,7 +34,7 @@ mod ui;
 mod util;
 
 #[wasm_bindgen]
-pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
+pub async fn run() -> Result<(), JsValue> {
     set_panic_hook();
 
     let window = web_sys::window().expect("no global `window` exists");
@@ -62,6 +58,7 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     let backend = CrosstermBackend::new(term);
 
     term.resize(200, 45);
+    term.focus();
 
     let mut tui = TuiTerminal::new(backend).unwrap();
     tui.hide_cursor().unwrap();
@@ -111,10 +108,8 @@ pub async fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
                     _ => {}
                 }
             }
-            ev => log!("Unhandled event: {:?}", ev),
-            Err(err) => panic!("Err: {:?}"),
+            Ok(ev) => log!("Unhandled event: {:?}", ev),
+            Err(err) => panic!("Err: {:?}", err),
         }
     }
-
-    Ok(None)
 }

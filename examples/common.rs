@@ -11,12 +11,14 @@ macro_rules! __log { ($($t:tt)*) => {::web_sys::console::log_1(&format!($($t)*).
 pub use crate::__log as log;
 
 #[wasm_bindgen]
+#[derive(Default)]
 pub struct AnimationFrameCallbackWrapper {
     // These are both boxed because we want stable addresses!
     handle: Box<Cell<Option<i32>>>,
     func: Option<Box<dyn FnMut() -> bool + 'static>>,
 }
 
+#[allow(clippy::option_map_unit_fn)]
 impl Drop for AnimationFrameCallbackWrapper {
     fn drop(&mut self) {
         self.handle.get().map(cancel_animation_frame);
@@ -62,7 +64,7 @@ impl AnimationFrameCallbackWrapper /*<'a>*/ {
         self.inner(func)
     }
 
-    #[allow(unused_unsafe)]
+    #[allow(unused_unsafe, clippy::borrowed_box)]
     unsafe fn inner<'s, 'f: 's>(&'s mut self, func: impl FnMut() -> bool + 'f) {
         if let Some(handle) = self.handle.get() {
             cancel_animation_frame(handle)
@@ -108,7 +110,7 @@ impl AnimationFrameCallbackWrapper /*<'a>*/ {
                     // We should remove the handle though, so that when the
                     // wrapper gets dropped it doesn't try to cancel something
                     // that already ran.
-                    drop(h.take())
+                    let _ = h.take();
                 }
             });
 

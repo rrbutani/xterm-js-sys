@@ -40,7 +40,7 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(None);
-    term.open(terminal_div.clone());
+    term.open(terminal_div);
 
     let a = AnimationFrameCallbackWrapper::new().leak();
 
@@ -141,7 +141,7 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
     let term = Terminal::new(Some(
         TerminalOptions::new().with_log_level(LogLevel::Info),
     ));
-    term.open(terminal_div.clone());
+    term.open(terminal_div);
 
     let mut term_temp: XtermJsCrosstermBackend = (&term).into();
     execute!((&mut term_temp), EnterAlternateScreen).unwrap();
@@ -206,8 +206,6 @@ pub fn run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .unwrap();
 
         app.update();
-        log!("hiya!");
-
         true
     });
 
