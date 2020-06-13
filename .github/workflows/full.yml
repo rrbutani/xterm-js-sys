@@ -333,6 +333,12 @@ jobs:
           command: clippy
           args: --all --all-features -- -D warnings
 
+      - name: Format and lint the examples
+        run: |
+          cd examples
+          cargo fmt --all -- --check
+          cargo clippy --all -- -D warnings
+
       - name: Clean up the target folder and cargo's caches
         run: |
           cargo-cache
