@@ -1,6 +1,6 @@
 [package]
 name = "xterm-js-sys"
-version = "4.6.0-alpha0"
+version = "4.6.0-alpha1"
 authors = ["Rahul Butani <r.r.butan.i+crates@gmail.com>"]
 edition = "2018"
 
@@ -36,7 +36,6 @@ maintenance = { status = "actively-developed" }
 js-sys = "0.3.37"
 wasm-bindgen = { version = "0.2.63", features = ["strict-macro"] }
 
-# crossterm = { version = "0.17.5", optional = true }
 
 [dependencies.web-sys]
 version = "0.3.37"
@@ -71,4 +70,3 @@ default-target = "wasm32-unknown-unknown"
 
 [patch.crates-io]
 wasm-bindgen = { git = "https://github.com/rrbutani/wasm-bindgen.git", branch = "patches" } # TODO: switch back once things get merged!
-# crossterm = { git = "https://github.com/rrbutani/crossterm.git", branch = "xtermjs" }  # TODO: switch crossterm to mainline if stuff gets merged

@@ -9,7 +9,7 @@ workspace = ".."
 
 
 [dependencies]
-xterm-js-sys = { version = "4.6.0-alpha0", features = ["crossterm-support"] }
+xterm-js-sys = { version = "4.6.0-alpha1", features = ["crossterm-support"] }
 wasm-bindgen = "0.2.63"
 wasm-bindgen-futures = "0.4.13"
 console_error_panic_hook = "0.1.5"
