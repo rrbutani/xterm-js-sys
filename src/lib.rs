@@ -46,7 +46,8 @@
     allow(unused_extern_crates)
 )))]
 #![doc(
-    html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5"
+    html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5",
+    html_root_url = "https://docs.rs/xterm-js-sys/*", // * → latest version
 )]
 
 // TODO:
@@ -67,6 +68,7 @@ mod readonly_array;
 pub use readonly_array::ReadOnlyArray;
 
 pub mod xterm;
+pub use xterm::Terminal;
 
 #[cfg(feature = "crossterm-support")]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "crossterm-support")))]
