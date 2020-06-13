@@ -7,7 +7,7 @@ members = [
 
 
 [profile.release]
-lto = true
+lto = false # TODO: figure out why this introduces a bounds check on the with-input example when `= true`
 debug = true
 
 

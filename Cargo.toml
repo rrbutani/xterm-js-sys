@@ -17,6 +17,8 @@ license = "MIT"
 
 exclude = [".github"]
 
+autoexamples = false
+
 
 [badges]
 github-actions = { repository = "rrbutani/xterm-js-sys", workflow = "full" }
@@ -47,6 +49,7 @@ features = [
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
+
 
 [profile.release]
 opt-level = 3

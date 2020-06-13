@@ -54,7 +54,7 @@ The [xterm.js documentation](https://xtermjs.org/docs/) is a good reference for 
 
 ## Examples
 
-This repo has a [few examples][examples-src] that show usage of the bindings, usage with the `ext` feature, and one use of the [tui][tui] backend.
+This repo has a [few examples][examples-src] that show usage of the bindings, usage with the `ext` feature, and uses of the [tui][tui] backend.
 
 To build these, enter the folder of the example you wish to run (i.e. [examples/basic][examples-src-basic]) and:
   - install the packages (`npm i` or `yarn install`)
