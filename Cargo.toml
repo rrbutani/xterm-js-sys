@@ -58,8 +58,7 @@ lto = true
 
 [features]
 default = ["ext"]
-crossterm-support = [] # TODO: do the things for this new feature..
-tui-backend = ["crossterm-support"]
+crossterm-support = []
 ext = []
 
 

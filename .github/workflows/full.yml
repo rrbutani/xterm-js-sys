@@ -28,8 +28,8 @@ jobs:
         features:
           - "''"
           # - "ext"
-          # - "tui-backend"
-          - "ext,tui-backend"
+          # - "crossterm-support"
+          - "ext,crossterm-support"
         cargo-cache-ver: ["0.4.3"]
         cargo-sweep-ver: ["0.5.0"]
         rust-latest-ver: ["1.4.0"]

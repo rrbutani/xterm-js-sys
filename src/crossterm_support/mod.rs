@@ -1,4 +1,4 @@
-//! A xterm.js-backed backend for [crossterm].
+//! Supporting types for a xterm.js-backed backend for [crossterm].
 //!
 //! [crossterm]: docs.rs/crossterm
 

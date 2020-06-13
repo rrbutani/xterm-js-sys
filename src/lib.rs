@@ -75,7 +75,3 @@ pub mod crossterm_support;
 #[cfg(feature = "ext")]
 #[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "ext")))]
 pub mod ext;
-
-#[cfg(feature = "tui-backend")]
-#[cfg_attr(all(docs, not(doctest)), doc(cfg(feature = "tui-backend")))]
-pub mod tui;
