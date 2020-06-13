@@ -7,13 +7,10 @@ use crossterm::{
     event::EventStream,
     event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use futures_util::stream::StreamExt;
-use tui::{
-    backend::CrosstermBackend,
-    Terminal as TuiTerminal,
-};
+use tui::{backend::CrosstermBackend, Terminal as TuiTerminal};
 use wasm_bindgen::prelude::*;
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
@@ -95,7 +92,8 @@ pub async fn run() -> Result<(), JsValue> {
                         execute!(
                             (&mut term),
                             LeaveAlternateScreen,
-                            DisableMouseCapture
+                            DisableMouseCapture,
+                            Clear(ClearType::All),
                         )
                         .unwrap();
                         app.should_quit = true;
