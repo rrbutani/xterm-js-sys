@@ -13,6 +13,169 @@ use crate::xterm::{
 // TODO: if we give in and use paste this can become a lot cleaner (we can just
 // fold this into the `wasm_struct!` invocation).
 
+#[doc(hidden)]
+macro_rules! check_invalid {
+    ([catch: as with non-Copy] set($($setter_name:ident)?) ty(Str)) => {
+        check_invalid!{
+            two-is-an-error
+            "Can't use a string field with `as`; you have to use the \
+            `use(_, _)` syntax for non-Copy fields:"
+            $($setter_name)?
+            Str
+        }
+    };
+
+    ([catch: as with non-Copy] set($($setter_name:ident)?) ty($other:tt)) => {};
+
+    (two-is-an-error $msg:literal $one:ident $two:ident) => {
+        core::compile_error!($msg, core::stringify!($one), core::stringify!($two));
+    };
+    (two-is-an-error $msg:literal $one:ident) => { };
+    (two-is-an-error $msg:literal) => { };
+}
+
+// #[doc(hidden)]
+// macro_rules! is_str {
+//     (Str) => { yes };
+//     ($other:tt) => { };
+// }
+
+macro_rules! opt_setter {
+    (// The non-Copy case for Strings
+        nom($nom:path)
+        pub_getter($pub_getter:ident)
+        pub_setter($pub_setter:ident)
+        setter_name($setter_name:ident)
+        setter_name_new()
+        field($field:ident)
+        ty(Str)
+        // str(yes)
+    ) => {
+        calculated_doc! {
+            #[doc = core::concat!(
+                "Builder pattern setter for [`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($field),
+                "`]",
+                " (accessible through ",
+                "[`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($pub_getter),
+                "`] and [`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($pub_setter),
+                "`].",
+            )]
+            >>>
+            pub fn $setter_name<S: std::string::ToString>(
+                mut self,
+                $field: S,
+            ) -> Self {
+                self.$field = Some($field.to_string());
+                self
+            }
+            #[allow(deprecated)]
+            #[must_use]
+        }
+        // pub fn $setter_name<S: std::string::ToString>(
+        //     mut self,
+        //     $field: S,
+        // ) -> Self {
+        //     self.$field = Some($field.to_string());
+        //     self
+        // }
+    };
+
+    (// The non-Copy case for non-Strings
+        nom($nom:path)
+        pub_getter($pub_getter:ident)
+        pub_setter($pub_setter:ident)
+        setter_name($setter_name:ident)
+        setter_name_new()
+        field($field:ident)
+        ty($ty:ty)
+        // str()
+    ) => {
+       calculated_doc! {
+            #[doc = core::concat!(
+                "Builder pattern setter for [`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($field),
+                "`]",
+                " (accessible through ",
+                "[`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($pub_getter),
+                "`] and [`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($pub_setter),
+                "`].",
+            )]
+            >>>
+            // This can't be const because some of these non-Copy fields
+            // that have setters and getters implement `Drop` (i.e.
+            // `String`) which means they can't be used in const setter
+            // functions since we can't drop things with destructors in
+            // const functions.
+            //
+            pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
+                self.$field = Some($field);
+                self
+            }
+            #[allow(deprecated)]
+            #[must_use]
+        }
+        // // This can't be const because some of these non-Copy fields
+        // // that have setters and getters implement `Drop` (i.e.
+        // // `String`) which means they can't be used in const setter
+        // // functions since we can't drop things with destructors in
+        // // const functions.
+        // //
+        // pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
+        //     self.$field = Some($field);
+        //     self
+        // }
+    };
+
+    (// The Copy case
+        nom($nom:path)
+        pub_getter()
+        pub_setter()
+        setter_name()
+        setter_name_new($setter_name:ident)
+        field($field:ident)
+        ty($ty:ty)
+        // str()
+    ) => {
+        calculated_doc! {
+            #[doc = core::concat!(
+                "Builder pattern setter for [`",
+                    core::stringify!($nom),
+                    "::",
+                    core::stringify!($field),
+                "`].",
+            )]
+            >>>
+            pub const fn $setter_name(mut self, $field: $ty) -> Self {
+                self.$field = Some($field);
+                self
+            }
+            #[allow(deprecated)]
+            #[must_use]
+        }
+        // pub const fn $setter_name(mut self, $field: $ty) -> Self {
+        //     self.$field = Some($field);
+        //     self
+        // }
+    };
+}
+
 /// Generates setters and a constructor for a struct made of `Option`al fields.
 macro_rules! opt_struct {
     ($nom:path {
@@ -41,55 +204,139 @@ macro_rules! opt_struct {
             }
 
             $(
-                $(calculated_doc! {
-                    #[doc = core::concat!(
-                        "Builder pattern setter for [`",
-                            core::stringify!($nom),
-                            "::",
-                            core::stringify!($field),
-                        "`].",
-                    )]
-                    >>>
-                    pub const fn $setter_name_new(mut self, $field: $ty) -> Self {
-                        self.$field = Some($field);
-                        self
-                    }
-                    #[allow(deprecated)]
-                    #[must_use]
-                })?
+                check_invalid! {
+                    [catch: as with non-Copy]
+                    set($($setter_name_new)?)
+                    ty($ty)
+                    // str($ty)
+                }
 
-                $(calculated_doc! {
-                    #[doc = core::concat!(
-                        "Builder pattern setter for [`",
-                            core::stringify!($nom),
-                            "::",
-                            core::stringify!($field),
-                        "`] (accessible through ",
-                        "[`",
-                            core::stringify!($nom),
-                            "::",
-                            core::stringify!($pub_getter),
-                        "`] and [`",
-                            core::stringify!($nom),
-                            "::",
-                            core::stringify!($pub_setter),
-                        "`].",
-                    )]
-                    >>>
-                    // This can't be const because some of these non-Copy fields
-                    // that have setters and getters implement `Drop` (i.e.
-                    // `String`) which means they can't be used in const setter
-                    // functions since we can't drop things with destructors in
-                    // const functions.
-                    //
-                    pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
-                        self.$field = Some($field);
-                        self
-                    }
-                    #[allow(deprecated)]
-                    #[must_use]
-                })?
+                opt_setter! {
+                    nom($nom)
+                    pub_getter($($pub_getter)?)
+                    pub_setter($($pub_setter)?)
+                    setter_name($($setter_name)?)
+                    setter_name_new($($setter_name_new)?)
+                    field($field)
+                    ty($ty)
+                    // str(is_str!($ty))
+                }
             )*
+
+            // $(
+            //     check_invalid!{
+            //         [catch: as with non-Copy]
+            //         set($($setter_name_new)?)
+            //         str(is_str!($ty))
+            //     }
+
+            //     calculated_doc! {
+            //         #[doc = core::concat!(
+            //             "Builder pattern setter for [`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($field),
+            //             "`]",
+            //         )]
+            //         $(#[doc = core::concat!(
+            //             " (accessible through ",
+            //             "[`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($pub_getter),
+            //             "`] and [`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($pub_setter),
+            //             "`]",
+            //         )])?
+            //         #[doc = "."]
+            //         >>>
+
+            //         opt_setter! {
+            //             pub_getter($($pub_getter)?)
+            //             pub_setter($($pub_setter)?)
+            //             setter_name($($setter_name)?)
+            //             setter_name_new($($setter_name_new)?)
+            //             field($field)
+            //             ty($ty)
+            //             str(is_str!($ty))
+            //         }
+
+            //         #[allow(deprecated)]
+            //         #[must_use]
+            //     }
+            // )*
+
+            // $(
+            //     $(calculated_doc! {
+            //         #[doc = core::concat!(
+            //             "Builder pattern setter for [`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($field),
+            //             "`].",
+            //         )]
+            //         >>>
+            //         pub const fn $setter_name_new(mut self, $field: $ty) -> Self {
+            //             self.$field = Some($field);
+            //             self
+            //         }
+            //         #[allow(deprecated)]
+            //         #[must_use]
+            //     })?
+
+            //     check_invalid!{
+            //         [catch: as with non-Copy]
+            //         set($($setter_name_new)?)
+            //         str($($field_str)?)
+            //     }
+
+            //     $(calculated_doc! {
+            //         #[doc = core::concat!(
+            //             "Builder pattern setter for [`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($field),
+            //             "`] (accessible through ",
+            //             "[`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($pub_getter),
+            //             "`] and [`",
+            //                 core::stringify!($nom),
+            //                 "::",
+            //                 core::stringify!($pub_setter),
+            //             "`].",
+            //         )]
+            //         >>>
+            //         // This can't be const because some of these non-Copy fields
+            //         // that have setters and getters implement `Drop` (i.e.
+            //         // `String`) which means they can't be used in const setter
+            //         // functions since we can't drop things with destructors in
+            //         // const functions.
+            //         //
+            //         $(
+            //             pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
+            //                 self.$field = Some($field);
+            //                 self
+            //             }
+            //         )?
+
+            //         // For strings:
+            //         $(
+            //             pub fn $setter_name<S: std::string::ToString>(
+            //                 mut self,
+            //                 $field: S,
+            //             ) -> Self {
+            //                 self.$field = Some($field.to_string());
+            //                 self
+            //             }
+            //         )?
+            //         #[allow(deprecated)]
+            //         #[must_use]
+            //     })?
+            // )*
         }
     };
 }
@@ -102,7 +349,7 @@ opt_struct! {
         as with_allow_transparency
             => allow_transparency: bool,
 
-        use(bell_sound, set_bell_sound) as with_bell_sound
+        use (bell_sound, set_bell_sound) as with_bell_sound
             => bell_sound: Str,
 
         as with_bell_style
@@ -135,7 +382,7 @@ opt_struct! {
         as with_fast_scroll_sensitivity
             => fast_scroll_sensitivity: f32,
 
-        use(font_family, set_font_family) as with_font_family
+        use (font_family, set_font_family) as with_font_family
             => font_family: Str,
 
         as with_font_size
@@ -189,16 +436,16 @@ opt_struct! {
         as with_tab_stop_width
             => tab_stop_width: u16,
 
-        use(theme, set_theme) as with_theme
+        use (theme, set_theme) as with_theme
             => theme: Theme,
 
-        use(window_options, set_window_options) as with_window_options
+        use (window_options, set_window_options) as with_window_options
             => window_options: WindowOptions,
 
         as with_windows_mode
             => windows_mode: bool,
 
-        use(word_separator, set_word_separator) as with_word_separator
+        use (word_separator, set_word_separator) as with_word_separator
             => word_separator: Str,
     }
 }
