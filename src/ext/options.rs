@@ -7,7 +7,7 @@
 use super::calculated_doc;
 use crate::xterm::{
     BellStyle, CursorStyle, FastScrollModifier, FontWeight, LogLevel,
-    RendererType, Str, TerminalOptions, Theme, WindowOptions,
+    RendererType, TerminalOptions, Theme, WindowOptions,
 };
 
 // TODO: if we give in and use paste this can become a lot cleaner (we can just
@@ -28,17 +28,11 @@ macro_rules! check_invalid {
     ([catch: as with non-Copy] set($($setter_name:ident)?) ty($other:tt)) => {};
 
     (two-is-an-error $msg:literal $one:ident $two:ident) => {
-        core::compile_error!($msg, core::stringify!($one), core::stringify!($two));
+        core::compile_error!($msg);
     };
     (two-is-an-error $msg:literal $one:ident) => { };
     (two-is-an-error $msg:literal) => { };
 }
-
-// #[doc(hidden)]
-// macro_rules! is_str {
-//     (Str) => { yes };
-//     ($other:tt) => { };
-// }
 
 macro_rules! opt_setter {
     (// The non-Copy case for Strings
@@ -49,7 +43,6 @@ macro_rules! opt_setter {
         setter_name_new()
         field($field:ident)
         ty(Str)
-        // str(yes)
     ) => {
         calculated_doc! {
             #[doc = core::concat!(
@@ -70,7 +63,7 @@ macro_rules! opt_setter {
                 "`].",
             )]
             >>>
-            pub fn $setter_name<S: std::string::ToString>(
+            pub fn $setter_name<S: ToString>(
                 mut self,
                 $field: S,
             ) -> Self {
@@ -80,13 +73,6 @@ macro_rules! opt_setter {
             #[allow(deprecated)]
             #[must_use]
         }
-        // pub fn $setter_name<S: std::string::ToString>(
-        //     mut self,
-        //     $field: S,
-        // ) -> Self {
-        //     self.$field = Some($field.to_string());
-        //     self
-        // }
     };
 
     (// The non-Copy case for non-Strings
@@ -97,7 +83,6 @@ macro_rules! opt_setter {
         setter_name_new()
         field($field:ident)
         ty($ty:ty)
-        // str()
     ) => {
        calculated_doc! {
             #[doc = core::concat!(
@@ -131,16 +116,6 @@ macro_rules! opt_setter {
             #[allow(deprecated)]
             #[must_use]
         }
-        // // This can't be const because some of these non-Copy fields
-        // // that have setters and getters implement `Drop` (i.e.
-        // // `String`) which means they can't be used in const setter
-        // // functions since we can't drop things with destructors in
-        // // const functions.
-        // //
-        // pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
-        //     self.$field = Some($field);
-        //     self
-        // }
     };
 
     (// The Copy case
@@ -169,10 +144,6 @@ macro_rules! opt_setter {
             #[allow(deprecated)]
             #[must_use]
         }
-        // pub const fn $setter_name(mut self, $field: $ty) -> Self {
-        //     self.$field = Some($field);
-        //     self
-        // }
     };
 }
 
@@ -182,7 +153,7 @@ macro_rules! opt_struct {
         $(
             $(use($pub_getter:ident, $pub_setter:ident) as $setter_name:ident)?
             $(as $setter_name_new:ident)?
-                => $field:ident: $ty:ty
+                => $field:ident: $ty:tt
         ),*
         $(,)?
     }) => {
@@ -208,7 +179,6 @@ macro_rules! opt_struct {
                     [catch: as with non-Copy]
                     set($($setter_name_new)?)
                     ty($ty)
-                    // str($ty)
                 }
 
                 opt_setter! {
@@ -219,124 +189,8 @@ macro_rules! opt_struct {
                     setter_name_new($($setter_name_new)?)
                     field($field)
                     ty($ty)
-                    // str(is_str!($ty))
                 }
             )*
-
-            // $(
-            //     check_invalid!{
-            //         [catch: as with non-Copy]
-            //         set($($setter_name_new)?)
-            //         str(is_str!($ty))
-            //     }
-
-            //     calculated_doc! {
-            //         #[doc = core::concat!(
-            //             "Builder pattern setter for [`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($field),
-            //             "`]",
-            //         )]
-            //         $(#[doc = core::concat!(
-            //             " (accessible through ",
-            //             "[`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($pub_getter),
-            //             "`] and [`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($pub_setter),
-            //             "`]",
-            //         )])?
-            //         #[doc = "."]
-            //         >>>
-
-            //         opt_setter! {
-            //             pub_getter($($pub_getter)?)
-            //             pub_setter($($pub_setter)?)
-            //             setter_name($($setter_name)?)
-            //             setter_name_new($($setter_name_new)?)
-            //             field($field)
-            //             ty($ty)
-            //             str(is_str!($ty))
-            //         }
-
-            //         #[allow(deprecated)]
-            //         #[must_use]
-            //     }
-            // )*
-
-            // $(
-            //     $(calculated_doc! {
-            //         #[doc = core::concat!(
-            //             "Builder pattern setter for [`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($field),
-            //             "`].",
-            //         )]
-            //         >>>
-            //         pub const fn $setter_name_new(mut self, $field: $ty) -> Self {
-            //             self.$field = Some($field);
-            //             self
-            //         }
-            //         #[allow(deprecated)]
-            //         #[must_use]
-            //     })?
-
-            //     check_invalid!{
-            //         [catch: as with non-Copy]
-            //         set($($setter_name_new)?)
-            //         str($($field_str)?)
-            //     }
-
-            //     $(calculated_doc! {
-            //         #[doc = core::concat!(
-            //             "Builder pattern setter for [`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($field),
-            //             "`] (accessible through ",
-            //             "[`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($pub_getter),
-            //             "`] and [`",
-            //                 core::stringify!($nom),
-            //                 "::",
-            //                 core::stringify!($pub_setter),
-            //             "`].",
-            //         )]
-            //         >>>
-            //         // This can't be const because some of these non-Copy fields
-            //         // that have setters and getters implement `Drop` (i.e.
-            //         // `String`) which means they can't be used in const setter
-            //         // functions since we can't drop things with destructors in
-            //         // const functions.
-            //         //
-            //         $(
-            //             pub /*const*/ fn $setter_name(mut self, $field: $ty) -> Self {
-            //                 self.$field = Some($field);
-            //                 self
-            //             }
-            //         )?
-
-            //         // For strings:
-            //         $(
-            //             pub fn $setter_name<S: std::string::ToString>(
-            //                 mut self,
-            //                 $field: S,
-            //             ) -> Self {
-            //                 self.$field = Some($field.to_string());
-            //                 self
-            //             }
-            //         )?
-            //         #[allow(deprecated)]
-            //         #[must_use]
-            //     })?
-            // )*
         }
     };
 }
