@@ -92,6 +92,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./deploy
           publish_branch: gh-pages
+          force_orphan: true
           tag_name: ${{ steps.prepare_tag.outputs.deploy_tag_name }}
           tag_message: 'Deployment ${{ steps.prepare_tag.outputs.tag_name }}'
           user_name: 'github-actions[bot]'
