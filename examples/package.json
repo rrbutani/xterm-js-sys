@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "//": "switch back when xtermjs/xterm.js#2409 gets resolved: 'xterm': '^4.7.0'",
-    "xterm": "https://pkg.githubusercontent.com/272294459/576f5500-ae67-11ea-99ba-6a68eeed3a23?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20200614%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20200614T225631Z&X-Amz-Expires=300&X-Amz-Signature=3e453570a46130497bad93ca6dcc282b24c6fcc5739f845384c12ddcb193cab7&X-Amz-SignedHeaders=host&actor_id=0&repo_id=0&response-content-disposition=filename%3Dxterm-4.7.0-npm.tgz&response-content-type=application%2Foctet-stream",
+    "xterm": "https://github.com/rrbutani/xterm.js/releases/download/4.7.0-patched/xterm-4.7.0-npm.tar.gz",
     "xterm-addon-fit": "^0.3.0",
     "xterm-addon-web-links": "^0.3.0"
   },
