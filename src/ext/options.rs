@@ -84,7 +84,7 @@ macro_rules! opt_setter {
         field($field:ident)
         ty($ty:ty)
     ) => {
-       calculated_doc! {
+        calculated_doc! {
             #[doc = core::concat!(
                 "Builder pattern setter for [`",
                     core::stringify!($nom),

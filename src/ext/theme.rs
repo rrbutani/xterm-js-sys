@@ -5,19 +5,24 @@
 use crate::xterm::Theme;
 
 macro_rules! c {
-    ($hex:literal) => {
+    ($hex:literal) => {{
+        // Ideally we'd be able to use const functions for all this, but alas;
+        // things are not there yet.
+        let _type_assert: u32 = $hex;
+
         format!("#{:6X}", $hex)
-    };
+    }};
 }
 
 impl Theme {
-
     /// An xterm.js [`Theme`] based on the [Nord color palette][nord].
     ///
     /// This is loosely based on the [iTerm 2 Nord theme][iterm2].
     ///
     /// [nord]: https://www.nordtheme.com/
     /// [iterm2]: https://github.com/arcticicestudio/nord-iterm2
+    #[allow(clippy::unreadable_literal)]
+    #[rustfmt::skip]
     pub fn nord() -> Self {
         Self::new()
             // ? (0m)
