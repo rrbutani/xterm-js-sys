@@ -362,7 +362,7 @@ macro_rules! wasm_struct {
         )?
         impl $nom {
             #[doc = "Constructor."]
-            #[allow(deprecated)]
+            #[allow(deprecated, clippy::too_many_arguments)]
             #[must_use]
             pub const fn new(
                 $(
@@ -423,6 +423,55 @@ macro_rules! wasm_struct {
 }
 
 wasm_struct! {
+#[wasm_bindgen(inspectable)]
+#[derive(Debug, Clone)]
+/// Data type to register a `CSI`, `DCS`, or `ESC` callback in the parser in the
+/// form:
+///   - ESC I..I F
+///   - CSI Prefix P..P I..I F
+///   - DCS Prefix P..P I..I F data_bytes ST
+///
+/// with these rules/restrictions:
+///   - prefix can only be used with `CSI` and `DCS`
+///   - only one leading prefix byte is recognized by the parser before any
+///     other parameter bytes (P..P)
+///   - intermediate bytes are recognized up to 2
+///
+/// For custom sequences make sure to read ECMA-48 and the resources at
+/// vt100.net to not clash with existing sequences or reserved address space.
+/// General recommendations:
+///   - use private address space (see ECMA-48)
+///   - use max one intermediate byte (technically not limited by the spec,
+///     in practice there are no sequences with more than one intermediate byte,
+///     thus parsers might get confused with more intermediates)
+///   - test against other common emulators to check whether they escape/ignore
+///     the sequence correctly
+///
+/// Notes:
+///   - OSC command registration is handled differently (see `addOscHandler`).
+///   - APC, PM or SOS is currently not supported.
+///
+/// (This is really an interface, but we just go and define our own type that
+/// satisfies the interface.)
+pub struct FunctionIdentifier {
+    /// Optional prefix byte; must be in range `\x3c` .. `\x3f`.
+    /// Usable in `CSI` and `DCS`.
+    |clone(set = set_prefix, js_name = prefix)
+    prefix: Option<Str>,
+
+    /// Optional intermediate bytes; must be in range `\x20` .. `\x2f`.
+    /// Usable in `CSI`, `DCS`, and `ESC`.
+    |clone(set = set_intermediates, js_name = intermediates)
+    intermediates: Option<Str>,
+
+    /// Final byte; must be in range `\x40` .. `\x7e` for `CSI` and `DCS`,
+    /// `\x30` .. `\x7E` for `ESC`.
+    |clone(set = set_final_byte, js_name = final)
+    final_byte: Str,
+}}
+
+wasm_struct! {
+#[constructor::skip = "all fields are pub, `dyn Trait` w/const fns → trouble"]
 #[wasm_bindgen(inspectable)]
 #[derive(Debug, Clone)]
 /// An object containing options for a link matcher.
@@ -1399,6 +1448,31 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
+    /// The set of localizable strings.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type LocalizableStrings;
+
+    // The following two 'fields' aren't marked `readonly` in the TypeScript
+    // bindings but since items following this interface are only ever produced
+    // by the API and never _accepted_ (i.e. never the argument of a function),
+    // we only make getter bindings here.
+
+    /// The aria label for the underlying input textarea for the terminal.
+    #[wasm_bindgen(structural, method, getter = promptLabel)]
+    pub fn prompt_label(this: &LocalizableStrings) -> Str;
+
+    /// Announcement for when line reading is suppressed due to too many lines
+    /// being printed to the terminal when `screen_reader_mode` is enabled.
+    #[wasm_bindgen(structural, method, getter = tooMuchOutput)]
+    pub fn too_much_outut(this: &LocalizableStrings) -> Str;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
     /// Represents a specific line in the terminal that is tracked when
     /// scrollback is trimmed and lines are added or removed. This is a single
     /// line that may be part of a larger wrapped line.
@@ -1431,6 +1505,128 @@ extern "C" {
 
 #[wasm_bindgen(module = "xterm")]
 extern "C" {
+    /// Allows hooking into the parser for custom handling of escape sequences.
+    ///
+    /// (This is a [duck-typed interface]).
+    ///
+    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
+    #[derive(Debug, Clone)]
+    pub type Parser;
+
+    /// Adds a handler for `CSI` escape sequences.
+    ///
+    /// Takes:
+    ///   - `id`:        Specifies the function identifier under which the
+    ///                  callback gets registered; e.g. `{ final: 'm' }` for
+    ///                  `SGR`.
+    ///   - `callback`:  The function to handle the sequence. The callback is
+    ///                  called with the numerical params. If the sequence has
+    ///                  subparams the array will contain subarrays with their
+    ///                  numerical values. Return `true` if the sequence was
+    ///                  handled; `false` if we should try a previous handler
+    ///                  (set by [`register_csi_handler`]). The most recently
+    ///                  added handler is tried first.
+    ///
+    /// Returns an [`Disposable`] you can call to remove this handler.
+    ///
+    /// [`register_csi_handler`]: Parser::register_csi_handler
+    #[wasm_bindgen(structural, method, js_name = registerCsiHandler)]
+    fn register_csi_handler(
+        this: &Parser,
+        id: FunctionIdentifier,
+        // This can actually be given either a `ReadOnlyArray<u32>` or a
+        // `ReadOnlyArray<ReadOnlyArray<u32>>`. Since we have no good way to
+        // represent this we just call it a `ReadOnlyArray<JsValue>`.
+        callback: &Closure<dyn FnMut(ReadOnlyArray<JsValue>) -> bool>,
+    ) -> Disposable;
+
+    /// Adds a handler for `DCS` escape sequences.
+    ///
+    /// Takes:
+    ///   - `id`:       Specifies the function identifier under which the
+    ///                 callback gets registered; e.g. `{ intermediates: '$',
+    ///                 final: 'q' }` for `DECRQSS`.
+    ///   - `callback`: The function to handle the sequence. Note that the
+    ///                 function will only be called once if the sequence
+    ///                 finished successfully. There is currently no way to
+    ///                 intercept smaller data chunks; data chunks will be
+    ///                 stored up until the sequence is finished. Since `DCS`
+    ///                 sequences are not limited by the amount of data this
+    ///                 might impose a problem for big payloads. Currently
+    ///                 xterm.js limits the `DCS` payload to 10 MB which should
+    ///                 give enough room for most use cases. The function gets
+    ///                 the payload and numerical parameters as arguments.
+    ///                 Return `true` if the sequence was handled; `false` if we
+    ///                 should try a previous handler (set by
+    ///                 [`register_dcs_handler`]). The most recently added
+    ///                 [handler is tried first.
+    ///
+    /// Returns an [`Disposable`] you can call to remove this handler.
+    ///
+    /// [`register_dcs_handler`]: Parser::register_dcs_handler
+    #[wasm_bindgen(structural, method, js_name = registerDcsHandler)]
+    fn register_dcs_handler(
+        this: &Parser,
+        id: FunctionIdentifier,
+        // Like `register_csi_handler`'s callback, this can either be given a
+        // `ReadOnlyArray<u32>` or a `ReadOnlyArray<ReadOnlyArray<u32>>` for the
+        // `param` argument. Since we have no good way to represent this we just
+        // call it a `ReadOnlyArray<Array`.
+        callback: &Closure<dyn FnMut(Str, ReadOnlyArray<JsValue>) -> bool>,
+    ) -> Disposable;
+
+    /// Adds a handler for `ESC` escape sequences.
+    ///
+    /// Takes:
+    ///   - `id`:      Specifies the function identifier under which the
+    ///                callback gets registered; e.g. `{ intermediates: '%',
+    ///                final: 'G' }` for default charset selection.
+    ///   - `handler`: The function to handle the sequence. Return `true` if
+    ///                the sequence was handled; `false` if we should try a
+    ///                previous handler (set by [`register_esc_handler`]). The
+    ///                most recently added handler is tried first.
+    ///
+    /// Returns an [`Disposable`] you can call to remove this handler.
+    ///
+    /// [`register_esc_handler`]: Parser::register_esc_handler
+    #[wasm_bindgen(structural, method, js_name = registerEscHandler)]
+    fn register_esc_handler(
+        this: &Parser,
+        id: FunctionIdentifier,
+        handler: &Closure<dyn FnMut() -> bool>,
+    ) -> Disposable;
+
+    /// Adds a handler for `OSC` escape sequences.
+    ///
+    /// Takes:
+    ///   - `ident`:    The number (first parameter) of the sequence.
+    ///   - `callback`: The function to handle the sequence. Note that the
+    ///                 function will only be called once if the sequence
+    ///                 finished successfully. There is currently no way to
+    ///                 intercept smaller data chunks; data chunks will be
+    ///                 stored up until the sequence is finished. Since `OSC`
+    ///                 sequences are not limited by the amount of data this
+    ///                 might impose a problem for big payloads. Currently
+    ///                 xterm.js limits `OSC` payloads to 10 MB which should
+    ///                 give enough room for most use cases. The callback is
+    ///                 called with `OSC` data string. Return `true` if the
+    ///                 sequence was handled; `false` if we should try a
+    ///                 previous handler (set by [`register_osc_handler`]). The
+    ///                 most recently added handler is tried first.
+    ///
+    /// Returns an [`Disposable`] you can call to remove this handler.
+    ///
+    /// [`register_osc_handler`]: Parser::register_osc_handler
+    #[wasm_bindgen(structural, method, js_name = registerOscHandler)]
+    fn register_osc_handler(
+        this: &Parser,
+        ident: u32,
+        callback: &Closure<dyn FnMut(Str) -> bool>,
+    ) -> Disposable;
+}
+
+#[wasm_bindgen(module = "xterm")]
+extern "C" {
     /// An object representing a selection within the terminal.
     ///
     /// (This is a [duck-typed interface]).
@@ -1459,31 +1655,6 @@ extern "C" {
     /// The end row of the selection.
     #[wasm_bindgen(structural, method, getter = endRow)]
     pub fn end_row(this: &SelectionPosition) -> u32;
-}
-
-#[wasm_bindgen(module = "xterm")]
-extern "C" {
-    /// The set of localizable strings.
-    ///
-    /// (This is a [duck-typed interface]).
-    ///
-    /// [duck-typed interface]: https://rustwasm.github.io/docs/wasm-bindgen/reference/working-with-duck-typed-interfaces.html
-    #[derive(Debug, Clone)]
-    pub type LocalizableStrings;
-
-    // The following two 'fields' aren't marked `readonly` in the TypeScript
-    // bindings but since items following this interface are only ever produced
-    // by the API and never _accepted_ (i.e. never the argument of a function),
-    // we only make getter bindings here.
-
-    /// The aria label for the underlying input textarea for the terminal.
-    #[wasm_bindgen(structural, method, getter = promptLabel)]
-    pub fn prompt_label(this: &LocalizableStrings) -> Str;
-
-    /// Announcement for when line reading is suppressed due to too many lines
-    /// being printed to the terminal when `screen_reader_mode` is enabled.
-    #[wasm_bindgen(structural, method, getter = tooMuchOutput)]
-    pub fn too_much_outut(this: &LocalizableStrings) -> Str;
 }
 
 #[wasm_bindgen(module = "xterm")]
@@ -1854,6 +2025,11 @@ extern "C" {
         Defined in xterm.d.ts:589
         (EXPERIMENTAL) Get the parser interface to register custom escape sequence handlers.
     */
+
+    /// **[EXPERIMENTAL]** Get the parser interface to register custom escape
+    /// sequence handlers.
+    #[wasm_bindgen(method, getter = parser)]
+    pub fn parser(this: &Terminal) -> Parser;
 
     /// The number of rows in the terminal’s viewport. Use
     /// [`TerminalOptions.rows`] to set this in the [constructor] and
