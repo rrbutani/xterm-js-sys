@@ -205,7 +205,7 @@ jobs:
           --features ${{ matrix.features }}
           --no-fail-fast
 
-      # Run the non-wasm tests:
+      # Run wasm tests only on 'wasm32-unknown-unknown'
       - name: Run cargo test release (wasm)
         if: matrix.target == 'wasm32-unknown-unknown'
         run: >-
