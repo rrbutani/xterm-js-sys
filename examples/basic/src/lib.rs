@@ -32,7 +32,7 @@ pub fn run() -> Result<(), JsValue> {
         .expect("should have a terminal div");
 
     let term_orig = Terminal::new(Some(
-        TerminalOptions::new()
+        TerminalOptions::default()
             .with_log_level(LogLevel::Debug)
             .with_theme(Theme::nord())
             .with_font_family("'Fira Mono', monospace")

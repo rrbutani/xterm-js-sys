@@ -165,7 +165,7 @@ macro_rules! opt_struct {
                     "`].",
                 )]
                 >>>
-                pub const fn new() -> Self {
+                pub const fn default() -> Self {
                     Self {$(
                         $field: None,
                     )*}

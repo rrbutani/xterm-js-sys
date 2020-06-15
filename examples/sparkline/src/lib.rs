@@ -40,7 +40,7 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(Some(
-        TerminalOptions::new()
+        TerminalOptions::default()
             .with_log_level(LogLevel::Debug)
             .with_theme(Theme::nord())
             .with_font_family("'Fira Mono', monospace")

@@ -314,6 +314,7 @@ pub enum WideCharacterWidth {
 
 macro_rules! wasm_struct {
     (
+        $(#[constructor::skip = $const_skip_reason:literal])?
         #[wasm_bindgen $(( $($wb_opts:tt)* ))? ]
         $(#[$metas:meta])*
         pub struct $nom:ident {
@@ -353,6 +354,29 @@ macro_rules! wasm_struct {
                 )?
                 ,
             )+
+        }
+
+        $(
+            #[cfg(__never__)]
+            #[doc = $const_skip_reason]
+        )?
+        impl $nom {
+            #[doc = "Constructor."]
+            #[allow(deprecated)]
+            #[must_use]
+            pub const fn new(
+                $(
+                    $($field: $field_ty,)?
+                    $($priv_field: $priv_field_ty,)?
+                )+
+            ) -> Self {
+                Self {
+                    $(
+                        $($field,)?
+                        $($priv_field,)?
+                    )+
+                }
+            }
         }
 
         #[wasm_bindgen]

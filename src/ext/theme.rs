@@ -25,7 +25,7 @@ impl Theme {
     #[rustfmt::skip]
     #[must_use]
     pub fn nord() -> Self {
-        Self::new()
+        Self::default()
             // ? (0m)
             // ? (1m)
 
