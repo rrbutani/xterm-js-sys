@@ -20,7 +20,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::Crypto;
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
-    xterm::{LogLevel, Terminal, TerminalOptions},
+    xterm::{LogLevel, Terminal, TerminalOptions, Theme},
 };
 
 use std::io::Write;
@@ -39,7 +39,13 @@ pub fn alt_run() -> Result<Option<AnimationFrameCallbackWrapper>, JsValue> {
         .get_element_by_id("terminal")
         .expect("should have a terminal div");
 
-    let term = Terminal::new(None);
+    let term = Terminal::new(Some(
+        TerminalOptions::new()
+            .with_log_level(LogLevel::Debug)
+            .with_theme(Theme::nord())
+            .with_font_family("'Fira Mono', monospace")
+            .with_font_size(11.0)
+    ));
     term.open(terminal_div);
 
     let a = AnimationFrameCallbackWrapper::new().leak();

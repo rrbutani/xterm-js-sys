@@ -14,7 +14,7 @@ use tui::{backend::CrosstermBackend, Terminal as TuiTerminal};
 use wasm_bindgen::prelude::*;
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
-    xterm::{LogLevel, Terminal, TerminalOptions},
+    xterm::{LogLevel, /*RendererType, */Terminal, TerminalOptions, Theme},
 };
 
 use std::{
@@ -41,7 +41,12 @@ pub async fn run() -> Result<(), JsValue> {
         .expect("should have a terminal div");
 
     let term = Terminal::new(Some(
-        TerminalOptions::new().with_log_level(LogLevel::Info),
+        TerminalOptions::new()
+            .with_log_level(LogLevel::Debug)
+            .with_theme(Theme::nord())
+            .with_font_family("'Fira Mono', monospace")
+            .with_font_size(11.0)
+            // .with_renderer_type(RendererType::Dom)
     ));
     term.open(terminal_div.clone());
 
