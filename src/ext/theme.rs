@@ -23,6 +23,7 @@ impl Theme {
     /// [iterm2]: https://github.com/arcticicestudio/nord-iterm2
     #[allow(clippy::unreadable_literal)]
     #[rustfmt::skip]
+    #[must_use]
     pub fn nord() -> Self {
         Self::new()
             // ? (0m)

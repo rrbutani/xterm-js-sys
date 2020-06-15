@@ -36,7 +36,7 @@ pub fn run() -> Result<(), JsValue> {
             .with_log_level(LogLevel::Debug)
             .with_theme(Theme::nord())
             .with_font_family("'Fira Mono', monospace")
-            .with_font_size(11.0)
+            .with_font_size(11.0),
     ));
 
     term_orig.open(terminal_div);
