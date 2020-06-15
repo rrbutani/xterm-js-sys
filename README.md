@@ -4,12 +4,17 @@
 
 Rust bindings for [xterm.js][xterm].
 
+[![`xterm-js-sys` `with-input` demo][with-input-gif]][with-input-demo]
+
+[with-input-gif]: https://raw.githubusercontent.com/wiki/rrbutani/xterm-js-sys/assets/xterm-js-sys-demo-loop.gif
+[with-input-demo]: https://rrbutani.github.io/xterm-js-sys/examples/with-input/index.html
+
 ## Features
 
 Currently this covers most of the [xterm.js API](https://github.com/xtermjs/xterm.js/blob/master/typings/xterm.d.ts).
 
 This crate has two features:
-   - `ext`: Adds some nicer, more rust-y functions on top of the core bindings; all the functions are in [this module](src/ext).
+   - `ext`: Adds some nicer, more rust-y functions on top of the core bindings; all the functions are in [this module][ext].
    - `crossterm-support`: Provides a wrapper type that let's [`crossterm`][crossterm] use xterm.js as a backend (located [here][crossterm-support]). This enables xterm.js to be used with, for example,the [tui][tui] crate. Usually you won't have to enable this feature yourself; you _should_ be able to just use [`crossterm`][crossterm] and pass it a [`Terminal`].
 
 This crate also does support the infrastructure [xterm.js][xterm] has for [addons](https://github.com/xtermjs/xterm.js#addons). It also lets you [define your own addons in Rust][addon-ext-docs], if you'd like. Currently only the [xterm-addon-fit](https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-fit) package has [Rust bindings][fit-addon]. If you do end up making bindings for an [xterm.js][xterm] addon (or your own addon in Rust), feel free to send in a PR to update this list!
@@ -85,6 +90,7 @@ PRs are (very) welcome!
 [crates]: https://crates.io/crates/xterm-js-sys
 [docs]: https://rrbutani.github.io/xterm-js-sys/docs/xterm_js_sys
 
+[ext]: https://github.com/rrbutani/xterm-js-sys/tree/main/src/ext/
 [crossterm-support]: https://github.com/rrbutani/xterm-js-sys/tree/main/src/crossterm_support/
 
 [addon-ext-docs]: https://rrbutani.github.io/xterm-js-sys/docs/xterm_js_sys/ext/addon/trait.XtermAddon.html

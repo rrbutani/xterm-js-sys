@@ -5,7 +5,7 @@
 // ^ is there so it looks like we have at some crate level docs when building
 // without `--cfg docs` (i.e. on stable, when not building docs).
 
-//! ## A Demo
+//! ## A Live Demo
 //! <iframe
 //!     title="Terminal"
 //!     src="https://rrbutani.github.io/xterm-js-sys/examples/with-input/index.html"
