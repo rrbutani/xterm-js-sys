@@ -655,5 +655,8 @@ pub use marker::*;
 pub mod options;
 pub use options::*;
 
+pub mod theme;
+pub use theme::*;
+
 pub mod unicode;
 pub use unicode::*;
