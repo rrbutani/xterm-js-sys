@@ -22,7 +22,7 @@ autoexamples = false
 
 [badges]
 github-actions = { repository = "rrbutani/xterm-js-sys", workflow = "full" }
-# [TODO] # codecov = { repository = "rrbutani/xterm-js-sys", branch = "master", service = "github" }
+# [TODO] # codecov = { repository = "rrbutani/xterm-js-sys", branch = "main", service = "github" }
 
 is-it-maintained-issue-resolution = { repository = "rrbutani/xterm-js-sys" }
 is-it-maintained-open-issues = { repository = "rrbutani/xterm-js-sys" }

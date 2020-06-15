@@ -1,8 +1,8 @@
 on:
   push:
-    # Publish docs and examples for the master branch only
+    # Publish docs and examples for the main branch only
     branches:
-      - master
+      - main
 
 name: deploy
 
