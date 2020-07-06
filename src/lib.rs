@@ -44,7 +44,8 @@
     unused_import_braces,
     unused_qualifications,
     unused_results,
-    rust_2018_idioms
+    rust_2018_idioms,
+    variant_size_differences,
 )]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
