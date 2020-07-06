@@ -36,6 +36,7 @@ maintenance = { status = "actively-developed" }
 js-sys = "0.3.37"
 wasm-bindgen = { version = "0.2.63", features = ["strict-macro"] }
 
+log = { version = "0.4", optional = true }
 
 [dependencies.web-sys]
 version = "0.3.37"
@@ -45,6 +46,7 @@ features = [
     "KeyboardEvent",
     "MouseEvent",
 ]
+
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
@@ -58,7 +60,7 @@ lto = true
 [features]
 default = ["ext"]
 crossterm-support = []
-ext = []
+ext = ["log"]
 
 
 [package.metadata.docs.rs]

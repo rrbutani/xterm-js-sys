@@ -649,6 +649,9 @@ pub use disposable::*;
 pub mod event;
 pub use event::*;
 
+pub mod log_level;
+pub use log_level::*;
+
 pub mod marker;
 pub use marker::*;
 
