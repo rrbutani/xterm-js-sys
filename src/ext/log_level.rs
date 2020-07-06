@@ -15,6 +15,16 @@ impl From<Level> for LogLevel {
     }
 }
 
+impl From<Option<Level>> for LogLevel {
+    fn from(level: Option<Level>) -> LogLevel {
+        if let Some(l) = level {
+            l.into()
+        } else {
+            LogLevel::Off
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 #[allow(clippy::module_name_repetitions)]
 /// Type indicating that a [`LogLevel`] to [`Level`] conversion failed because
@@ -24,6 +34,7 @@ pub struct LogLevelIsOff;
 impl std::convert::TryFrom<LogLevel> for Level {
     type Error = LogLevelIsOff;
 
+    #[allow(clippy::match_wildcard_for_single_variants)]
     fn try_from(level: LogLevel) -> Result<Level, LogLevelIsOff> {
         match level {
             LogLevel::Debug => Ok(Level::Debug),
