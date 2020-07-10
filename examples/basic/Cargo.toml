@@ -43,5 +43,5 @@ wasm-opt = false #["-O4"]
 
 [package.metadata.wasm-pack.profile.release.wasm-bindgen]
 debug-js-glue = false
-demangle-name-section = true
-dwarf-debug-info = true
+demangle-name-section = false
+dwarf-debug-info = false
