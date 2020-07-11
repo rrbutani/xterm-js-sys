@@ -57,7 +57,7 @@
 )))]
 #![doc(
     html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5",
-    html_root_url = "https://docs.rs/xterm-js-sys/*", // * → latest version
+    html_root_url = "https://docs.rs/xterm-js-sys/4.6.0", // remember to bump!
 )]
 
 // TODO:

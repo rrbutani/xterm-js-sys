@@ -33,11 +33,28 @@ jobs:
             exit 2
           fi
 
-      - name: Check that this version has a changelog entry
+      - name: Check that this version has a changelog entry and the right root_url
+        id: ver
         run: |
           T_VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          echo "::set-output name=version::${T_VER}"
+          echo "::set-output name=tag::$(echo "${T_VER}" | sed -e 's/\.//g')"
 
           grep -q "# ${T_VER}" CHANGELOG.md || exit 3
+
+          # We want to have the exact version of this crate in the root URL so
+          # that newer releases don't cause users of older versions of this
+          # crate to have their links go to the wrong place.
+          #
+          # i.e. if we were to use docs.rs/crate-name/* as `html_root_url` and
+          # had a 0.1.0 release and a 0.2.0 release, users of the 0.1.0 release
+          # would have their links to types in our crate be prefixed with
+          # `docs.rs/crate-name/*` which will send them to the 0.2.0 docs.
+          grep -q "html_root_url = \"https://docs.rs/.*/${T_VER}\"" src/lib.rs || exit 4
+
+      - name: Publish
+        run: |
+          cargo publish --token ${{ secrets.CARGO_TOKEN }}
 
       - name: Create Release
         uses: actions/create-release@latest
@@ -45,12 +62,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: v${{ steps.ver.outputs.version }}
           body: |
-            Check the [changelog](https://github.com/rrbutani/xterm-js-sys/tree/${{ github.ref }}/CHANGELOG.md#${{ github.ref }}).
+            Check the [changelog](https://github.com/rrbutani/lc3tools-sys/blob/${{ steps.ver.outputs.version }}/CHANGELOG.md#${{ steps.ver.outputs.tag }}).
           draft: false
           prerelease: false
-
-      - name: Publish
-        run: |
-          cargo publish --token ${{ secrets.CARGO_TOKEN }}
