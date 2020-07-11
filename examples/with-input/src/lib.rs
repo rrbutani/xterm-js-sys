@@ -14,7 +14,7 @@ use tui::{backend::CrosstermBackend, Terminal as TuiTerminal};
 use wasm_bindgen::prelude::*;
 use xterm_js_sys::{
     crossterm_support::XtermJsCrosstermBackend,
-    xterm::{LogLevel, /*RendererType, */ Terminal, TerminalOptions, Theme},
+    xterm::{LogLevel, Terminal, TerminalOptions, Theme},
 };
 
 use std::{
