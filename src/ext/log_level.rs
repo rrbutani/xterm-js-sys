@@ -34,8 +34,7 @@ pub struct LogLevelIsOff;
 impl std::convert::TryFrom<LogLevel> for Level {
     type Error = LogLevelIsOff;
 
-    // #[allow(clippy::match_wildcard_for_single_variants)]
-    // ^ when this is stable
+    #[allow(clippy::match_wildcard_for_single_variants)]
     fn try_from(level: LogLevel) -> Result<Level, LogLevelIsOff> {
         match level {
             LogLevel::Debug => Ok(Level::Debug),
