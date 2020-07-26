@@ -22,13 +22,13 @@ This crate also does support the infrastructure [xterm.js][xterm] has for [addon
 ### xterm.js addons
 
 First party addon packages:
-  - [attach][attach]: Unimplemented!
+  - [attach][attach]: [xterm-js-addon-attach-sys][attach-addon]
   - [fit][fit]: [xterm-js-addon-fit-sys][fit-addon]
-  - [search][search]: Unimplemented!
-  - [serialize][serialize]: Unimplemented!
-  - [unicode11][unicode11]: Unimplemented!
-  - [web-links][web-links]: Unimplemented!
-  - [webgl][webgl]: Unimplemented!
+  - [search][search]: [xterm-js-addon-search-sys][search-addon]
+  - [serialize][serialize]: [xterm-js-addon-serialize-sys][serialize-addon]
+  - [unicode11][unicode11]: [xterm-js-addon-unicode11-sys][unicode11-addon]
+  - [web-links][web-links]: [xterm-js-addon-web-links-sys][web-link-addon]
+  - [webgl][webgl]: [xterm-js-addon-webgl-sys][webgl-addon]
 
 [attach]: https://www.npmjs.com/package/xterm-addon-attach
 [fit]: https://www.npmjs.com/package/xterm-addon-fit
@@ -105,4 +105,10 @@ PRs are (very) welcome!
 [tui]: https://github.com/fdehau/tui-rs
 [parcel]: https://parceljs.org/
 
-[fit-addon]: https://github.com/rrbutani/xterm-js-addon-fit-sys
+[attach-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/attach
+[fit-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/fit
+[search-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/search
+[serialize-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/serialize
+[unicode11-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/unicode11
+[web-link-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/web-link
+[webgl-addon]: https://github.com/rrbutani/xterm-js-sys-addons/tree/main/webgl
