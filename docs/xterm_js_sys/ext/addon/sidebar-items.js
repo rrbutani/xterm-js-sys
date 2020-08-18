@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["XtermAddon","Rust version of the [`TerminalAddon`] interface."]]});

@@ -1,0 +1,5 @@
+(function() {var implementors = {};
+implementors["log"] = [{"text":"impl Copy for Level","synthetic":false,"types":[]},{"text":"impl Copy for LevelFilter","synthetic":false,"types":[]}];
+implementors["wasm_bindgen"] = [{"text":"impl&lt;T:&nbsp;Copy&gt; Copy for Clamped&lt;T&gt;","synthetic":false,"types":[]}];
+implementors["xterm_js_sys"] = [{"text":"impl Copy for BellStyle","synthetic":false,"types":[]},{"text":"impl Copy for CursorStyle","synthetic":false,"types":[]},{"text":"impl Copy for FastScrollModifier","synthetic":false,"types":[]},{"text":"impl Copy for FontWeight","synthetic":false,"types":[]},{"text":"impl Copy for LogLevel","synthetic":false,"types":[]},{"text":"impl Copy for RendererType","synthetic":false,"types":[]},{"text":"impl Copy for BufferType","synthetic":false,"types":[]},{"text":"impl Copy for WideCharacterWidth","synthetic":false,"types":[]},{"text":"impl Copy for ViewportRangePosition","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

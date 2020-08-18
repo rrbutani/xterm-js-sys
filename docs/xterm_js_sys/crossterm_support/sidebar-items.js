@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["XtermJsCrosstermBackend","Wrapper for the xterm.js terminal for use with [crossterm]."]]});

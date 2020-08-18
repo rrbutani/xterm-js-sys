@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["log"] = [{"text":"impl Display for Level","synthetic":false,"types":[]},{"text":"impl Display for LevelFilter","synthetic":false,"types":[]},{"text":"impl Display for SetLoggerError","synthetic":false,"types":[]},{"text":"impl Display for ParseLevelError","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

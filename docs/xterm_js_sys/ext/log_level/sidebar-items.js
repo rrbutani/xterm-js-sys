@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["LogLevelIsOff","Type indicating that a [`LogLevel`] to [`Level`] conversion failed because the [`LogLevel`] was `Off`."]]});

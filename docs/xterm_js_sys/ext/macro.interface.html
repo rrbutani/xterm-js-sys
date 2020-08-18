@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `interface` macro in crate `xterm_js_sys`."><meta name="keywords" content="rust, rustlang, rust-lang, interface"><title>xterm_js_sys::ext::interface - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../xterm_js_sys/index.html'><div class='logo-container'><img src='https://avatars2.githubusercontent.com/u/11927490?s=800&v=5' alt='logo'></div></a><div class="sidebar-elems"><p class='location'><a href='../index.html'>xterm_js_sys</a>::<wbr><a href='index.html'>ext</a></p><script>window.sidebarCurrent = {name: 'interface', ty: 'macro', relpath: ''};</script><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/xterm_js_sys/ext/mod.rs.html#79-530' title='goto source code'>[src]</a></span><span class='in-band'>Macro <a href='../index.html'>xterm_js_sys</a>::<wbr><a href='index.html'>ext</a>::<wbr><a class="macro" href=''>interface</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">interface</span> {
+    (
+        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">metas</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">vis</span> <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">nom</span>:<span class="ident">ident</span>
+            <span class="ident">mirrors</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">js_interface</span>:<span class="ident">ident</span>
+            $(<span class="kw">where</span>
+                $(<span class="self">Self</span> <span class="ident">extends</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ext_js</span>:<span class="ident">path</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ext_rs</span>:<span class="ident">path</span>,)<span class="op">+</span>
+            )<span class="question-mark">?</span>
+    {
+        $(
+            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_metas</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+            <span class="comment">// All functions that we can mirror need to take `&amp;self` so this is</span>
+            <span class="comment">// okay.</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>:<span class="ident">ident</span> (<span class="kw-2">&amp;</span><span class="self">self</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span>:<span class="ident">ty</span>)<span class="op">*</span> $(,)<span class="question-mark">?</span>)
+                $(<span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ret_ty</span>:<span class="ident">ty</span>)<span class="question-mark">?</span>
+                ;
+            <span class="comment">// Default impls are not supported for now.</span>
+
+            <span class="comment">// This is intentionally very constrained. The idea is that this</span>
+            <span class="comment">// just mirrors the JS interface. if you want to offer additional</span>
+            <span class="comment">// functionality on your Rust trait, use an extension trait.</span>
+        )<span class="op">*</span>
+    }) <span class="op">=&gt;</span> { ... };
+}</pre></div>
+</div><div class='stability'><div class='stab portability'>This is supported on <strong><code>feature="ext"</code></strong> only.</div></div><div class='docblock'><p>Creates a Rust trait to match a particular JS interface.</p>
+<p>In addition to the actual trait, this produces:</p>
+<ul>
+<li>glue that lets <code>'static</code> instances of the Rust trait be &quot;turned into&quot;
+instances of the JS interface</li>
+<li>a blanket impl that implements the Rust trait for all <code>wasm-bindgen</code>
+produced types that extend the JS interface</li>
+<li>an implementation of <a href="../../xterm_js_sys/ext/trait.IntoJsInterface.html"><code>IntoJsInterface</code></a> for all things that implement
+the Rust trait that's generated; this can be used to accept
+implementations of the Rust or implementations of the JS interface
+with <code>impl IntoJsInterface&lt;JsInterfaceName&gt;</code></li>
+</ul>
+<p>Note: if you get an error about &quot;unconditional recursion&quot; when using this
+macro or an error about a trait not being in scope, it's because a method
+that you added to the trait doesn't exist on the underlying JS interface.
+Apologies for the cryptic error!</p>
+<p>Also note that if you omit methods in the Rust interface you won't be
+warned! You'll only find out when a JS user tries to call one of the methods
+you missed at which point you'll get a runtime error 🙁 (we could use
+<a href="../../wasm_bindgen/cast/trait.JsCast.html#method.dyn_into"><code>JsCast::dyn_into</code></a>) instead of its unchecked counterpart but we don't
+since that's not really all that much better (still a runtime error, but
+you'll get it on convert rather than when you try to use the method in
+question <em>and</em> you'll pay a performance penalty on every conversion).</p>
+<p>Note that this currently requires that you have you <code>IntoJsInterface</code> in
+scope. This is because this trait must be defined in the crate where this
+macro is called in order for the blanket impl that this macro produces for
+<code>IntoJsInterface</code> to type check. Rather than make it so that this macro only
+works in this crate it'll instead work in other crates with the stipulation
+that you need to mirror over the trait. Suboptimal, I know. And this
+probably renders the little utility the <code>IntoJsInterface</code> trait had moot.</p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "xterm_js_sys";</script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

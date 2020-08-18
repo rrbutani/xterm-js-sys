@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["log"] = [{"text":"impl FromStr for Level","synthetic":false,"types":[]},{"text":"impl FromStr for LevelFilter","synthetic":false,"types":[]}];
+implementors["xterm_js_sys"] = [{"text":"impl FromStr for BellStyle","synthetic":false,"types":[]},{"text":"impl FromStr for CursorStyle","synthetic":false,"types":[]},{"text":"impl FromStr for FastScrollModifier","synthetic":false,"types":[]},{"text":"impl FromStr for FontWeight","synthetic":false,"types":[]},{"text":"impl FromStr for LogLevel","synthetic":false,"types":[]},{"text":"impl FromStr for RendererType","synthetic":false,"types":[]},{"text":"impl FromStr for BufferType","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

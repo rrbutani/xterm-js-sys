@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `xterm` mod in crate `xterm_js_sys`."><meta name="keywords" content="rust, rustlang, rust-lang, xterm"><title>xterm_js_sys::xterm - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../xterm_js_sys/index.html'><div class='logo-container'><img src='https://avatars2.githubusercontent.com/u/11927490?s=800&v=5' alt='logo'></div></a><p class='location'>Module xterm</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../index.html'>xterm_js_sys</a></p><script>window.sidebarCurrent = {name: 'xterm', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/xterm_js_sys/xterm.rs.html#1-2476' title='goto source code'>[src]</a></span><span class='in-band'>Module <a href='../index.html'>xterm_js_sys</a>::<wbr><a class="mod" href=''>xterm</a></span></h1><div class='docblock'><p>Bindings for the xterm.js public API.</p>
+<p>Unfortunately we can't (yet) generate the below from the TypeScript type
+definitions for xterm.js, so we do it by hand.</p>
+<p>This isn't a pure mechanical translation of the xterm.js bindings; docs have
+been adjusted in places (mainly just to link to the right things on the Rust
+side) but most importantly interfaces have been converted to either concrete
+Rust types (that are accessible from JavaScript), imported types (duck types
+that won't correspond exactly to any concrete type on the JavaScript side
+and thus can't be <em>constructed</em> from Rust), or imported types + a concrete
+type that satisfies the interface with a Rust trait with methods that can
+construct the concrete type for anything satisfying the trait.</p>
+<p>Generic interfaces are also problematic; these have been &quot;manually
+monomorphized&quot; (i.e. <code>IEvent&lt;Object, Void&gt;</code> → <code>FnMut(KeyEventData)</code> on the
+Rust side).</p>
+<p>In general, the rule used for interfaces has been:</p>
+<ul>
+<li>If instances are constructed by users of the xterm.js API and <em>written</em>
+(i.e. <em>given</em> to the xterm.js API and never <em>received</em> through a field
+access or a method call), we have a corresponding <em>concrete type</em> that
+satisfies the interface. This cannot be used to manipulate/interact with
+externally constructed instances of the interface.</li>
+<li>If instances are given by the xterm.js API and never constructed by
+users of the API (i.e. <code>IBuffer</code> or <code>IBufferLine</code>), an extern-ed
+JavaScript type is made (or rather, we get <code>wasm-bindgen</code> to make the
+necessary glue so we can access the fields/methods of the interface on
+whatever object we get passed that has said fields/methods).</li>
+<li>If we need to both consume and produce implementations of an interface
+we'd do both of the above (as of this writing we haven't had to do this
+for any type).</li>
+<li>If we need to be able to have more than one true concrete type
+satisfying the interface on the Rust side, we also create a Rust trait
+that matches the shape of the interface along with a blanket impl for
+the trait that makes it so that all <code>wasm-bindgen</code> 'implementations' of
+the interface also get an impl of the trait. See the <a href="#mirroring-interfaces">section on
+mirroring interfaces</a> for more details.</li>
+</ul>
+<p>See: <a href="https://github.com/rustwasm/wasm-bindgen/issues/18">this</a> and
+<a href="https://github.com/rustwasm/wasm-bindgen/issues/1341">this</a>.</p>
+<h3 id="mirroring-interfaces" class="section-header"><a href="#mirroring-interfaces">Mirroring Interfaces</a></h3>
+<p>As mentioned, when it's desirable to construct types that satisfy an
+interface within Rust, we create a Rust trait that's mirror of the interface
+in question. <a href="../../xterm_js_sys/ext/addon/trait.XtermAddon.html"><code>XtermAddon</code></a> (behind the <code>ext</code> feature) is probably the best
+example of this; we want to be able to make it so that addons can be written
+in Rust.</p>
+<p>So, to make this possible we do these things:</p>
+<ul>
+<li>Make a Rust trait that matches the interface.</li>
+<li>Add a blanket impl so that the Rust trait is implemented for all the
+types <code>wasm-bindgen</code> produces that impl the type.
+<ul>
+<li><code>wasm-bindgen</code> represents things like extending a class and
+implementing interfaces with <a href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html"><code>Deref</code></a> and <a href="https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html"><code>AsRef</code></a> impls that
+literally 'convert' the type into an instance of the type they're
+subclassing/implementing.</li>
+<li>This works because internally these instances are represented by a
+<a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a> that (I think) is just an object that holds all the
+methods the object has (including the methods that are part of the
+interface). When one of these methods is actually called on the Rust
+side of things, the <a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a> (or a special <code>wasm-bindgen</code>
+reference to it, at least) is passed across the FFI boundary to a
+special JS function that <code>wasm-bindgen</code> made which knows to look up
+the function that we want in the JS value and call it with the
+arguments we passed.</li>
+</ul>
+</li>
+</ul>
+<p>Okay! So at this point, we've got a Rust trait that mirrors a JS interface
+and all things that implement the interface impl the Rust trait
+automagically. Presumably, when we want to write an impl of the interface on
+the Rust side of things, we just impl the trait.</p>
+<p>And this works, but there's one catch: if we're just using the impls of the
+interface that we made in Rust, this will work just fine. Implementations
+that are actually written in JavaScript will internally go call their JS
+methods and the thing in Rust that's using the trait implementation won't be
+any the wiser.</p>
+<p>But, if we want to pass along implementations written in Rust to a
+<em>JavaScript user of the interface</em>, this isn't enough.</p>
+<p>Addons are a good example, again. It isn't enough to just be able to write
+something in Rust that has the shape of an addon; the point here is that
+we're able to pass it to xterm.js and actually use it! So, to do this, there
+are some more things we have to understand and do.</p>
+<p>First some background:</p>
+<ul>
+<li>So, <code>wasm-bindgen</code> represents interfaces as concrete types that contain
+a <a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a> that (presumably) contains all the methods needed to
+satisfy the interface.</li>
+<li>The <a href="https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html"><code>AsRef</code></a> and <a href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html"><code>Deref</code></a> impls pretty much just take the inner
+<a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a> and put it into a different type that'll use the <a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a>
+to look up and call different functions; this works because the JS value
+is just an object with a table of methods — all the methods the object
+has, not just the ones belonging to the interface we were treating the
+object as an instance of. The interface types (and regular class types
+for that matter) and kind of just a window into the object's methods,
+showing us a limited subset of what the object actually has.</li>
+<li>The mechanism by which this casting happens is <a href="../../wasm_bindgen/cast/trait.JsCast.html#method.unchecked_ref"><code>JsCast::unchecked_ref</code></a>
+(and the other methods on <a href="../../wasm_bindgen/cast/trait.JsCast.html"><code>JsCast</code></a>). As the docs on that method say,
+no checking actually happens! We're pretty much just changing the label
+that lets us know what methods the corresponding JS value actually has
+(as in, we're going from, for example, <code>Terminal</code> to <code>Disposable</code> but
+nothing has actually changed; the literal bits that represent the
+variable are the same, but the type has changed which will let us call
+different methods that will look up and call different methods on the JS
+side). There are checked variants in <a href="../../wasm_bindgen/cast/trait.JsCast.html"><code>JsCast</code></a>; I think the way this
+works is by having JS functions per type/interface that check that an
+object actually has all the things it needs to have for an interface.
+<a href="../../wasm_bindgen/cast/trait.JsCast.html#tymethod.instanceof"><code>JsCast::instanceof</code></a> calls the JS function that does this and the
+checked casts (i.e. <a href="../../wasm_bindgen/cast/trait.JsCast.html#method.dyn_ref"><code>JsCast::dyn_ref</code></a>) calls it.</li>
+<li>So, anyways, anytime a JS function takes something that &quot;satisfies an
+interface&quot; it gets represented, via <code>wasm-bindgen</code>, as taking an
+instance of the type that corresponds to the interface. As in, something
+that takes an Addon won't take <code>impl Addon</code> or even <code>dyn Addon</code>, it'll
+just take <code>Addon</code> (sidenote: if you think about what the <a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a>
+inside the interface types actually contain, it's basically the same as
+the vtables in trait objects — except that the table has all the methods
+in the actual type and that this is how all method calls work in JS).</li>
+<li>All this is to say that what we need to do is make a <a href="../../wasm_bindgen/struct.JsValue.html"><code>JsValue</code></a> that
+has entries for the methods that are part of the interface where each
+entry actually points to the Rust functions that are part of the
+implementation of the trait we're trying to pass along to JS. Once we
+have such an object, we can cast it as the concrete type that
+<code>wasm-bindgen</code> has given us for the interface and then be on our way.</li>
+</ul>
+<p>A couple of other considerations, though:</p>
+<ul>
+<li>First, we'd like to this in a generic way (i.e. make it so that any
+Rust trait impl for a particular trait can be turned into it's concrete
+interface type counterpart) and we <em>can</em>, but we need to be able to
+distinguish between actual JS implementations and Rust implementations
+(both of which implement the Rust trait) because we don't want to
+'double wrap' the JS implementation (i.e. if we were to do the above
+for a JS impl for a particular method call on the interface we'd be
+calling a JS function that calls a Rust function that then calls the
+actual JS function, when we could have just called the JS function).
+<ul>
+<li>Luckily, this is not hard to remedy; we can have the function that
+turns the trait impl into the concrete type be a part of the trait
+<em>and</em> we can provide a default impl that does the wrapped. Then, we
+can have the blanket impl (which is bounded by <a href="https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html"><code>AsRef</code></a> anyways)
+just call <code>as_ref</code>.</li>
+</ul>
+</li>
+<li>Being able to turn Rust function into things that can be called from JS
+comes with some restrictions:
+<ul>
+<li>All types in each function have to be Wasm ABI compatible which means
+no lifetimes or generics or trait objects, etc. This actually isn't
+a problem for us since we're mirroring a JS interface which means the
+functions are Wasm ABI compliant anyways.</li>
+<li>The functions and everything they point to have to be <code>'static</code>. This
+is because we can't enforce lifetimes across the FFI boundary.
+Realistically this probably means using <code>Box::leak</code> whenever a Rust
+trait impl needs to be passed along to JS.
+<ul>
+<li>Rather than do this leaking internally, we'll let the user do it.
+We enforce the <code>'static</code> bit by having the <code>into_js</code> method on the
+trait require a <code>'static</code> lifetime. So, in order to actually
+convert their impl for use with JS users will have to leak it.</li>
+<li>Update: for symmetry with the <em>actually backed by a JS impl</em> case,
+we do preform the leaking (we don't want to require a <code>'static</code>
+reference for JS impls which would require users to leak them
+unnecessarily).</li>
+</ul>
+</li>
+<li>Traits that take a mutable reference to self <strong>and</strong> have more than
+one method aren't possible (safely) because the closures we pass
+along hold a reference to the actual instance and we can't have
+mutability with aliasing. So, we'll just make all trait methods only
+take an immutable reference to self (as <code>wasm-bindgen</code> does). Rust
+trait implementors will need to use interior mutability.</li>
+</ul>
+</li>
+</ul>
+<p>The final piece required is an extension method that takes the Rust trait
+impl instead of the concrete type and then converts it to concrete type
+using the trait impl and passes the concrete type instance along to the
+<code>wasm-bindgen</code> method that expects it.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table><tr class='module-item'><td><a class="struct" href="struct.Buffer.html" title='xterm_js_sys::xterm::Buffer struct'>Buffer</a></td><td class='docblock-short'><p>Represents a terminal buffer.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.BufferCell.html" title='xterm_js_sys::xterm::BufferCell struct'>BufferCell</a></td><td class='docblock-short'><p>Represents a single cell in the terminal’s buffer.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.BufferLine.html" title='xterm_js_sys::xterm::BufferLine struct'>BufferLine</a></td><td class='docblock-short'><p>Represents a line in the terminal’s buffer.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.BufferNamespace.html" title='xterm_js_sys::xterm::BufferNamespace struct'>BufferNamespace</a></td><td class='docblock-short'><p>Represents the terminal's set of buffers.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Disposable.html" title='xterm_js_sys::xterm::Disposable struct'>Disposable</a></td><td class='docblock-short'><p>An object that can be disposed via a dispose function.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.FunctionIdentifier.html" title='xterm_js_sys::xterm::FunctionIdentifier struct'>FunctionIdentifier</a></td><td class='docblock-short'><p>Data type to register a <code>CSI</code>, <code>DCS</code>, or <code>ESC</code> callback in the parser in the
+form:</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.KeyEventData.html" title='xterm_js_sys::xterm::KeyEventData struct'>KeyEventData</a></td><td class='docblock-short'><p>Corresponds to <code>{ key: string, domEvent: KeyboardEvent }</code>.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.LinkMatcherOptions.html" title='xterm_js_sys::xterm::LinkMatcherOptions struct'>LinkMatcherOptions</a></td><td class='docblock-short'><p>An object containing options for a link matcher.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.LocalizableStrings.html" title='xterm_js_sys::xterm::LocalizableStrings struct'>LocalizableStrings</a></td><td class='docblock-short'><p>The set of localizable strings.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Marker.html" title='xterm_js_sys::xterm::Marker struct'>Marker</a></td><td class='docblock-short'><p>Represents a specific line in the terminal that is tracked when
+scrollback is trimmed and lines are added or removed. This is a single
+line that may be part of a larger wrapped line.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Parser.html" title='xterm_js_sys::xterm::Parser struct'>Parser</a></td><td class='docblock-short'><p>Allows hooking into the parser for custom handling of escape sequences.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.RenderEventData.html" title='xterm_js_sys::xterm::RenderEventData struct'>RenderEventData</a></td><td class='docblock-short'><p>Corresponds to <code>{ start: number, end: number }</code>.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.ResizeEventData.html" title='xterm_js_sys::xterm::ResizeEventData struct'>ResizeEventData</a></td><td class='docblock-short'><p>Corresponds to <code>{ cols: number, rows: number }</code>.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.SelectionPosition.html" title='xterm_js_sys::xterm::SelectionPosition struct'>SelectionPosition</a></td><td class='docblock-short'><p>An object representing a selection within the terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Terminal.html" title='xterm_js_sys::xterm::Terminal struct'>Terminal</a></td><td class='docblock-short'><p>The class that represents an xterm.js terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.TerminalAddon.html" title='xterm_js_sys::xterm::TerminalAddon struct'>TerminalAddon</a></td><td class='docblock-short'><p>An addon that can provide additional functionality to the terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.TerminalOptions.html" title='xterm_js_sys::xterm::TerminalOptions struct'>TerminalOptions</a></td><td class='docblock-short'><p>An object containing start up options for the terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Theme.html" title='xterm_js_sys::xterm::Theme struct'>Theme</a></td><td class='docblock-short'><p>Contains colors to theme the terminal with.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.UnicodeHandling.html" title='xterm_js_sys::xterm::UnicodeHandling struct'>UnicodeHandling</a></td><td class='docblock-short'><p><strong>[EXPERIMENTAL]</strong> Unicode handling interface.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.UnicodeVersionProvider.html" title='xterm_js_sys::xterm::UnicodeVersionProvider struct'>UnicodeVersionProvider</a></td><td class='docblock-short'><p><strong>[EXPERIMENTAL]</strong> Unicode version provider.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.ViewportRange.html" title='xterm_js_sys::xterm::ViewportRange struct'>ViewportRange</a></td><td class='docblock-short'><p>An object representing a range within the viewport of the terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.ViewportRangePosition.html" title='xterm_js_sys::xterm::ViewportRangePosition struct'>ViewportRangePosition</a></td><td class='docblock-short'><p>An object representing a cell position within the viewport of the terminal.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.WindowOptions.html" title='xterm_js_sys::xterm::WindowOptions struct'>WindowOptions</a></td><td class='docblock-short'><p>Enable various window manipulation and report features (<code>CSI Ps ; Ps ; Ps t</code>).</p>
+</td></tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table><tr class='module-item'><td><a class="enum" href="enum.BellStyle.html" title='xterm_js_sys::xterm::BellStyle enum'>BellStyle</a></td><td class='docblock-short'><p>The type of the bell notification the terminal will use.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.BufferType.html" title='xterm_js_sys::xterm::BufferType enum'>BufferType</a></td><td class='docblock-short'><p>A string representing the type of a buffer.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.CursorStyle.html" title='xterm_js_sys::xterm::CursorStyle enum'>CursorStyle</a></td><td class='docblock-short'><p>The style of the cursor.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.FastScrollModifier.html" title='xterm_js_sys::xterm::FastScrollModifier enum'>FastScrollModifier</a></td><td class='docblock-short'><p>The modifier key hold to multiply scroll speed.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.FontWeight.html" title='xterm_js_sys::xterm::FontWeight enum'>FontWeight</a></td><td class='docblock-short'><p>A string representing text font weight.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.LogLevel.html" title='xterm_js_sys::xterm::LogLevel enum'>LogLevel</a></td><td class='docblock-short'><p>A string representing log level.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.RendererType.html" title='xterm_js_sys::xterm::RendererType enum'>RendererType</a></td><td class='docblock-short'><p>A string representing a renderer type.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.WideCharacterWidth.html" title='xterm_js_sys::xterm::WideCharacterWidth enum'>WideCharacterWidth</a></td><td class='docblock-short'><p>Width of a Wide Character.</p>
+</td></tr></table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
+<table><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_Buffer.html" title='xterm_js_sys::xterm::__wbg_generated_const_Buffer constant'>__wbg_generated_const_Buffer</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_BufferCell.html" title='xterm_js_sys::xterm::__wbg_generated_const_BufferCell constant'>__wbg_generated_const_BufferCell</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_BufferLine.html" title='xterm_js_sys::xterm::__wbg_generated_const_BufferLine constant'>__wbg_generated_const_BufferLine</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_BufferNamespace.html" title='xterm_js_sys::xterm::__wbg_generated_const_BufferNamespace constant'>__wbg_generated_const_BufferNamespace</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_Disposable.html" title='xterm_js_sys::xterm::__wbg_generated_const_Disposable constant'>__wbg_generated_const_Disposable</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_KeyEventData.html" title='xterm_js_sys::xterm::__wbg_generated_const_KeyEventData constant'>__wbg_generated_const_KeyEventData</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_LocalizableStrings.html" title='xterm_js_sys::xterm::__wbg_generated_const_LocalizableStrings constant'>__wbg_generated_const_LocalizableStrings</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_Marker.html" title='xterm_js_sys::xterm::__wbg_generated_const_Marker constant'>__wbg_generated_const_Marker</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_Parser.html" title='xterm_js_sys::xterm::__wbg_generated_const_Parser constant'>__wbg_generated_const_Parser</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_RenderEventData.html" title='xterm_js_sys::xterm::__wbg_generated_const_RenderEventData constant'>__wbg_generated_const_RenderEventData</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_ResizeEventData.html" title='xterm_js_sys::xterm::__wbg_generated_const_ResizeEventData constant'>__wbg_generated_const_ResizeEventData</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_SelectionPosition.html" title='xterm_js_sys::xterm::__wbg_generated_const_SelectionPosition constant'>__wbg_generated_const_SelectionPosition</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_Terminal.html" title='xterm_js_sys::xterm::__wbg_generated_const_Terminal constant'>__wbg_generated_const_Terminal</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_TerminalAddon.html" title='xterm_js_sys::xterm::__wbg_generated_const_TerminalAddon constant'>__wbg_generated_const_TerminalAddon</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_UnicodeHandling.html" title='xterm_js_sys::xterm::__wbg_generated_const_UnicodeHandling constant'>__wbg_generated_const_UnicodeHandling</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="constant" href="constant.__wbg_generated_const_UnicodeVersionProvider.html" title='xterm_js_sys::xterm::__wbg_generated_const_UnicodeVersionProvider constant'>__wbg_generated_const_UnicodeVersionProvider</a></td><td class='docblock-short'></td></tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table><tr class='module-item'><td><a class="type" href="type.Color.html" title='xterm_js_sys::xterm::Color type'>Color</a></td><td class='docblock-short'><p>A Color for use with xterm.js.</p>
+</td></tr><tr class='module-item'><td><a class="type" href="type.Str.html" title='xterm_js_sys::xterm::Str type'>Str</a></td><td class='docblock-short'><p>An alias for <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="`String`"><code>String</code></a>.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "xterm_js_sys";</script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

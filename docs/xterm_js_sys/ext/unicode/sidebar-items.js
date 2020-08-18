@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["XtermUnicodeVersionProvider","Rust version of the [`UnicodeVersionProvider`] interface."]]});

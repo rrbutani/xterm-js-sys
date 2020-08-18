@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["xterm_js_sys"] = [{"text":"impl Default for Theme","synthetic":false,"types":[]},{"text":"impl Default for WindowOptions","synthetic":false,"types":[]},{"text":"impl Default for TerminalOptions","synthetic":false,"types":[]},{"text":"impl&lt;D:&nbsp;XtermDisposable + Default&gt; Default for DisposableWrapper&lt;D&gt;","synthetic":false,"types":[]},{"text":"impl Default for NoOpDispose","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["typify","Wraps an array iter function so that it only sees actual types instead of [`JsValue`]."]],"struct":[["ReadOnlyArray","Mirrors [TypeScript's `ReadOnlyArray` interface][TS]."]]});
