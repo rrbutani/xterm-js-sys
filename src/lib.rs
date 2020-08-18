@@ -47,8 +47,7 @@
     rust_2018_idioms,
     variant_size_differences
 )]
-#![deny(clippy::all)]
-#![deny(clippy::pedantic)]
+#![deny(clippy::all, clippy::pedantic, clippy::cargo)]
 #![deny(clippy::missing_docs_in_private_items)]
 #![allow(clippy::type_repetition_in_bounds)]
 #![doc(test(attr(
