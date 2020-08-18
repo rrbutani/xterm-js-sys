@@ -64,6 +64,6 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ steps.ver.outputs.version }}
           body: |
-            Check the [changelog](https://github.com/rrbutani/lc3tools-sys/blob/${{ steps.ver.outputs.version }}/CHANGELOG.md#${{ steps.ver.outputs.tag }}).
+            Check the [changelog](https://github.com/rrbutani/xterm-js-sys/blob/${{ steps.ver.outputs.version }}/CHANGELOG.md#${{ steps.ver.outputs.tag }}).
           draft: false
           prerelease: false
