@@ -345,7 +345,7 @@ jobs:
         run: |
           cd examples
           cargo fmt --all -- --check
-          cargo clippy --all --target wasm32-wasi -- -D warnings
+          cargo clippy --all --target wasm32-wasi -- -D warnings ${{ steps.args.outputs.extra }}
 
       - name: Clean up the target folder and cargo's caches
         run: |
