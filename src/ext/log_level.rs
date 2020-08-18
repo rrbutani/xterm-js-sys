@@ -17,11 +17,7 @@ impl From<Level> for LogLevel {
 
 impl From<Option<Level>> for LogLevel {
     fn from(level: Option<Level>) -> LogLevel {
-        if let Some(l) = level {
-            l.into()
-        } else {
-            LogLevel::Off
-        }
+        level.map_or(LogLevel::Off, Into::into)
     }
 }
 
