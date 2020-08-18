@@ -59,6 +59,10 @@
     html_logo_url = "https://avatars2.githubusercontent.com/u/11927490?s=800&v=5",
     html_root_url = "https://docs.rs/xterm-js-sys/4.6.0", // remember to bump!
 )]
+// Note: Our MSRV doesn't have `broken_intra_doc_links` so we do this.
+#![allow(unknown_lints)]
+#![deny(broken_intra_doc_links)]
+#![warn(unknown_lints)]
 
 // TODO:
 //  - add in an example/crate level docs here

@@ -325,14 +325,22 @@ jobs:
           command: fmt
           args: --all -- --check
 
+      # We explicitly allow `renamed_and_removed_lints` on nightly since
+      # otherwise we're forced to support the old and renamed lints at the same
+      # time which is somewhat impossible.
+      - name: Clippy Extra Args (nightly)
+        if: ${{ matrix.rust == 'nightly' }}
+        id: args
+        run: |
+          echo "::set-output name=extra::-Arenamed_and_removed_lints"
+
       # Since we don't run any builds in this task, we shouldn't need to run clean
       # before (← is the workaround for rust-lang/rust-clippy#4612).
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all --all-features -- -D warnings
-
+          args: --all --all-targets --all-features -- -D warnings ${{ steps.args.outputs.extra }}
       - name: Format and lint the examples
         run: |
           cd examples
